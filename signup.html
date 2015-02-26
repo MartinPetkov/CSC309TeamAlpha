@@ -13,17 +13,17 @@
 <div class="container">
     <h1>Create a new account</h1>
     <div class="signup">
-        <form>
+        <form action='/newUser' method = 'POST'>
             Email: <br/>
             <input type="text" name="email" value="email" /> <br/>
             Password: <br/>
-            <input type="password" name="PIN" value="password" /> <br/>
+            <input type="password" name="pw" value="password" /> <br/>
             Retype password: <br/>
-            <input type="password" name="retype-PIN" value="password" /> <br/>
+            <input type="password" name="retype_pw" value="password" /> <br/>
             
             I am: 
             <div class="dropdown">
-                <select name="signup-type">
+                <select name="signup_type">
                     <option> Leasing my own space
                     </option>
                     <option> Looking for a working space
