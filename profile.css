@@ -5,8 +5,50 @@ body{
     width: inherit;
 }
 
+.spaces{
+    background-color: white;
+    width: 70%;
+    float: right;
+    height: 500px;
+}
+
+.spaces h3{
+    margin-top: 0px;
+    height: 40px;
+    padding: 7px;
+    background-color: rgb(127, 161, 141);
+    color: white;
+}
+
+.spaces div{
+    margin-top: 0px;
+    height: 100px;
+    border-style: solid;
+    border-color: rgb(101, 188, 138);
+    border-width: 2px;
+}
+
+.profile-info{
+    width: 30%;
+    float: left;
+    height: 500px;
+}
+
+.display{
+    height: 30%;
+    font-size: 70px;
+    text-align: center;
+    padding: 20%;
+    color: rgb(127, 161, 141);
+}
+.stars{
+    color: rgb(127, 161, 141);
+    text-align: center;
+    padding: 5%;
+}
 h1{
     background-color: rgb(101, 188, 138);
+    width: 100%;
     margin-top: 0px;
     margin-right: 0px;
     height: 100px;
@@ -16,27 +58,7 @@ h1{
     color: rgb(255, 255, 255);
 }
 
-.login{
-    background-color: white;
-    height: 400px;
-    width: 300px;
-    float: right;
-    border-style: solid;
-    border-width: 10px;
-    border-color: rgb(101, 188, 138);
-}
 
-.signup{
-    font-family: helvetica;
-    color: rgb(105, 124, 113);
-    margin-top: 15px;
-}
-.dropdown select{
-    font-family: helvetica;
-    color: rgb(105, 124, 113);
-    background-color: rgb(241, 243, 242);
-}
-    
 h2{
     margin-top: 0px;
     padding: 15px;
@@ -68,22 +90,3 @@ p{
     margin-left: 15px;
 }
 
-/* unvisited link */
-a:link {
-    color: rgb(101, 188, 138);
-}
-
-/* visited link */
-a:visited {
-    color: rgb(101, 188, 138);
-}
-
-/* mouse over link */
-a:hover {
-    color: rgb(139, 203, 166);
-}
-
-/* selected link */
-a:active {
-    color: #0000FF;
-}
