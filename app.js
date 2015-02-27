@@ -11,16 +11,18 @@ var users = require('./routes/users');
 var bodyParser = require('body-parser');
 var pg = require('pg');
 var app = express();
+var morgan = require('morgan');
 
 var conString = "postgres://arkzrmqoissfic:vT87GWzX9wJpk5pXUjrOnOu68L@ec2-23-21-231-14.compute-1.amazonaws.com:5432/d96qfpoh0us03h?ssl=true";
 
 
 app.use(bodyParser.json());
-app.use(express.static(__dirname+ '/public'));
+
 app.use(bodyParser.urlencoded({
 	extended:true
 	}));
-
+app.use(express.static(__dirname + '/public'));
+app.use(morgan('dev'));
 //app.use(bodyParser());
 
 app.get('/dbtest', function(req, res){
