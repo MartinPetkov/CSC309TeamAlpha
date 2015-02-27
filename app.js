@@ -9,19 +9,57 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 */
 var bodyParser = require('body-parser');
+var pg = require('pg');
 var app = express();
+
+var conString = "postgres://arkzrmqoissfic:vT87GWzX9wJpk5pXUjrOnOu68L@ec2-23-21-231-14.compute-1.amazonaws.com:5432/d96qfpoh0us03h?ssl=true";
+
+
 app.use(bodyParser.json());
+app.use(express.static(__dirname+ '/public'));
 app.use(bodyParser.urlencoded({
 	extended:true
 	}));
 
+//app.use(bodyParser());
+
+app.get('/dbtest', function(req, res){
+
+	var client = new pg.Client(conString);
+	var result = [];
+	client.connect(function(err, done) {
+  if(err) {
+    return console.error('could not connect to postgres', err);
+	res.send('sorry, there was an error', err);
+  }
+  //client.query("INSERT into \"Users\" values (3, 'b', 'c', 'd', 4, 'aboutsuff', 'interests')");    
+  	
+	var query = client.query('select * from \"Users\"');
+	
+	query.on('row', function(row){
+		result.push(row);
+	});
+	query.on('end', function(){
+		client.end();
+		res.json(result);
+	});
+
+});
+});
+
+app.get('/HTML', function(req, res){
+	res.sendFile('./first.html',{root:__dirname});
+});
+
+
+
 app.get('/', function(req, res){
 	res.sendFile('./intro.html',{root:__dirname});
-	console.log('Page Loaded');
+	console.log('Page Loaded!');
 });
 
 app.get('/signup.html', function(req, res){
-	res.sendFile('./signup.html',{root:__dirname});
+	res.sendFile('./singup.html',{root:__dirname});
 	
 });
 
@@ -44,7 +82,10 @@ app.post('/newUser', function(req, res){
 		var newUserType = "Tenant"
 	}
 	
+	
 	var checkPass = newPass0 == newPass1;
+	
+	
 	
 	if (checkPass){
 		res.send('Passwords Matched, new user is a(n)' + newUserType);
