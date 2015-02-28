@@ -1,0 +1,41 @@
+User:
+UserId; type = serial, NOT NULL, primary key
+Email; type = text, NOT NULL
+Password; type = text, NOT NULL
+HomeLocation; type = text, NOT NULL
+Reputation; type = integer
+About; type = text
+ProjectInterests; type = text
+Photo; type = bytea
+
+Space:
+SpaceId; type = serial, NOT NULL, primary key
+OwnerId; type = serial, NOT NULL, REFERENCES User.UserId
+Location; type = text, NOT NULL
+Description; type = text
+SpaceType; type = text, NOT NULL
+Area; type = integer (square feet), NOT NULL
+Rooms; type = integer (number of rooms), NOT NULL
+PricePerDay; type = numeric, NOT NULL
+VacancyAmount; type = integer, NOT NULL
+
+Leasing:
+PRIMARY KEY(SpaceId, TenantId)
+SpaceId; type = serial, NOT NULL, REFERENCES Space.SpaceId
+TenantId; type = serial, NOT NULL, REFERENCES User.UserId
+FromDate; type = date, NOT NULL
+ToDate; type = date, NOT NULL
+NegotiatedPricePerDay; type = numeric, NOT NULL
+
+Availability:
+PRIMARY KEY(SpaceId, Date)
+SpaceId; type = serial, NOT NULL, REFERENCES Space.SpaceId
+Date; type = date, NOT NULL
+
+ForumPost:
+ForumPostId; type = serial, NOT NULL
+UserId; type = serial, NOT NULL, REFERENCES User.UserId
+SpaceId; type = serial, NOT NULL, REFERENCES Space.SpaceId
+Text; type = text
+DateTimePosted; type = timestamp without timezone, NOT NULL
+ProjectTag; type = text
