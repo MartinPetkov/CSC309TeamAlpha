@@ -1,0 +1,7 @@
+Host: ec2-23-21-231-14.compute-1.amazonaws.com
+Database: d96qfpoh0us03h
+User	arkzrmqoissfic
+Port	5432
+Password	 vT87GWzX9wJpk5pXUjrOnOu68L
+Psql:	heroku pg:psql --app heroku-postgres-b88c6a82 HEROKU_POSTGRESQL_WHITE 
+URL: postgres://arkzrmqoissfic:vT87GWzX9wJpk5pXUjrOnOu68L@ec2-23-21-231-14.compute-1.amazonaws.com:5432/d96qfpoh0us03h
