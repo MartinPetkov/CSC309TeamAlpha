@@ -13,46 +13,41 @@ var pg = require('pg');
 var app = express();
 var morgan = require('morgan');
 
-var conString = "postgres://arkzrmqoissfic:vT87GWzX9wJpk5pXUjrOnOu68L@ec2-23-21-231-14.compute-1.amazonaws.com:5432/d96qfpoh0us03h?ssl=true";
-
+var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
 
 app.use(bodyParser.json());
-
 app.use(bodyParser.urlencoded({
 	extended:true
 	}));
 app.use(express.static(__dirname + '/public'));
 app.use(morgan('dev'));
-//app.use(bodyParser());
 
 app.get('/dbtest', function(req, res){
-
-	var client = new pg.Client(conString);
 	var result = [];
-	client.connect(function(err, done) {
-  if(err) {
-    return console.error('could not connect to postgres', err);
-	res.send('sorry, there was an error', err);
-  }
-  //client.query("INSERT into \"Users\" values (3, 'b', 'c', 'd', 4, 'aboutsuff', 'interests')");    
-  	
-	var query = client.query('select * from \"Users\"');
 	
-	query.on('row', function(row){
-		result.push(row);
+	var client = new pg.Client(conString);
+	
+	client.connect(function(err, done) {
+		if(err) {
+			return console.error('could not connect to postgres', err);
+			res.send('sorry, there was an error', err);
+		}
+		//client.query("INSERT into \"Users\" values (3, 'b', 'c', 'd', 4, 'aboutsuff', 'interests')");    
+  	
+		var query = client.query('select "Password" from \"User\"');
+		query.on('error', function(err){
+			res.send('Query Error '+err);
+		});
+		query.on('row', function(row){
+			result.push(row);
+		});
+		query.on('end', function(){
+			client.end();
+			res.json(result);
+		});
+
 	});
-	query.on('end', function(){
-		client.end();
-		res.json(result);
-	});
-
 });
-});
-
-app.get('/HTML', function(req, res){
-	res.sendFile('./first.html',{root:__dirname});
-});
-
 
 
 app.get('/', function(req, res){
@@ -67,10 +62,46 @@ app.get('/signup.html', function(req, res){
 
 //Log in Post
 app.post('/login', function(req, res){
-  var userEmail = req.body.email;
-  var userPass = req.body.password;
-  res.send('Username ' + userEmail + '\n password '+ userPass);
-  console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
+	var userEmail = req.body.email;
+	var userPass = req.body.password;
+	var passFound = false;
+	//res.send('Username ' + userEmail + '\n password '+ userPass);
+	console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
+	var client = new pg.Client(conString);
+	var dbPass = [];
+	
+	client.connect(function(err, done) {
+	if(err) {
+		return console.error('could not connect to postgres', err);
+		res.send('sorry, there was an error', err);
+	}
+	console.log('Connected to db User: ' + userEmail);
+	
+	var query = client.query('SELECT "Password"	FROM \"User\" WHERE "Email"=$1', [userEmail]);
+	
+	query.on('error', function(err){
+		res.send('Query Error '+err);
+	});
+	query.on('row', function(row){
+		dbPass.push(row.Password);
+		passFound = true;
+		console.log('a user with that email was found ' + dbPass[0]);
+	});
+	query.on('end', function(){
+		client.end();
+		console.log('client ended');
+		if (passFound == false){
+			res.send('There was no user with that email');
+		}else if (dbPass[0] == userPass){
+			//Login Success!
+			res.send('success');
+		}else if (dbPass[0]!=userPass){
+			res.send('there was an error in log in ' + dbPass[0] + ' != ' + userPass);
+		}
+	});
+	
+	});
+  
 });	
 
 //New User Creation Post
