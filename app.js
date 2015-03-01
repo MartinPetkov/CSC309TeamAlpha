@@ -13,42 +13,50 @@ var pg = require('pg');
 var app = express();
 var morgan = require('morgan');
 
+
 var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
 
 app.use(bodyParser.json());
+
 app.use(bodyParser.urlencoded({
-	extended:true
-	}));
+	extended: true
+}));
 app.use(express.static(__dirname + '/public'));
 app.use(morgan('dev'));
+//app.use(bodyParser());
 
-app.get('/dbtest', function(req, res){
-	var result = [];
-	
+app.set('views', __dirname + '/public/views');
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
+
+
+app.get('/dbtest', function (req, res) {
+
 	var client = new pg.Client(conString);
-	
-	client.connect(function(err, done) {
-		if(err) {
-			return console.error('could not connect to postgres', err);
-			res.send('sorry, there was an error', err);
-		}
-		//client.query("INSERT into \"Users\" values (3, 'b', 'c', 'd', 4, 'aboutsuff', 'interests')");    
+	var result = [];
+	client.connect(function (err, done) {
+        if(err) {
+            return console.error('could not connect to postgres', err);
+	        res.send('sorry, there was an error', err);
+        }
+        //client.query("INSERT into \"Users\" values (3, 'b', 'c', 'd', 4, 'aboutsuff', 'interests')");    
   	
-		var query = client.query('select "Password" from \"User\"');
-		query.on('error', function(err){
-			res.send('Query Error '+err);
-		});
-		query.on('row', function(row){
-			result.push(row);
-		});
-		query.on('end', function(){
-			client.end();
-			res.json(result);
-		});
-
-	});
+	     var query = client.query('select * from \"Users\"');
+	
+	     query.on('row', function(row){
+             result.push(row);
+	     });
+        
+	     query.on('end', function(){
+             client.end();
+            res.json(result);
+	     });
+    });
 });
 
+app.get('/HTML', function(req, res){
+	res.sendFile('./first.html',{root:__dirname});
+});
 
 app.get('/', function(req, res){
 	res.sendFile('./intro.html',{root:__dirname});
@@ -56,15 +64,22 @@ app.get('/', function(req, res){
 });
 
 app.get('/signup.html', function(req, res){
-	res.sendFile('./singup.html',{root:__dirname});
+	res.sendFile('./signup.html',{root:__dirname});
 	
 });
 
+app.get('/postings.html', function(req, res){
+	res.sendFile('./postings.html',{root:__dirname});
+    	console.log("Postings page loaded");
+});
+
+
 //Log in Post
-app.post('/login', function(req, res){
-	var userEmail = req.body.email;
-	var userPass = req.body.password;
-	var passFound = false;
+app.post('/postings.html', function(req, res){
+  var userEmail = req.body.email;
+  var userPass = req.body.password;
+    
+    var passFound = false;
 	//res.send('Username ' + userEmail + '\n password '+ userPass);
 	console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
 	var client = new pg.Client(conString);
@@ -94,7 +109,8 @@ app.post('/login', function(req, res){
 			res.send('There was no user with that email');
 		}else if (dbPass[0] == userPass){
 			//Login Success!
-			res.send('success');
+            		res.render('postings.html', {username: userEmail, password:userPass});
+			//res.send('success');
 		}else if (dbPass[0]!=userPass){
 			res.send('there was an error in log in ' + dbPass[0] + ' != ' + userPass);
 		}
@@ -102,6 +118,8 @@ app.post('/login', function(req, res){
 	
 	});
   
+  //res.send('Username ' + userEmail + '\n password '+ userPass);
+  console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
 });	
 
 //New User Creation Post
@@ -114,12 +132,9 @@ app.post('/newUser', function(req, res){
 	}else{
 		var newUserType = "Tenant"
 	}
-	
-	
+		
 	var checkPass = newPass0 == newPass1;
-	
-	
-	
+
 	if (checkPass){
 		res.send('Passwords Matched, new user is a(n)' + newUserType);
 		//Create the new user
