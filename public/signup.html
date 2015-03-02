@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="intro.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+  
+<div class="container">
+    <h1>Create a new account</h1>
+    <div class="signup">
+        <form action='/newUser' method = 'POST'>
+            Email: <br/>
+            <input type="text" name="email" value="email" /> <br/>
+            Password: <br/>
+            <input type="password" name="pw" value="password" /> <br/>
+            Retype password: <br/>
+            <input type="password" name="retype_pw" value="password" /> <br/>
+            
+            I am: 
+            <div class="dropdown">
+                <select name="signup_type">
+                    <option> Leasing my own space
+                    </option>
+                    <option> Looking for a working space
+                    </option>
+                </select>
+            </div>
+            <br/>
+            <input type="submit" name="create-acc" value="Submit"/>
+        </form>
+    </div>
+          
+</div>
+
+</body>
+</html>
