@@ -1,0 +1,1 @@
+curl -X POST -d '{"firstName": "Goo", "lastName": "By", "email": "lelwut@pls.com", "password": "swag", "homeLocation": "Disney"}' -H 'Content-Type: application/json' localhost:3000/addUser

@@ -1,5 +1,7 @@
 User:
 UserId; type = serial, NOT NULL, primary key
+FirstName; type = text
+LastName; type = text
 Email; type = text, NOT NULL
 Password; type = text, NOT NULL
 HomeLocation; type = text, NOT NULL

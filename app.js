@@ -44,14 +44,14 @@ app.get('/dbtest', function (req, res) {
             return console.error('could not connect to postgres', err);
 	        res.send('sorry, there was an error', err);
         }
-        //client.query("INSERT into \"Users\" values (3, 'b', 'c', 'd', 4, 'aboutsuff', 'interests')");    
-  	
+        //client.query("INSERT into \"Users\" values (3, 'b', 'c', 'd', 4, 'aboutsuff', 'interests')");
+
 	     var query = client.query('select * from \"User\"');
-	
+
 	     query.on('row', function(row){
              result.push(row);
 	     });
-        
+
 	     query.on('end', function(){
              client.end();
             res.json(result);
@@ -73,7 +73,7 @@ app.get('/', function(req, res){
 
 app.get('/signup.html', function(req, res){
 	res.sendFile('./public/views/signup.html',{root:__dirname});
-	
+
 });
 
 app.get('/postings.html', function(req, res){
@@ -86,22 +86,22 @@ app.get('/postings.html', function(req, res){
 app.post('/postings.html', function(req, res){
 	var userEmail = req.body.email;
 	var userPass = req.body.password;
-    
+
     var passFound = false;
 	//res.send('Username ' + userEmail + '\n password '+ userPass);
 	console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
 	var client = new pg.Client(conString);
 	var dbPass = [];
-	
+
 	client.connect(function(err, done) {
 	if(err) {
 		return console.error('could not connect to postgres', err);
 		res.send('sorry, there was an error', err);
 	}
 	console.log('Connected to db User: ' + userEmail);
-	
+
 	var query = client.query('SELECT "Password"	FROM "User" WHERE "Email"=$1', [userEmail]);
-	
+
 	query.on('error', function(err){
 		res.send('Query Error '+err);
 	});
@@ -117,22 +117,22 @@ app.post('/postings.html', function(req, res){
 			res.send('There was no user with that email');
 		}else if (dbPass[0] == userPass){
 			//Login Success!
-			
-			req.session.user = userEmail;	
+
+			req.session.user = userEmail;
 			console.log('session log for user '+req.session.user);
-			
+
             res.render('postings.html', {username: userEmail, password:userPass});
 			//res.send('success');
 		}else if (dbPass[0]!=userPass){
 			res.send('there was an error in log in ' + dbPass[0] + ' != ' + userPass);
 		}
 	});
-	
+
 	});
-  
+
   //res.send('Username ' + userEmail + '\n password '+ userPass);
   console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
-});	
+});
 
 //New User Creation Post
 app.post('/newUser', function(req, res){
@@ -144,7 +144,7 @@ app.post('/newUser', function(req, res){
 	}else{
 		var newUserType = "Tenant"
 	}
-		
+
 	var checkPass = newPass0 == newPass1;
 
 	if (checkPass){
@@ -156,9 +156,9 @@ app.post('/newUser', function(req, res){
 			return console.error('could not connect to postgres', err);
 			res.send('sorry, there was an error', err);
 		}
-	
+
 		var query = client.query("INSERT INTO \"User\" VALUES (DEFAULT, $1,$2,'placeHolder', 0, 'placeHolder', 'placeHolder')", [newEmail, newPass0]);
-	
+
 		query.on('error', function(err){
 			res.send('Query Error '+err);
 		});
@@ -175,6 +175,109 @@ app.post('/newUser', function(req, res){
 
 });
 
+// Database interaction endpoints, add future functions here
+/* User */
+// Create new user
+app.post('/addUser', function (req, res) {
+    var values = [];
+    values.push(req.body.firstName);
+    values.push(req.body.lastName);
+    values.push(req.body.email);
+    values.push(req.body.password);
+    values.push(req.body.homeLocation);
+    values.push(0); // Reputation
+    // No photo yet, don't wanna deal with that
+
+    var params = createParams(values.length);
+    var insertQuery = 'INSERT INTO "User"("FirstName", "LastName", "Email", "Password", "HomeLocation", "Reputation") VALUES(' + params + ')';
+    //var insertQuery = "SELECT * FROM User;";
+
+    var successMessage = 'Successfully inserted user';
+    var insertFailedMessage = 'A user with this email already exists';
+    insertInTable(res, insertQuery, values, successMessage, insertFailedMessage);
+});
+
+
+function insertInTable(res, insertQuery, values, successMessage, insertFailedMessage) {
+    var client = new pg.Client(conString);
+    var result = [];
+    client.connect(function (err, done) {
+        if(err) {
+            console.error('Could not connect to the database', err);
+            res.writeHead(500);
+            res.end('A server error occurred' + err);
+        }
+
+        var query = client.query(insertQuery, values);
+
+        query.on('error', function(error) {
+        	res.writeHead(500);
+			res.end(insertFailedMessage);
+        });
+
+        query.on('row', function(row){
+            result.push(row);
+        });
+
+        query.on('end', function(){
+            client.end();
+            res.writeHead(200, {'Content-Type': 'text/plain'});
+            res.end(successMessage);
+        });
+    });
+}
+
+// Update user info
+
+// Get user info
+
+// Delete user
+
+
+/* Space */
+// Create new space
+
+// Update space
+
+// Get space info
+
+// Delete space
+
+
+/* Posting */
+// Create new posting
+
+// Update posting
+
+// Get posting info
+
+// Get all postings
+
+// Get filtered postings
+
+// Delete a posting
+
+
+/* ForumPost */
+// Add forum post
+
+// Get forum posts for space
+
+// Delete forum posts
+
+/* Other */
+// Verify credentials
+
+
+// Helper functions
+// Return a list of $i for query parametrization
+function createParams(len) {
+    var params = [];
+    for(var i = 1; i <= len; i++) {
+        params.push('$' + i);
+    }
+    return params.join(',');
+}
 
 
 app.listen(3000);
