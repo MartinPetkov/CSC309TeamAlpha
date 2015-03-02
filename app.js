@@ -271,6 +271,8 @@ app.post('/deleteUser', function (req, res) {
 
 // Update space
 
+// Get all spaces
+
 // Get space info
 
 // Delete space
