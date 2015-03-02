@@ -4,11 +4,12 @@ var express = require('express');
 //var logger = require('morgan');
 //var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
 var routes = require('./routes/index');
 var users = require('./routes/users');
 */
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var pg = require('pg');
 var app = express();
 var morgan = require('morgan');
@@ -17,11 +18,15 @@ var morgan = require('morgan');
 var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
 app.use(express.static(__dirname + '/public'));
+
+app.use(session({secret: '123', resave: 'false', saveUninitialized: 'false'}));
+
 app.use(morgan('dev'));
 //app.use(bodyParser());
 
@@ -41,7 +46,7 @@ app.get('/dbtest', function (req, res) {
         }
         //client.query("INSERT into \"Users\" values (3, 'b', 'c', 'd', 4, 'aboutsuff', 'interests')");    
   	
-	     var query = client.query('select * from \"Users\"');
+	     var query = client.query('select * from \"User\"');
 	
 	     query.on('row', function(row){
              result.push(row);
@@ -61,23 +66,26 @@ app.get('/HTML', function(req, res){
 app.get('/', function(req, res){
 	res.sendFile('./intro.html',{root:__dirname});
 	console.log('Page Loaded!');
+	if (req.session.user){
+		console.log('current session: '+req.session.user);
+	}
 });
 
 app.get('/signup.html', function(req, res){
-	res.sendFile('./signup.html',{root:__dirname});
+	res.sendFile('./public/views/signup.html',{root:__dirname});
 	
 });
 
 app.get('/postings.html', function(req, res){
-	res.sendFile('./postings.html',{root:__dirname});
+	res.sendFile('./public/views/postings.html',{root:__dirname});
     	console.log("Postings page loaded");
 });
 
 
 //Log in Post
 app.post('/postings.html', function(req, res){
-  var userEmail = req.body.email;
-  var userPass = req.body.password;
+	var userEmail = req.body.email;
+	var userPass = req.body.password;
     
     var passFound = false;
 	//res.send('Username ' + userEmail + '\n password '+ userPass);
@@ -92,7 +100,7 @@ app.post('/postings.html', function(req, res){
 	}
 	console.log('Connected to db User: ' + userEmail);
 	
-	var query = client.query('SELECT "Password"	FROM \"User\" WHERE "Email"=$1', [userEmail]);
+	var query = client.query('SELECT "Password"	FROM "User" WHERE "Email"=$1', [userEmail]);
 	
 	query.on('error', function(err){
 		res.send('Query Error '+err);
@@ -109,7 +117,11 @@ app.post('/postings.html', function(req, res){
 			res.send('There was no user with that email');
 		}else if (dbPass[0] == userPass){
 			//Login Success!
-            		res.render('postings.html', {username: userEmail, password:userPass});
+			
+			req.session.user = userEmail;	
+			console.log('session log for user '+req.session.user);
+			
+            res.render('postings.html', {username: userEmail, password:userPass});
 			//res.send('success');
 		}else if (dbPass[0]!=userPass){
 			res.send('there was an error in log in ' + dbPass[0] + ' != ' + userPass);
@@ -136,8 +148,26 @@ app.post('/newUser', function(req, res){
 	var checkPass = newPass0 == newPass1;
 
 	if (checkPass){
-		res.send('Passwords Matched, new user is a(n)' + newUserType);
+		//res.send('Passwords Matched, new user is a(n)' + newUserType);
 		//Create the new user
+		var client = new pg.Client(conString);
+		client.connect(function(err, done) {
+		if(err) {
+			return console.error('could not connect to postgres', err);
+			res.send('sorry, there was an error', err);
+		}
+	
+		var query = client.query("INSERT INTO \"User\" VALUES (DEFAULT, $1,$2,'placeHolder', 0, 'placeHolder', 'placeHolder')", [newEmail, newPass0]);
+	
+		query.on('error', function(err){
+			res.send('Query Error '+err);
+		});
+		query.on('end', function(){
+			client.end();
+			req.session.user = newEmail;
+			res.render('postings.html', {username: newEmail, password: newPass0});
+		});
+		});
 	}else{
 		res.send('Passwords do not match');
 		//Do not create the new user
