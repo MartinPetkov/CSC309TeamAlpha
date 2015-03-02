@@ -192,40 +192,10 @@ app.post('/addUser', function (req, res) {
     var insertQuery = 'INSERT INTO "User"("FirstName", "LastName", "Email", "Password", "HomeLocation", "Reputation") VALUES(' + params + ')';
     //var insertQuery = "SELECT * FROM User;";
 
-    var successMessage = 'Successfully inserted user';
+    var insertSuccessMessage = 'Successfully inserted user';
     var insertFailedMessage = 'A user with this email already exists';
-    insertInTable(res, insertQuery, values, successMessage, insertFailedMessage);
+    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
 });
-
-
-function insertInTable(res, insertQuery, values, successMessage, insertFailedMessage) {
-    var client = new pg.Client(conString);
-    var result = [];
-    client.connect(function (err, done) {
-        if(err) {
-            console.error('Could not connect to the database', err);
-            res.writeHead(500);
-            res.end('A server error occurred' + err);
-        }
-
-        var query = client.query(insertQuery, values);
-
-        query.on('error', function(error) {
-        	res.writeHead(500);
-			res.end(insertFailedMessage);
-        });
-
-        query.on('row', function(row){
-            result.push(row);
-        });
-
-        query.on('end', function(){
-            client.end();
-            res.writeHead(200, {'Content-Type': 'text/plain'});
-            res.end(successMessage);
-        });
-    });
-}
 
 // Update user info
 
@@ -244,18 +214,28 @@ function insertInTable(res, insertQuery, values, successMessage, insertFailedMes
 // Delete space
 
 
-/* Posting */
-// Create new posting
+/* Availability */
+// Create new availability
 
-// Update posting
+// Update availability
 
-// Get posting info
+// Get availability
 
-// Get all postings
+// Get all availability
 
-// Get filtered postings
+// Get filtered availability
 
-// Delete a posting
+// Delete availability
+
+
+/* Leasing */
+// Create new leasing
+
+// Update leasing
+
+// Get leasing info
+
+// Delete a leasing
 
 
 /* ForumPost */
@@ -278,6 +258,40 @@ function createParams(len) {
     }
     return params.join(',');
 }
+
+function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
+    var client = new pg.Client(conString);
+    var result = [];
+    client.connect(function (err, done) {
+        if(err) {
+            console.error('Could not connect to the database', err);
+            res.writeHead(500);
+            res.end('A server error occurred' + err);
+        }
+
+        var query = client.query(dbQuery, values);
+
+        query.on('error', function(error) {
+        	res.writeHead(500);
+			res.end(failedMessage);
+        });
+
+        query.on('row', function(row){
+            result.push(row);
+        });
+
+        query.on('end', function(){
+            client.end();
+            res.writeHead(200, {'Content-Type': 'text/plain'});
+            res.end(successMessage);
+        });
+    });
+}
+
+
+
+
+
 
 
 app.listen(3000);
