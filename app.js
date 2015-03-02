@@ -190,7 +190,6 @@ app.post('/addUser', function (req, res) {
 
     var params = createParams(values.length);
     var insertQuery = 'INSERT INTO "User"("FirstName", "LastName", "Email", "Password", "HomeLocation", "Reputation") VALUES(' + params + ')';
-    //var insertQuery = "SELECT * FROM User;";
 
     var insertSuccessMessage = 'Successfully inserted user';
     var insertFailedMessage = 'A user with this email already exists';
@@ -198,10 +197,73 @@ app.post('/addUser', function (req, res) {
 });
 
 // Update user info
+app.post('/updateUserInfo', function (req, res) {
+	var userEmail = req.body.email;
+	var valuesObj = {
+    	'FirstName': req.body.firstName,
+    	'LastName': req.body.lastName,
+    	'Email': userEmail,
+    	'Password': req.body.password,
+    	'HomeLocation': req.body.homeLocation,
+    	'Reputation': req.body.reputation,
+    	'About': req.body.about,
+    	'ProjectInterests': req.body.projectInterests
+	};
+    // No photo yet, don't wanna deal with that
+
+    var updateColumns = [];
+    var values = [];
+    var i = 1;
+    for(var property in valuesObj) {
+    	if((valuesObj.hasOwnProperty(property))
+    		&& (typeof valuesObj[property] != 'undefined')) {
+
+    		updateColumns.push('"' + property + '" = $' + i);
+    		values.push(valuesObj[property]);
+    		i++;
+    	}
+    }
+    values.push(userEmail);
+
+    var updateQuery = 'UPDATE "User" SET ' + updateColumns.join(', ') + ' WHERE "Email"=$' + (updateColumns.length + 1);
+
+    var updateSuccessMessage = 'Successfully updated info for user';
+    var updateFailedMessage = 'Failed to update info for user';
+    executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values);
+});
+
+// Get all users
+app.get('/getAllUsers', function (req, res) {
+    var getQuery = 'SELECT * FROM "User"';
+
+    var getSuccessMessage = 'Successfully retrieved all user info';
+    var getFailedMessage = 'Could not retrieve all user info';
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery);
+});
 
 // Get user info
+app.get('/getUserInfo', function (req, res) {
+    var values = [];
+    values.push(req.get('email'));
+
+    var getQuery = 'SELECT * FROM "User" WHERE "Email" = $1';
+
+    var getSuccessMessage = 'Successfully retrieved user info';
+    var getFailedMessage = 'Could not retrieve user info';
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+});
 
 // Delete user
+app.post('/deleteUser', function (req, res) {
+    var values = [];
+    values.push(req.body.email);
+
+    var deleteQuery = 'DELETE FROM "User" WHERE "Email" = $1';
+
+    var deleteSuccessMessage = 'Successfully deleted user';
+    var deleteFailedMessage = 'Could not delete user';
+    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
+});
 
 
 /* Space */
@@ -250,7 +312,7 @@ app.post('/addUser', function (req, res) {
 
 
 // Helper functions
-// Return a list of $i for query parametrization
+// Return a list of $i for query parametrization, to escape bad characters
 function createParams(len) {
     var params = [];
     for(var i = 1; i <= len; i++) {
@@ -259,6 +321,8 @@ function createParams(len) {
     return params.join(',');
 }
 
+// Execute a query, return the given messages when appropriate
+// The argument 'values' can be omitted if the query takes no parameters
 function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
     var client = new pg.Client(conString);
     var result = [];
@@ -273,7 +337,8 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
 
         query.on('error', function(error) {
         	res.writeHead(500);
-			res.end(failedMessage);
+        	console.log(failedMessage);
+			res.end();
         });
 
         query.on('row', function(row){
@@ -282,8 +347,10 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
 
         query.on('end', function(){
             client.end();
+            console.log(successMessage);
             res.writeHead(200, {'Content-Type': 'text/plain'});
-            res.end(successMessage);
+            res.write(JSON.stringify(result) + "\n");
+            res.end();
         });
     });
 }
