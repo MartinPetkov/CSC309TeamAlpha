@@ -64,7 +64,7 @@ app.get('/HTML', function(req, res){
 });
 
 app.get('/', function(req, res){
-	res.sendFile('./intro.html',{root:__dirname});
+	res.sendFile('./public/intro.html',{root:__dirname});
 	console.log('Page Loaded!');
 	if (req.session.user){
 		console.log('current session: '+req.session.user);
