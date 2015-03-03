@@ -1,0 +1,99 @@
+@font-face { font-family: AdobeGothic; src: url("AdobeGothicStd-Bold.otf"); } 
+
+body{
+    background-color: rgb(218, 243, 214);
+    width: inherit;
+}
+
+.space_info{
+    margin-top: 0px;
+    height: 210px;
+}
+.display{
+    font-size: 70px;
+    text-align: center;
+    color: rgb(127, 161, 141);
+}
+.stars{
+    color: rgb(127, 161, 141);
+    text-align: center;
+
+}
+
+.dropdown select{
+    font-family: helvetica;
+    color: rgb(105, 124, 113);
+    background-color: rgb(241, 243, 242);
+}
+
+.rating{
+    text-align: center;
+    color: rgb(127, 161, 141);
+}
+.info{
+    background-color: none;
+    color: rgb(127, 161, 141);
+    
+}
+
+.info h3{
+    margin-top: 0px;
+    height: 40px;
+    font-size: 20px;
+    font-family: AdobeGothic;
+    padding: 7px;
+    background-color: rgb(127, 161, 141);
+    color: white;
+}
+.members{
+    height: 30%;
+}
+
+
+h1{
+    background-color: rgb(101, 188, 138);
+    width: 100%;
+    margin-top: 0px;
+    margin-right: 0px;
+    height: 100px;
+    line-height: 25px;
+    padding: 30px 10px;
+    font-family: AdobeGothic;
+    color: rgb(255, 255, 255);
+}
+
+
+h4{
+    margin-top: 0px;
+    width = 100%;
+    background-color: rgb(129, 201, 160);
+    padding: 15px;
+    font-family: AdobeGothic;
+    color: white;
+}
+
+input{
+    display: block;
+    margin-top: 10px;
+    margin-left: 15px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(139, 203, 166);
+    border-radius: 5px;
+    background-color: rgb(241, 243, 242);
+    color: rgb(105, 124, 113);
+}
+
+input[type=submit]{
+    background-color: rgb(101, 188, 138);
+    color: white;
+    margin-left: 43%;
+    
+}
+
+
+p{
+    color: rgb(105, 124, 113);
+    margin-top: 20px;
+    margin-left: 15px;
+}
