@@ -189,7 +189,7 @@ app.post('/addUser', function (req, res) {
     // No photo yet, don't wanna deal with that
 
     var params = createParams(values.length);
-    var insertQuery = 'INSERT INTO "User"("FirstName", "LastName", "Email", "Password", "HomeLocation", "Reputation") VALUES(' + params + ')';
+    var insertQuery = 'INSERT INTO "User"("FirstName", "LastName", "Email", "Password", "HomeLocation", "Reputation") VALUES(' + params + ') RETURNING "UserId"';
 
     var insertSuccessMessage = 'Successfully inserted user';
     var insertFailedMessage = 'A user with this email already exists';
@@ -244,9 +244,9 @@ app.get('/getAllUsers', function (req, res) {
 // Get user info
 app.get('/getUserInfo', function (req, res) {
     var values = [];
-    values.push(req.get('email'));
+    values.push(req.get('userId'));
 
-    var getQuery = 'SELECT * FROM "User" WHERE "Email" = $1';
+    var getQuery = 'SELECT * FROM "User" WHERE "UserId" = $1';
 
     var getSuccessMessage = 'Successfully retrieved user info';
     var getFailedMessage = 'Could not retrieve user info';
@@ -256,9 +256,9 @@ app.get('/getUserInfo', function (req, res) {
 // Delete user
 app.post('/deleteUser', function (req, res) {
     var values = [];
-    values.push(req.body.email);
+    values.push(req.body.userId);
 
-    var deleteQuery = 'DELETE FROM "User" WHERE "Email" = $1';
+    var deleteQuery = 'DELETE FROM "User" WHERE "UserId" = $1';
 
     var deleteSuccessMessage = 'Successfully deleted user';
     var deleteFailedMessage = 'Could not delete user';
@@ -268,14 +268,91 @@ app.post('/deleteUser', function (req, res) {
 
 /* Space */
 // Create new space
+app.post('/addSpace', function (req, res) {
+    var values = [];
+    values.push(req.body.ownerId);
+    values.push(req.body.location);
+    values.push(req.body.spaceType);
+    values.push(req.body.area);
+    values.push(req.body.rooms);
+    values.push(req.body.pricePerDay);
+    values.push(req.body.vacancyAmount);
+
+    var params = createParams(values.length);
+    var insertQuery = 'INSERT INTO "Space"("OwnerId", "Location", "SpaceType", "Area", "Rooms", "PricePerDay", "VacancyAmount") VALUES(' + params + ') RETURNING "SpaceId"';
+
+    var insertSuccessMessage = 'Successfully inserted space';
+    var insertFailedMessage = 'Failed to insert space';
+    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+});
 
 // Update space
+app.post('/updateSpaceInfo', function (req, res) {
+	var spaceId = req.body.spaceId;
+	var valuesObj = {
+    	'OwnerId': req.body.ownerId,
+    	'Location': req.body.location,
+    	'Description': req.body.description,
+    	'SpaceType': req.body.spaceType,
+    	'Area': req.body.area,
+    	'Rooms': req.body.rooms,
+    	'PricePerDay': req.body.pricePerDay,
+    	'VacancyAmount': req.body.vacancyAmount
+	};
+
+    var updateColumns = [];
+    var values = [];
+    var i = 1;
+    for(var property in valuesObj) {
+    	if((valuesObj.hasOwnProperty(property))
+    		&& (typeof valuesObj[property] != 'undefined')) {
+
+    		updateColumns.push('"' + property + '" = $' + i);
+    		values.push(valuesObj[property]);
+    		i++;
+    	}
+    }
+    values.push(spaceId);
+
+    var updateQuery = 'UPDATE "Space" SET ' + updateColumns.join(', ') + ' WHERE "SpaceId"=$' + (updateColumns.length + 1);
+
+    var updateSuccessMessage = 'Successfully updated info for space';
+    var updateFailedMessage = 'Failed to update info for space';
+    executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values);
+});
 
 // Get all spaces
+app.get('/getAllSpaces', function (req, res) {
+    var getQuery = 'SELECT * FROM "Space"';
+
+    var getSuccessMessage = 'Successfully retrieved all space info';
+    var getFailedMessage = 'Could not retrieve all space info';
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery);
+});
 
 // Get space info
+app.get('/getSpaceInfo', function (req, res) {
+    var values = [];
+    values.push(req.get('spaceId'));
+
+    var getQuery = 'SELECT * FROM "Space" WHERE "SpaceId" = $1';
+
+    var getSuccessMessage = 'Successfully retrieved space info';
+    var getFailedMessage = 'Could not retrieve space info';
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+});
 
 // Delete space
+app.post('/deleteSpace', function (req, res) {
+    var values = [];
+    values.push(req.body.spaceId);
+
+    var deleteQuery = 'DELETE FROM "Space" WHERE "SpaceId" = $1';
+
+    var deleteSuccessMessage = 'Successfully deleted space';
+    var deleteFailedMessage = 'Could not delete space';
+    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
+});
 
 
 /* Availability */
@@ -337,17 +414,18 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
 
         var query = client.query(dbQuery, values);
 
-        query.on('error', function(error) {
+        query.on('error', function (error) {
         	res.writeHead(500);
         	console.log(failedMessage);
+        	console.log(error);
 			res.end();
         });
 
-        query.on('row', function(row){
+        query.on('row', function (row){
             result.push(row);
         });
 
-        query.on('end', function(){
+        query.on('end', function (){
             client.end();
             console.log(successMessage);
             res.writeHead(200, {'Content-Type': 'text/plain'});
