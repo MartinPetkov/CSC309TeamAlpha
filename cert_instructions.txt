@@ -1,0 +1,7 @@
+- To create a cert:
+    bash generate_cert.sh
+- It will ask you a bunch of questions. Since we're not using properly issued certificates, you can put down whatever you want. Remember the PEM passphrase that you give it.
+- When running the server with node app.js, it will ask you for the PEM passphrase from before
+- When trying to connect through the browser, it will tell you it's unsafe; click the Advanced menu and connect anyway, nothing bad will happen
+- When using cURL to send requests from the command line, use the -k option and the host as https://localhost:3000
+

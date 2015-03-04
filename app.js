@@ -7,7 +7,15 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var sha1 = require('sha1');
+var https = require('https');
+var fs = require('fs');
 
+
+// Needed for HTTPS functionality
+var options = {
+	key: fs.readFileSync('key.pem'),
+	cert: fs.readFileSync('cert.pem')
+};
 
 var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
 
@@ -612,4 +620,5 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
 
 
 
-app.listen(3000);
+//app.listen(3000);
+https.createServer(options, app).listen(3000);
