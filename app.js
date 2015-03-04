@@ -208,7 +208,7 @@ app.post('/updateUserInfo', function (req, res) {
     	'FirstName': req.body.firstName,
     	'LastName': req.body.lastName,
     	'Email': userEmail,
-    	'Password': req.body.password,
+    	'Password': sha1(req.body.password),
     	'HomeLocation': req.body.homeLocation,
     	'Reputation': req.body.reputation,
     	'About': req.body.about,
@@ -567,7 +567,49 @@ app.post('/deleteForumPost', function (req, res) {
 
 /* Other */
 // Verify credentials
+app.get('/validateCredentials', function (req, res) {
+    var email = req.get('email');
+    var given_password = sha1(req.get('password'));
 
+    var client = new pg.Client(conString);
+    var result = [];
+    client.connect(function (err, done) {
+        if(err) {
+            console.error('Could not connect to the database', err);
+            res.writeHead(500);
+            res.end('A server error occurred' + err);
+        }
+
+        var getPassQuery = 'SELECT "Password" FROM "User" WHERE "Email" = $1';
+        var query = client.query(getPassQuery, [email]);
+
+        query.on('error', function (error) {
+        	res.writeHead(500);
+        	console.log(error);
+			res.end();
+        });
+
+        query.on('row', function (row){
+            result.push(row);
+        });
+
+        query.on('end', function (){
+            client.end();
+            res.writeHead(200, {'Content-Type': 'text/plain'});
+
+            var validity = 'invalid';
+            if(result.length > 0) {
+            	var true_password = result[0].Password;
+            	if(given_password == true_password) {
+            		validity = 'valid';
+            	}
+            }
+
+            res.write(validity);
+            res.end();
+        });
+    });
+});
 
 // Helper functions
 // Return a list of $i for query parametrization, to escape bad characters
