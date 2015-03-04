@@ -9,6 +9,7 @@ var session = require('express-session');
 var sha1 = require('sha1');
 var https = require('https');
 var fs = require('fs');
+var sanitizer = require('sanitizer');
 
 
 // Needed for HTTPS functionality
@@ -631,6 +632,13 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
             console.error('Could not connect to the database', err);
             res.writeHead(500);
             res.end('A server error occurred' + err);
+        }
+
+        // Prevent XSS
+        for(var i = 0; i < values.length; i++) {
+        	if(typeof values[i] == 'string') {
+        		values[i] = sanitizer.escape(values[i]);
+        	}
         }
 
         var query = client.query(dbQuery, values);

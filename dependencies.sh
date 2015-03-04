@@ -8,3 +8,4 @@ npm install cookie-parser
 npm install express-session
 npm install sha1
 npm install fs
+npm install sanitizer
