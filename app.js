@@ -360,16 +360,68 @@ app.post('/deleteSpace', function (req, res) {
 
 /* Availability */
 // Create new availability
+app.post('/addAvailability', function (req, res) {
+    var values = [];
+    values.push(req.body.spaceId);
+    values.push(req.body.date);
 
-// Update availability
+    var params = createParams(values.length);
+    var insertQuery = 'INSERT INTO "Availability"("SpaceId", "Date") VALUES(' + params + ') RETURNING "SpaceId", "Date"';
 
-// Get availability
+    var insertSuccessMessage = 'Successfully inserted availability';
+    var insertFailedMessage = 'Failed to insert availability';
+    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+});
 
-// Get all availabilities
+// Get availabilities (can be filtered)
+app.get('/getAvailabilities', function (req, res) {
+	var valuesObj = {
+		'SpaceId': req.get('spaceId'),
+    	'FromDate': req.get('fromDate'),
+    	'ToDate': req.get('toDate')
+	};
 
-// Get filtered availabilities
+    var updateColumns = [];
+    var values = [];
+    var i = 1;
+    if(typeof valuesObj['SpaceId'] != 'undefined') {
+		updateColumns.push('"SpaceId" = $' + i);
+		values.push(valuesObj['SpaceId']);
+		i++;
+	}
+	if(typeof valuesObj['FromDate'] != 'undefined') {
+		updateColumns.push('"Date" >= $' + i);
+		values.push(valuesObj['FromDate']);
+		i++;
+	}
+	if(typeof valuesObj['ToDate'] != 'undefined') {
+		updateColumns.push('"Date" <= $' + i);
+		values.push(valuesObj['ToDate']);
+		i++;
+	}
+
+    var getQuery = 'SELECT * FROM "Availability"';
+    if(updateColumns.length > 0) {
+    	getQuery += ' WHERE ' + updateColumns.join(' AND ');
+    }
+
+    var getSuccessMessage = 'Successfully retrieved availabilities';
+    var getFailedMessage = 'Could not retrieve availabilities';
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+});
 
 // Delete availability
+app.post('/deleteAvailability', function (req, res) {
+    var values = [];
+    values.push(req.body.spaceId);
+    values.push(req.body.date);
+
+    var deleteQuery = 'DELETE FROM "Availability" WHERE "SpaceId" = $1 AND "Date" = $2';
+
+    var deleteSuccessMessage = 'Successfully deleted availability';
+    var deleteFailedMessage = 'Could not delete availability';
+    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
+});
 
 
 /* Leasing */
@@ -468,6 +520,7 @@ app.post('/deleteLeasing', function (req, res) {
     executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
 });
 
+
 /* ForumPost */
 // Add forum post
 app.post('/addForumPost', function (req, res) {
@@ -523,7 +576,7 @@ function createParams(len) {
     return params.join(',');
 }
 
-// Execute a query, return the given messages when appropriate
+// Execute a query and return the results
 // The argument 'values' can be omitted if the query takes no parameters
 function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
     var client = new pg.Client(conString);
