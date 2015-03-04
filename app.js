@@ -185,14 +185,16 @@ app.post('/addUser', function (req, res) {
     values.push(req.body.email);
     values.push(req.body.password);
     values.push(req.body.homeLocation);
-    values.push(0); // Reputation
+    values.push(req.body.reputation);
+    values.push(req.body.about);
+    values.push(req.body.projectInterests);
     // No photo yet, don't wanna deal with that
 
     var params = createParams(values.length);
-    var insertQuery = 'INSERT INTO "User"("FirstName", "LastName", "Email", "Password", "HomeLocation", "Reputation") VALUES(' + params + ') RETURNING "UserId"';
+    var insertQuery = 'INSERT INTO "User"("FirstName", "LastName", "Email", "Password", "HomeLocation", "Reputation", "About", "ProjectInterests") VALUES(' + params + ') RETURNING "UserId"';
 
     var insertSuccessMessage = 'Successfully inserted user';
-    var insertFailedMessage = 'A user with this email already exists';
+    var insertFailedMessage = 'Failed to insert user';
     executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
 });
 
@@ -272,6 +274,7 @@ app.post('/addSpace', function (req, res) {
     var values = [];
     values.push(req.body.ownerId);
     values.push(req.body.location);
+    values.push(req.body.description)
     values.push(req.body.spaceType);
     values.push(req.body.area);
     values.push(req.body.rooms);
@@ -279,7 +282,7 @@ app.post('/addSpace', function (req, res) {
     values.push(req.body.vacancyAmount);
 
     var params = createParams(values.length);
-    var insertQuery = 'INSERT INTO "Space"("OwnerId", "Location", "SpaceType", "Area", "Rooms", "PricePerDay", "VacancyAmount") VALUES(' + params + ') RETURNING "SpaceId"';
+    var insertQuery = 'INSERT INTO "Space"("OwnerId", "Location", "Description", "SpaceType", "Area", "Rooms", "PricePerDay", "VacancyAmount") VALUES(' + params + ') RETURNING "SpaceId"';
 
     var insertSuccessMessage = 'Successfully inserted space';
     var insertFailedMessage = 'Failed to insert space';
@@ -467,10 +470,44 @@ app.post('/deleteLeasing', function (req, res) {
 
 /* ForumPost */
 // Add forum post
+app.post('/addForumPost', function (req, res) {
+    var values = [];
+    values.push(req.body.userId);
+    values.push(req.body.spaceId);
+    values.push(req.body.text);
+    values.push(req.body.dateTimePosted);
+    values.push(req.body.projectTag);
 
+    var params = createParams(values.length);
+    var insertQuery = 'INSERT INTO "ForumPost"("UserId", "SpaceId", "Text", "DateTimePosted", "ProjectTag") VALUES(' + params + ') RETURNING "ForumPostId"';
+
+    var insertSuccessMessage = 'Successfully inserted forum post';
+    var insertFailedMessage = 'Failed to insert forum post';
+    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+});
 // Get forum posts for space
+app.get('/getForumPostsForSpace', function (req, res) {
+    var values = [];
+    values.push(req.get('spaceId'));
 
-// Delete forum posts
+    var getQuery = 'SELECT * FROM "ForumPost" WHERE "SpaceId" = $1';
+
+    var getSuccessMessage = 'Successfully retrieved forum posts for space';
+    var getFailedMessage = 'Could not retrieve forum posts for space';
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+});
+
+// Delete forum post
+app.post('/deleteForumPost', function (req, res) {
+    var values = [];
+    values.push(req.body.forumPostId);
+
+    var deleteQuery = 'DELETE FROM "ForumPost" WHERE "ForumPostId" = $1';
+
+    var deleteSuccessMessage = 'Successfully deleted forum post';
+    var deleteFailedMessage = 'Could not delete forum post';
+    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
+});
 
 /* Other */
 // Verify credentials
