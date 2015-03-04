@@ -1,18 +1,12 @@
 var express = require('express');
-/*var path = require('path');
-//var favicon = require('serve-favicon');
-//var logger = require('morgan');
-//var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var routes = require('./routes/index');
-var users = require('./routes/users');
-*/
+var app = express();
+
+var pg = require('pg');
+var morgan = require('morgan');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
-var pg = require('pg');
-var app = express();
-var morgan = require('morgan');
+var sha1 = require('sha1');
 
 
 var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
@@ -175,6 +169,7 @@ app.post('/newUser', function(req, res){
 
 });
 
+
 // Database interaction endpoints, add future functions here
 /* User */
 // Create new user
@@ -183,7 +178,7 @@ app.post('/addUser', function (req, res) {
     values.push(req.body.firstName);
     values.push(req.body.lastName);
     values.push(req.body.email);
-    values.push(req.body.password);
+    values.push(sha1(req.body.password));
     values.push(req.body.homeLocation);
     values.push(req.body.reputation);
     values.push(req.body.about);
