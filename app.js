@@ -362,22 +362,108 @@ app.post('/deleteSpace', function (req, res) {
 
 // Get availability
 
-// Get all availability
+// Get all availabilities
 
-// Get filtered availability
+// Get filtered availabilities
 
 // Delete availability
 
 
 /* Leasing */
 // Create new leasing
+app.post('/addLeasing', function (req, res) {
+    var values = [];
+    values.push(req.body.spaceId);
+    values.push(req.body.tenantId);
+    values.push(req.body.fromDate);
+    values.push(req.body.toDate);
+    values.push(req.body.negotiatedPricePerDay);
+
+    var params = createParams(values.length);
+    var insertQuery = 'INSERT INTO "Leasing"("SpaceId", "TenantId", "FromDate", "ToDate", "NegotiatedPricePerDay") VALUES(' + params + ') RETURNING "SpaceId", "TenantId"';
+
+    var insertSuccessMessage = 'Successfully inserted leasing';
+    var insertFailedMessage = 'Failed to insert leasing';
+    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+});
 
 // Update leasing
+app.post('/updateLeasingInfo', function (req, res) {
+	var spaceId = req.body.spaceId;
+	var tenantId = req.body.tenantId;
+	var valuesObj = {
+    	'FromDate': req.body.fromDate,
+    	'ToDate': req.body.toDate,
+    	'NegotiatedPricePerDay': req.body.negotiatedPricePerDay
+	};
+
+    var updateColumns = [];
+    var values = [];
+    var i = 1;
+    for(var property in valuesObj) {
+    	if((valuesObj.hasOwnProperty(property))
+    		&& (typeof valuesObj[property] != 'undefined')) {
+
+    		updateColumns.push('"' + property + '" = $' + i);
+    		values.push(valuesObj[property]);
+    		i++;
+    	}
+    }
+    values.push(spaceId);
+    values.push(tenantId);
+
+    var updateQuery = 'UPDATE "Leasing" SET ' + updateColumns.join(', ') + ' WHERE "SpaceId"=$' + (updateColumns.length + 1) + ' AND "TenantId"=$' + (updateColumns.length + 2);
+
+    var updateSuccessMessage = 'Successfully updated info for leasing';
+    var updateFailedMessage = 'Failed to update info for leasing';
+    executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values);
+});
 
 // Get leasing info
+app.get('/getLeasingInfo', function (req, res) {
+	var valuesObj = {
+		'SpaceId': req.get('spaceId'),
+		'TenantId': req.get('tenantId'),
+    	'FromDate': req.get('fromDate'),
+    	'ToDate': req.get('toDate'),
+    	'NegotiatedPricePerDay': req.get('negotiatedPricePerDay')
+	};
+
+    var updateColumns = [];
+    var values = [];
+    var i = 1;
+    for(var property in valuesObj) {
+    	if((valuesObj.hasOwnProperty(property))
+    		&& (typeof valuesObj[property] != 'undefined')) {
+
+    		updateColumns.push('"' + property + '" = $' + i);
+    		values.push(valuesObj[property]);
+    		i++;
+    	}
+    }
+
+    var getQuery = 'SELECT * FROM "Leasing"';
+    if(updateColumns.length > 0) {
+    	getQuery += ' WHERE ' + updateColumns.join(' AND ');
+    }
+
+    var getSuccessMessage = 'Successfully retrieved leasing info';
+    var getFailedMessage = 'Could not retrieve leasing info';
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+});
 
 // Delete a leasing
+app.post('/deleteLeasing', function (req, res) {
+    var values = [];
+    values.push(req.body.spaceId);
+    values.push(req.body.tenantId);
 
+    var deleteQuery = 'DELETE FROM "Leasing" WHERE "SpaceId" = $1 AND "TenantId" = $2';
+
+    var deleteSuccessMessage = 'Successfully deleted leasing';
+    var deleteFailedMessage = 'Could not delete leasing';
+    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
+});
 
 /* ForumPost */
 // Add forum post
