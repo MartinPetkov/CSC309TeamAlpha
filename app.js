@@ -79,9 +79,11 @@ app.get('/signup.html', function(req, res){
 });
 
 app.get('/postings.html', function(req, res){
-	res.sendFile('./public/views/postings.html',{root:__dirname});
-    res.render('postings.html');
-    	console.log("Postings page loaded");
+	//res.sendFile('./public/views/postings.html',{root:__dirname});
+    //res.render('postings.html', );
+    //res.redirect('back');
+    get_availability(req,res, false);
+    console.log("Postings page loaded");
 });
 
 
@@ -124,11 +126,9 @@ app.post('/postings.html', function(req, res){
 			req.session.user = userEmail;
 			console.log('session log for user '+req.session.user);
 
-            //var result_string = get_availability(req,res);
-            //console.log(result_string);
-            //res.render('postings.html');
             
-            get_availability(req,res, false);
+            res.redirect('postings.html');
+            //get_availability(req,res, false);
 
             
             //res.render('postings.html', {username: userEmail, password:userPass});
@@ -727,7 +727,7 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
             console.log(successMessage);
             
             if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
-
+                
                 res.render('postings.html', {postings:result.rows});
                 res.end();
             } else {
