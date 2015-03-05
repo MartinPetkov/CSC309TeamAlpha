@@ -27,19 +27,14 @@ h1{
 
 .spaces div{
     height: auto;
-    border-style: solid;
-    border-color: rgb(101, 188, 138);
-    border-width: 2px;
+    
     background-color: white;
 }
 .search_keywords{
     font-size: 20px;
     height: 100%;
     font-family: AdobeGothic;
-    color:rgb(87,116,101);
-
-    
-    
+    color:rgb(87,116,101);   
 }
 
 input{
@@ -82,4 +77,26 @@ input[type=submit]{
     border-left: rgb(139, 203, 166);
     border-style: solid;   
     height: 100%;
+}
+
+.col-xs-12{
+    border-style: solid;
+    border-color: rgb(101, 188, 138);
+    border-width: 2px;
+    
+}
+p {
+    color: rgb(168, 208, 162);    
+}
+
+span.tab{
+    padding-left: 5em;
+}
+
+span.display{
+    height: 30%;
+    font-size: 70px;
+    text-align: center;
+    padding: 20%;
+    color: rgb(127, 161, 141);
 }
