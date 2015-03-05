@@ -10,7 +10,6 @@ var sha1 = require('sha1');
 var https = require('https');
 var fs = require('fs');
 var sanitizer = require('sanitizer');
-var stringify = require('node-stringify');
 
 // Needed for HTTPS functionality
 var options = {
