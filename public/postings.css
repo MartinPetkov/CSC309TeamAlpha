@@ -100,3 +100,7 @@ span.display{
     padding: 20%;
     color: rgb(127, 161, 141);
 }
+
+.glyphicon {
+    font-size: 30px;
+}
