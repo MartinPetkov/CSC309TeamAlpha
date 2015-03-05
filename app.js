@@ -61,6 +61,17 @@ app.get('/dbtest', function (req, res) {
     });
 });
 
+app.get('/logout', function(req, res){ 
+    console.log(req.session.user);
+    req.session.destroy(function(err){
+        if(err){
+            console.log(err);
+        } else {
+            res.redirect('/');
+        }
+});
+});
+
 app.get('/HTML', function(req, res){
 	res.sendFile('./first.html',{root:__dirname});
 });
@@ -82,8 +93,12 @@ app.get('/postings.html', function(req, res){
 	//res.sendFile('./public/views/postings.html',{root:__dirname});
     //res.render('postings.html', );
     //res.redirect('back');
-    get_availability(req,res, false);
-    console.log("Postings page loaded");
+    if (req.session.user) {
+        get_availability(req,res, false);
+        console.log("Postings page loaded");
+    } else {
+        res.redirect('/');
+    }
 });
 
 
