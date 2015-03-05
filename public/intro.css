@@ -25,6 +25,14 @@ h1{
     border-width: 10px;
     border-color: rgb(101, 188, 138);
 }
+.carousel-inner{
+    float: left;
+    width: auto;
+}
+
+.carousel-indicators {
+    bottom:-350px;
+}
 
 .signup{
     font-family: helvetica;
