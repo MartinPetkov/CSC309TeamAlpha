@@ -10,7 +10,7 @@ var sha1 = require('sha1');
 var https = require('https');
 var fs = require('fs');
 var sanitizer = require('sanitizer');
-
+var stringify = require('node-stringify');
 
 // Needed for HTTPS functionality
 var options = {
@@ -81,6 +81,7 @@ app.get('/signup.html', function(req, res){
 
 app.get('/postings.html', function(req, res){
 	res.sendFile('./public/views/postings.html',{root:__dirname});
+    res.render('postings.html');
     	console.log("Postings page loaded");
 });
 
@@ -104,7 +105,7 @@ app.post('/postings.html', function(req, res){
 	console.log('Connected to db User: ' + userEmail);
 
 	var query = client.query('SELECT "Password"	FROM "User" WHERE "Email"=$1', [userEmail]);
-
+    
 	query.on('error', function(err){
 		res.send('Query Error '+err);
 	});
@@ -124,7 +125,14 @@ app.post('/postings.html', function(req, res){
 			req.session.user = userEmail;
 			console.log('session log for user '+req.session.user);
 
-            res.render('postings.html', {username: userEmail, password:userPass});
+            //var result_string = get_availability(req,res);
+            //console.log(result_string);
+            //res.render('postings.html');
+            
+            get_availability(req,res, false);
+
+            
+            //res.render('postings.html', {username: userEmail, password:userPass});
 			//res.send('success');
 		}else if (dbPass[0]!=userPass){
 			res.send('there was an error in log in ' + dbPass[0] + ' != ' + userPass);
@@ -199,7 +207,7 @@ app.post('/addUser', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted user';
     var insertFailedMessage = 'Failed to insert user';
-    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
 
 // Update user info
@@ -244,7 +252,7 @@ app.get('/getAllUsers', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved all user info';
     var getFailedMessage = 'Could not retrieve all user info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery);
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, true);
 });
 
 // Get user info
@@ -256,7 +264,7 @@ app.get('/getUserInfo', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved user info';
     var getFailedMessage = 'Could not retrieve user info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
 // Delete user
@@ -268,7 +276,7 @@ app.post('/deleteUser', function (req, res) {
 
     var deleteSuccessMessage = 'Successfully deleted user';
     var deleteFailedMessage = 'Could not delete user';
-    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
+    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
 });
 
 
@@ -290,7 +298,7 @@ app.post('/addSpace', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted space';
     var insertFailedMessage = 'Failed to insert space';
-    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
 
 // Update space
@@ -325,7 +333,7 @@ app.post('/updateSpaceInfo', function (req, res) {
 
     var updateSuccessMessage = 'Successfully updated info for space';
     var updateFailedMessage = 'Failed to update info for space';
-    executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values);
+    executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values, false);
 });
 
 // Get all spaces
@@ -334,7 +342,7 @@ app.get('/getAllSpaces', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved all space info';
     var getFailedMessage = 'Could not retrieve all space info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery);
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, true);
 });
 
 // Get space info
@@ -346,7 +354,7 @@ app.get('/getSpaceInfo', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved space info';
     var getFailedMessage = 'Could not retrieve space info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
 // Delete space
@@ -358,7 +366,7 @@ app.post('/deleteSpace', function (req, res) {
 
     var deleteSuccessMessage = 'Successfully deleted space';
     var deleteFailedMessage = 'Could not delete space';
-    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
+    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
 });
 
 
@@ -374,12 +382,12 @@ app.post('/addAvailability', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted availability';
     var insertFailedMessage = 'Failed to insert availability';
-    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
 
 // Get availabilities (can be filtered)
 app.get('/getAvailabilities', function (req, res) {
-	var valuesObj = {
+	/*var valuesObj = {
 		'SpaceId': req.get('spaceId'),
     	'FromDate': req.get('fromDate'),
     	'ToDate': req.get('toDate')
@@ -411,7 +419,9 @@ app.get('/getAvailabilities', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved availabilities';
     var getFailedMessage = 'Could not retrieve availabilities';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+    var query = executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+*/
+    get_availability(req, res, true);
 });
 
 // Delete availability
@@ -424,7 +434,7 @@ app.post('/deleteAvailability', function (req, res) {
 
     var deleteSuccessMessage = 'Successfully deleted availability';
     var deleteFailedMessage = 'Could not delete availability';
-    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
+    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
 });
 
 
@@ -443,7 +453,7 @@ app.post('/addLeasing', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted leasing';
     var insertFailedMessage = 'Failed to insert leasing';
-    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
 
 // Update leasing
@@ -475,7 +485,7 @@ app.post('/updateLeasingInfo', function (req, res) {
 
     var updateSuccessMessage = 'Successfully updated info for leasing';
     var updateFailedMessage = 'Failed to update info for leasing';
-    executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values);
+    executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values, false);
 });
 
 // Get leasing info
@@ -508,7 +518,7 @@ app.get('/getLeasingInfo', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved leasing info';
     var getFailedMessage = 'Could not retrieve leasing info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
 // Delete a leasing
@@ -521,7 +531,8 @@ app.post('/deleteLeasing', function (req, res) {
 
     var deleteSuccessMessage = 'Successfully deleted leasing';
     var deleteFailedMessage = 'Could not delete leasing';
-    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
+    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
+    
 });
 
 
@@ -540,7 +551,7 @@ app.post('/addForumPost', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted forum post';
     var insertFailedMessage = 'Failed to insert forum post';
-    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
 // Get forum posts for space
 app.get('/getForumPostsForSpace', function (req, res) {
@@ -551,7 +562,7 @@ app.get('/getForumPostsForSpace', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved forum posts for space';
     var getFailedMessage = 'Could not retrieve forum posts for space';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
 // Delete forum post
@@ -563,7 +574,7 @@ app.post('/deleteForumPost', function (req, res) {
 
     var deleteSuccessMessage = 'Successfully deleted forum post';
     var deleteFailedMessage = 'Could not delete forum post';
-    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
+    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
 });
 
 /* Other */
@@ -630,11 +641,51 @@ function createParams(len) {
     return params.join(',');
 }
 
+function get_availability(req, res, get_bool) {
+    	var valuesObj = {
+		'SpaceId': req.get('spaceId'),
+    	'FromDate': req.get('fromDate'),
+    	'ToDate': req.get('toDate')
+	};
+
+    var updateColumns = [];
+    var values = [];
+    var i = 1;
+    if(typeof valuesObj['SpaceId'] != 'undefined') {
+		updateColumns.push('"SpaceId" = $' + i);
+		values.push(valuesObj['SpaceId']);
+		i++;
+	}
+	if(typeof valuesObj['FromDate'] != 'undefined') {
+		updateColumns.push('"Date" >= $' + i);
+		values.push(valuesObj['FromDate']);
+		i++;
+	}
+	if(typeof valuesObj['ToDate'] != 'undefined') {
+		updateColumns.push('"Date" <= $' + i);
+		values.push(valuesObj['ToDate']);
+		i++;
+	}
+    //var getQuery = 'SELECT * FROM "Availability";
+    var getQuery = 'SELECT * FROM "Availability" NATURAL JOIN "Space"';
+    if(updateColumns.length > 0) {
+    	getQuery += ' WHERE ' + updateColumns.join(' AND ');
+    }
+
+    var getSuccessMessage = 'Successfully retrieved availabilities';
+    var getFailedMessage = 'Could not retrieve availabilities';
+    var query = executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, get_bool);
+
+}
+
+
+
 // Execute a query and return the results
 // The argument 'values' can be omitted if the query takes no parameters
-function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
+function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_bool) {
     var client = new pg.Client(conString);
     var result = [];
+    var result_rows = [];
     client.connect(function (err, done) {
         if(err) {
             console.error('Could not connect to the database', err);
@@ -649,8 +700,15 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
         	}
         }
 
-        var query = client.query(dbQuery, values);
+        var query = client.query(dbQuery, values, function(err, result){
+                                
+                                 console.log(result);
+                            
+                                 console.log(result.rows);
+                                
+                                });
 
+        
         query.on('error', function (error) {
         	res.writeHead(500);
         	console.log(failedMessage);
@@ -658,18 +716,32 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
 			res.end();
         });
 
-        query.on('row', function (row){
-            result.push(row);
-        });
 
-        query.on('end', function (){
+        query.on('row', function (row){  
+            result.push(row);
+
+        });
+        //return res.json(result);
+        query.on('end', function (result){
+            
             client.end();
             console.log(successMessage);
+            
+            if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
+
+                res.render('postings.html', {postings:result.rows});
+                res.end();
+            } else {
+            
             res.writeHead(200, {'Content-Type': 'text/plain'});
-            res.write(JSON.stringify(result) + "\n");
+            res.write(JSON.stringify(result.rows) + "\n");
+            
             res.end();
+            
+            }
         });
     });
+    
 }
 
 
@@ -677,6 +749,5 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values) {
 
 
 
-
-//app.listen(3000);
-https.createServer(options, app).listen(3000);
+app.listen(3000);
+//https.createServer(options, app).listen(3000);

@@ -26,7 +26,7 @@ h1{
 }
 
 .spaces div{
-    height: 100px;
+    height: auto;
     border-style: solid;
     border-color: rgb(101, 188, 138);
     border-width: 2px;

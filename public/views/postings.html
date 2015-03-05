@@ -48,10 +48,22 @@
                             
                         <div class="row">     
                             <div class="spaces">
+                                
+                               <% for (var i=0; i < postings.length; i++) { %>
                                 <div class="col-xs-12">
-                                    <p>Username: <%=username%></p>
-                                    <p>Password: <%=password%></p>
+                                    <p>Space ID: <%=postings[i].SpaceId%></p>
+                                    <p>Date: <%=postings[i].Date%></p>
+                                    <p>Location: <%=postings[i].Location%></p>
+                                    <p>Description: <%=postings[i].Description%></p>
+                                    <p>Space Type: <%=postings[i].SpaceType%></p>
+                                    <p>Area: <%=postings[i].Area%></p>
+                                    <p>Rooms: <%=postings[i].Rooms%></p>
+                                    <p>Price Per Day: <%=postings[i].PricePerDay%></p>
+                                    <p>Vacancy Amount: <%=postings[i].VacancyAmount%></p>
+                                    
                                 </div>
+                                <% } %>
+                                
 
                                 <div class="col-xs-12">
                                     womp womp
