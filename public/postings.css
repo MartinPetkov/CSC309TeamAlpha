@@ -101,6 +101,10 @@ span.display{
     color: rgb(127, 161, 141);
 }
 
-.glyphicon {
+.glyphicon-log-out {
     font-size: 30px;
+}
+.glyphicon-user {
+    margin-top: 20%;
+    font-size: 70px;
 }
