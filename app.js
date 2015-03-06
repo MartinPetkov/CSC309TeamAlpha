@@ -743,7 +743,7 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
             client.end();
             console.log(successMessage);
             if (successMessage == 'Successfully inserted user' && !get_bool){
-				res.redirect('/');
+				res.redirect('/postings.html');
 				res.end();
 			
 			}
