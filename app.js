@@ -89,6 +89,16 @@ app.get('/signup.html', function(req, res){
 
 });
 
+//User Profile Viewing
+app.get('/user:id?', function(req, res){
+	var id = req.params.id;
+	var dbQuery = 'SELECT ("Email", "HomeLocation", "Reputation", "About", "ProjectInterests", "FirstName", "LastName") FROM "User" WHERE "UserId"=$1';
+	var successMessage = 'User Succesfully Retreived';
+	var failedMessage = 'User Not Retreived';
+	res.send(id);
+
+});
+
 app.get('/postings.html', function(req, res){
 	//res.sendFile('./public/views/postings.html',{root:__dirname});
     //res.render('postings.html', );
@@ -272,10 +282,11 @@ app.get('/getAllUsers', function (req, res) {
 });
 
 // Get user info
-app.get('/getUserInfo', function (req, res) {
+app.get('/getUserInfo:id?', function (req, res) {
     var values = [];
-    values.push(req.get('userId'));
-
+	var id = req.params.id;
+    //values.push(req.get('userId'));
+	values.push(id);
     var getQuery = 'SELECT * FROM "User" WHERE "UserId" = $1';
 
     var getSuccessMessage = 'Successfully retrieved user info';
@@ -658,7 +669,7 @@ function createParams(len) {
 }
 
 function get_availability(req, res, get_bool) {
-    	var valuesObj = {
+    var valuesObj = {
 		'SpaceId': req.get('spaceId'),
     	'FromDate': req.get('fromDate'),
     	'ToDate': req.get('toDate')
@@ -718,9 +729,9 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
 
         var query = client.query(dbQuery, values, function(err, result){
                                 
-                                 console.log(result);
+                                 console.log('RESULT ' +result);
                             
-                                 console.log(result.rows);
+                                 console.log('RESULT ROWS ' + result.rows);
                                 
                                 });
 
@@ -735,6 +746,7 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
 
         query.on('row', function (row){  
             result.push(row);
+			console.log('row push '+row);
 
         });
         //return res.json(result);
@@ -743,9 +755,15 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
             client.end();
             console.log(successMessage);
             if (successMessage == 'Successfully inserted user' && !get_bool){
-				res.redirect('/');
+				res.redirect('/postings.html');
 				res.end();
 			
+			}
+			else if (successMessage == 'Successfully retrieved user info' && get_bool){
+				
+				res.render('profile.html', {profile:result.rows});
+				
+				res.end();
 			}
             else if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
                 
