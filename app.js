@@ -218,11 +218,12 @@ app.post('/addUser', function (req, res) {
     // No photo yet, don't wanna deal with that
 
     var params = createParams(values.length);
-    var insertQuery = 'INSERT INTO "User"("FirstName", "LastName", "Email", "Password", "HomeLocation", "Reputation", "About", "ProjectInterests") VALUES(' + params + ') RETURNING "UserId"';
+    var insertQuery = 'INSERT INTO "User"( "Email", "Password", "HomeLocation") VALUES(' + params + ') RETURNING "UserId"';
 
     var insertSuccessMessage = 'Successfully inserted user';
     var insertFailedMessage = 'Failed to insert user';
     executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
+	req.session.user = req.body.email;
 });
 
 // Update user info
@@ -741,8 +742,12 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
             
             client.end();
             console.log(successMessage);
-            
-            if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
+            if (successMessage == 'Successfully inserted user' && !get_bool){
+				res.redirect('/');
+				res.end();
+			
+			}
+            else if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
                 
                 res.render('postings.html', {postings:result.rows});
                 res.end();
