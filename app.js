@@ -760,7 +760,7 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
 			
 			}
 			else if (successMessage == 'Successfully retrieved user info' && get_bool){
-				
+				console.log(result.rows[0]);
 				res.render('profile.html', {profile:result.rows});
 				
 				res.end();
