@@ -8,22 +8,23 @@
     <link rel="stylesheet" href="http://jqueryvalidation.org/files/demo/site-demos.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script src="signup.js" type="text/javascript">
-    </script>
+	<script src="signup.js" type="text/javascript"> </script>
+	
 </head>
 <body>
   
 <div class="container">
     <h1>Create a new account</h1>
     <div class="signup">
-        <form id="new_acc">
+        <form id="new_acc" action="/addUser" method="post">
             Email: <br/>
-            <input type="text" id="email" placeholder="email" /> <br/>
+            <input type="text" id="email" placeholder="email" name="email"/> <br/>
             Password: <br/>
-            <input id="password" type="password" placeholder="password" /> <br/>
+            <input id="password" type="password" placeholder="password" name="password"/> <br/>
             Retype password: <br/>
-            <input id="password-check" type="password" placeholder=" retype password" /> <br/>
-            
+            <input id="password-check" type="password" placeholder=" retype password" name="retype-pass"/> <br/>
+            Home Location: <br/>
+			<input id="homeLocation" type="text" placeholder="Your Home Location" name= "homeLocation"/><br/>
             I am: 
             <div class="dropdown">
                 <select name="signup-type">

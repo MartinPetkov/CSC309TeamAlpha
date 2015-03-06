@@ -12,10 +12,10 @@ var fs = require('fs');
 var sanitizer = require('sanitizer');
 
 // Needed for HTTPS functionality
-var options = {
+/*var options = {
 	key: fs.readFileSync('key.pem'),
 	cert: fs.readFileSync('cert.pem')
-};
+};*/
 
 var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
 
@@ -206,14 +206,15 @@ app.post('/newUser', function(req, res){
 // Create new user
 app.post('/addUser', function (req, res) {
     var values = [];
-    values.push(req.body.firstName);
-    values.push(req.body.lastName);
+    //values.push(req.body.firstName);
+    //values.push(req.body.lastName);
     values.push(req.body.email);
-    values.push(sha1(req.body.password));
+    //values.push(sha1(req.body.password));
+	values.push(req.body.password);
     values.push(req.body.homeLocation);
-    values.push(req.body.reputation);
-    values.push(req.body.about);
-    values.push(req.body.projectInterests);
+    //values.push(req.body.reputation);
+    //values.push(req.body.about);
+    //values.push(req.body.projectInterests);
     // No photo yet, don't wanna deal with that
 
     var params = createParams(values.length);
