@@ -90,3 +90,7 @@ p{
     margin-left: 15px;
 }
 
+.glyphicon-home, .glyphicon-user, .glyphicon-log-out {
+    margin-top: 0%;
+    font-size: 30px;
+}

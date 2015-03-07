@@ -18,10 +18,19 @@
                 <i>SynergySpace</i>
             </div>
             <div class="col-xs-1 col-md-1">
-                <span class="glyphicon glyphicon-envelope" />
+                <form action = '/' method='GET' >
+                    <button type="submit" class="btn btn-success btn-lrg">
+                        <span class="glyphicon glyphicon-home"/>
+                    </button>
+                </form>
             </div>
-            <div class="col-xs-1 col-md-1"> 
-                <span class="glyphicon glyphicon-globe" />
+                
+            <div class="col-xs-1 col-md-1">
+                <form action = '/getUserInfo' method='GET' >
+                    <button type="submit" class="btn btn-success btn-lrg">
+                        <span class="glyphicon glyphicon-user"/>
+                    </button>
+                </form>
             </div>
             <div class="col-xs-1 col-md-1">
                     <form action = '/logout' method='GET' >
@@ -75,16 +84,18 @@
         <div class="profile-info">
 			<p> Name: <%=profile[0].FirstName%> <%=profile[0].LastName%> </p>
 			<p> Home Location: <%=profile[0].HomeLocation%></p>
-			<p> Reputation: <%=profile[0].Reputation%> <span class="glyphicon glyphicon-star" /></p>
+
             <div class="display">
                 <span class="glyphicon glyphicon-user" />
             </div>
             <div class="stars">
-                <span class="glyphicon glyphicon-star" />
-                <span class="glyphicon glyphicon-star" />
-                <span class="glyphicon glyphicon-star" />
-                <span class="glyphicon glyphicon-star" />
-                <span class="glyphicon glyphicon-star-empty" />
+                <% for (var i=0; i < profile[0].Reputation; i++) { %>
+                    <span class="glyphicon glyphicon-star" />
+                <% } %>
+                    
+                <% for (var i=0; i < 5 - profile[0].Reputation; i++) { %>
+                    <span class="glyphicon glyphicon-star-empty" />
+                <% } %>
             </div>
 			<p> Project Interest: <%=profile[0].ProjectInterests%></p>
 			<p>About:<textarea> <%=profile[0].About%></textarea></p>
