@@ -63,7 +63,7 @@ input[type=submit]{
     line-height: inherit;
     padding-left: 20px;
     margin-top: 0;
-    margin-left: -15px;
+    
     margin-bottom: 0;
     background-color: rgb(168, 206, 160);
     color: white;
@@ -76,7 +76,7 @@ input[type=submit]{
     border-color: rgb(218, 243, 214);
     border-left: rgb(139, 203, 166);
     border-style: solid;   
-    height: 100%;
+    height: auto;
 }
 
 .col-xs-12{
@@ -103,7 +103,7 @@ span.display{
 
 .glyphicon-picture {
     margin-top: 20%;
-    font-size: 100px;
+    font-size: 100%;
 }
 
 .glyphicon-home, .glyphicon-user, .glyphicon-log-out {

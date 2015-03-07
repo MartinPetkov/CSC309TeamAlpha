@@ -12,39 +12,44 @@
     <body>
         <div class="container">
             <div class="bs-docs-grid">
-                <div class="row show-grid"></div>
+                <div class="row show-grid">
                 <h1>
-                <div class="col-xs-9 col-md-9">
-                    <i>SynergySpace</i>
-                </div>
-                <div class="col-xs-1 col-md-1">
-                    <form action = '/' method='GET' >
-                        <button type="submit" class="btn btn-success btn-lrg">
-                            <span class="glyphicon glyphicon-home"/>
-                        </button>
-                    </form>
-                </div>
-                <div class="col-xs-1 col-md-1">
-                    
-                    <form action = '/getUserInfo' method='GET' >
-                        <button type="submit" class="btn btn-success btn-lrg">
-                            <span class="glyphicon glyphicon-user"/>
-                        </button>
-                    </form>
-                </div>
-                <div class="col-xs-1 col-md-1">
-                    <form action = '/logout' method='GET' >
-                        
-                        <button type="submit" class="btn btn-success btn-lrg">
-                            <span class="glyphicon glyphicon-log-out"/>
-                        </button>
-                        </input>
-                    </form>
-                </div>
+                    <div class="col-xs-9 col-md-9">
+                        <i>SynergySpace</i>
+                    </div>
+
+                    <!-- Menu Heading -->
+                    <div class="col-xs-1 col-md-1">
+                        <form action = '/' method='GET' >
+                            <button type="submit" class="btn btn-success btn-lrg">
+                                <span class="glyphicon glyphicon-home"/>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="col-xs-1 col-md-1">
+                        <form action = '/getUserInfo' method='GET' >
+                            <button type="submit" class="btn btn-success btn-lrg">
+                                <span class="glyphicon glyphicon-user"/>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="col-xs-1 col-md-1">
+                        <form action = '/logout' method='GET' >
+
+                            <button type="submit" class="btn btn-success btn-lrg">
+                                <span class="glyphicon glyphicon-log-out"/>
+                            </button>
+                            </input>
+                        </form>
+                    </div>
+                    <!-- End Menu Heading -->
                 </h1>
-                
+                </div>
                 <div class="row">
                     <div class="col-xs-4">
+                        <!-- Search bar -->
                         <div class="search_keywords">
                             Search keywords:
                             <form>
@@ -66,17 +71,14 @@
                         </h3>
                     </div>
                     
-                    
-                       
                      <div class="col-xs-8">
                             
-                        <div class="row">     
+                        <!-- <div class="row"> -->    
                             <div class="spaces">
-                                
-                               <% for (var i=0; i < postings.length; i++) { %>
 
-                                    <div class="col-xs-12">
-                                        <div class="row">
+                               <% for (var i=0; i < postings.length; i++) { %>
+                                     <div class="col-xs-12">
+                                        <!-- <div class="row"> -->
                                             <div class="col-xs-3">
                                                 <span class="display">
                                                     <span class="glyphicon glyphicon-picture" />
@@ -87,7 +89,6 @@
                                                     <span class="tab">  
                                                     Location: <%=postings[i].Location%>   
                                                     </span>    
-
                                                 </p>
                                                 <p>Date: <%=postings[i].Date%></p>
 
@@ -102,12 +103,12 @@
 
                                                 <p>Vacancy Amount: <%=postings[i].VacancyAmount%></p>
                                             </div>
-                                        </div>
+                                       <!-- </div> -->
                                     </div>
                                 <% } %>
                                 
                             </div>       
-                        </div>
+                        <!--</div>-->
                     </div>
                     
                 </div>
