@@ -36,31 +36,6 @@ app.set('views', __dirname + '/public/views');
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
-
-app.get('/dbtest', function (req, res) {
-
-	var client = new pg.Client(conString);
-	var result = [];
-	client.connect(function (err, done) {
-        if(err) {
-            return console.error('could not connect to postgres', err);
-	        res.send('sorry, there was an error', err);
-        }
-        //client.query("INSERT into \"Users\" values (3, 'b', 'c', 'd', 4, 'aboutsuff', 'interests')");
-
-	     var query = client.query('select * from \"User\"');
-
-	     query.on('row', function(row){
-             result.push(row);
-	     });
-
-	     query.on('end', function(){
-             client.end();
-            res.json(result);
-	     });
-    });
-});
-
 app.get('/logout', function(req, res){ 
     console.log(req.session.user);
     req.session.destroy(function(err){
@@ -69,25 +44,28 @@ app.get('/logout', function(req, res){
         } else {
             res.redirect('/');
         }
-});
+    });
 });
 
-app.get('/HTML', function(req, res){
-	res.sendFile('./first.html',{root:__dirname});
-});
 
 app.get('/', function(req, res){
-	res.sendFile('./public/intro.html',{root:__dirname});
+	
 	console.log('Page Loaded!');
 	if (req.session.user){
 		console.log('current session: '+req.session.user);
-	}
+        res.redirect('/postings.html');
+	} else {
+        res.sendFile('./public/intro.html',{root:__dirname});
+        
+    }
 });
+
 
 app.get('/signup.html', function(req, res){
 	res.sendFile('./public/views/signup.html',{root:__dirname});
 
 });
+
 
 //User Profile Viewing
 app.get('/user:id?', function(req, res){
@@ -124,50 +102,45 @@ app.post('/postings.html', function(req, res){
 	var dbPass = [];
 
 	client.connect(function(err, done) {
-	if(err) {
-		return console.error('could not connect to postgres', err);
-		res.send('sorry, there was an error', err);
-	}
-	console.log('Connected to db User: ' + userEmail);
+        if(err) {
+            return console.error('could not connect to postgres', err);
+            res.send('sorry, there was an error', err);
+        }
+        console.log('Connected to db User: ' + userEmail);
 
-	var query = client.query('SELECT "Password"	FROM "User" WHERE "Email"=$1', [userEmail]);
+        var query = client.query('SELECT "Password"	FROM "User" WHERE "Email"=$1', [userEmail]);
+
+        query.on('error', function(err){
+            res.send('Query Error '+err);
+        });
+        query.on('row', function(row){
+            dbPass.push(row.Password);
+            passFound = true;
+            console.log('a user with that email was found ' + dbPass[0]);
+        });
+        query.on('end', function(){
+            client.end();
+            console.log('client ended');
+            if (passFound == false){
+                res.send('There was no user with that email');
+            }else if (dbPass[0] == userPass){
+                //Login Success!
+
+                req.session.user = userEmail;
+                console.log('session log for user '+req.session.user);
+
+                res.redirect('postings.html');
+                
+                //res.render('postings.html', {username: userEmail, password:userPass});
+            }else if (dbPass[0]!=userPass){
+                res.send('there was an error in log in ' + dbPass[0] + ' != ' + userPass);
+            }
+        });
+	});
     
-	query.on('error', function(err){
-		res.send('Query Error '+err);
-	});
-	query.on('row', function(row){
-		dbPass.push(row.Password);
-		passFound = true;
-		console.log('a user with that email was found ' + dbPass[0]);
-	});
-	query.on('end', function(){
-		client.end();
-		console.log('client ended');
-		if (passFound == false){
-			res.send('There was no user with that email');
-		}else if (dbPass[0] == userPass){
-			//Login Success!
-
-			req.session.user = userEmail;
-			console.log('session log for user '+req.session.user);
-
-            
-            res.redirect('postings.html');
-            //get_availability(req,res, false);
-
-            
-            //res.render('postings.html', {username: userEmail, password:userPass});
-			//res.send('success');
-		}else if (dbPass[0]!=userPass){
-			res.send('there was an error in log in ' + dbPass[0] + ' != ' + userPass);
-		}
-	});
-
-	});
-
-  //res.send('Username ' + userEmail + '\n password '+ userPass);
   console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
 });
+
 
 //New User Creation Post
 app.post('/newUser', function(req, res){
@@ -187,27 +160,26 @@ app.post('/newUser', function(req, res){
 		//Create the new user
 		var client = new pg.Client(conString);
 		client.connect(function(err, done) {
-		if(err) {
-			return console.error('could not connect to postgres', err);
-			res.send('sorry, there was an error', err);
-		}
+            if(err) {
+                return console.error('could not connect to postgres', err);
+                res.send('sorry, there was an error', err);
+            }
 
-		var query = client.query("INSERT INTO \"User\" VALUES (DEFAULT, $1,$2,'placeHolder', 0, 'placeHolder', 'placeHolder')", [newEmail, newPass0]);
+            var query = client.query("INSERT INTO \"User\" VALUES (DEFAULT, $1,$2,'placeHolder', 0, 'placeHolder', 'placeHolder')", [newEmail, newPass0]);
 
-		query.on('error', function(err){
-			res.send('Query Error '+err);
-		});
-		query.on('end', function(){
-			client.end();
-			req.session.user = newEmail;
-			res.render('postings.html', {username: newEmail, password: newPass0});
-		});
+            query.on('error', function(err){
+                res.send('Query Error '+err);
+            });
+            query.on('end', function(){
+                client.end();
+                req.session.user = newEmail;
+                res.render('postings.html', {username: newEmail, password: newPass0});
+            });
 		});
 	}else{
 		res.send('Passwords do not match');
 		//Do not create the new user
 	}
-
 });
 
 
@@ -235,6 +207,7 @@ app.post('/addUser', function (req, res) {
     executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 	req.session.user = req.body.email;
 });
+
 
 // Update user info
 app.post('/updateUserInfo', function (req, res) {
@@ -272,6 +245,7 @@ app.post('/updateUserInfo', function (req, res) {
     executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values);
 });
 
+
 // Get all users
 app.get('/getAllUsers', function (req, res) {
     var getQuery = 'SELECT * FROM "User"';
@@ -280,6 +254,7 @@ app.get('/getAllUsers', function (req, res) {
     var getFailedMessage = 'Could not retrieve all user info';
     executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, true);
 });
+
 
 // Get user info
 app.get('/getUserInfo:id?', function (req, res) {
@@ -293,6 +268,7 @@ app.get('/getUserInfo:id?', function (req, res) {
     var getFailedMessage = 'Could not retrieve user info';
     executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
+
 
 // Delete user
 app.post('/deleteUser', function (req, res) {
@@ -327,6 +303,7 @@ app.post('/addSpace', function (req, res) {
     var insertFailedMessage = 'Failed to insert space';
     executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
+
 
 // Update space
 app.post('/updateSpaceInfo', function (req, res) {
@@ -363,6 +340,7 @@ app.post('/updateSpaceInfo', function (req, res) {
     executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values, false);
 });
 
+
 // Get all spaces
 app.get('/getAllSpaces', function (req, res) {
     var getQuery = 'SELECT * FROM "Space"';
@@ -371,6 +349,7 @@ app.get('/getAllSpaces', function (req, res) {
     var getFailedMessage = 'Could not retrieve all space info';
     executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, true);
 });
+
 
 // Get space info
 app.get('/getSpaceInfo', function (req, res) {
@@ -383,6 +362,7 @@ app.get('/getSpaceInfo', function (req, res) {
     var getFailedMessage = 'Could not retrieve space info';
     executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
+
 
 // Delete space
 app.post('/deleteSpace', function (req, res) {
@@ -412,44 +392,12 @@ app.post('/addAvailability', function (req, res) {
     executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
 
+
 // Get availabilities (can be filtered)
 app.get('/getAvailabilities', function (req, res) {
-	/*var valuesObj = {
-		'SpaceId': req.get('spaceId'),
-    	'FromDate': req.get('fromDate'),
-    	'ToDate': req.get('toDate')
-	};
-
-    var updateColumns = [];
-    var values = [];
-    var i = 1;
-    if(typeof valuesObj['SpaceId'] != 'undefined') {
-		updateColumns.push('"SpaceId" = $' + i);
-		values.push(valuesObj['SpaceId']);
-		i++;
-	}
-	if(typeof valuesObj['FromDate'] != 'undefined') {
-		updateColumns.push('"Date" >= $' + i);
-		values.push(valuesObj['FromDate']);
-		i++;
-	}
-	if(typeof valuesObj['ToDate'] != 'undefined') {
-		updateColumns.push('"Date" <= $' + i);
-		values.push(valuesObj['ToDate']);
-		i++;
-	}
-
-    var getQuery = 'SELECT * FROM "Availability"';
-    if(updateColumns.length > 0) {
-    	getQuery += ' WHERE ' + updateColumns.join(' AND ');
-    }
-
-    var getSuccessMessage = 'Successfully retrieved availabilities';
-    var getFailedMessage = 'Could not retrieve availabilities';
-    var query = executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values);
-*/
     get_availability(req, res, true);
 });
+
 
 // Delete availability
 app.post('/deleteAvailability', function (req, res) {
@@ -515,6 +463,7 @@ app.post('/updateLeasingInfo', function (req, res) {
     executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values, false);
 });
 
+
 // Get leasing info
 app.get('/getLeasingInfo', function (req, res) {
 	var valuesObj = {
@@ -548,6 +497,7 @@ app.get('/getLeasingInfo', function (req, res) {
     executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
+
 // Delete a leasing
 app.post('/deleteLeasing', function (req, res) {
     var values = [];
@@ -580,6 +530,8 @@ app.post('/addForumPost', function (req, res) {
     var insertFailedMessage = 'Failed to insert forum post';
     executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
+
+
 // Get forum posts for space
 app.get('/getForumPostsForSpace', function (req, res) {
     var values = [];
@@ -592,6 +544,7 @@ app.get('/getForumPostsForSpace', function (req, res) {
     executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
+
 // Delete forum post
 app.post('/deleteForumPost', function (req, res) {
     var values = [];
@@ -603,6 +556,7 @@ app.post('/deleteForumPost', function (req, res) {
     var deleteFailedMessage = 'Could not delete forum post';
     executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
 });
+
 
 /* Other */
 // Verify credentials
@@ -658,6 +612,7 @@ app.get('/validateCredentials', function (req, res) {
     });
 });
 
+
 // Helper functions
 // Return a list of $i for query parametrization, to escape bad characters
 function createParams(len) {
@@ -667,6 +622,7 @@ function createParams(len) {
     }
     return params.join(',');
 }
+
 
 function get_availability(req, res, get_bool) {
     var valuesObj = {
@@ -704,7 +660,6 @@ function get_availability(req, res, get_bool) {
     var query = executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, get_bool);
 
 }
-
 
 
 // Execute a query and return the results
@@ -781,10 +736,6 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
     });
     
 }
-
-
-
-
 
 
 app.listen(3000);
