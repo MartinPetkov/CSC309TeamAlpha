@@ -25,6 +25,7 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
+
 app.use(express.static(__dirname + '/public'));
 
 app.use(session({secret: '123', resave: 'false', saveUninitialized: 'false'}));
@@ -36,10 +37,10 @@ app.set('views', __dirname + '/public/views');
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
-app.get('/logout', function(req, res){ 
+app.get('/logout', function (req, res) {
     console.log(req.session.user);
-    req.session.destroy(function(err){
-        if(err){
+    req.session.destroy(function (err) {
+        if (err) {
             console.log(err);
         } else {
             res.redirect('/');
@@ -48,27 +49,27 @@ app.get('/logout', function(req, res){
 });
 
 
-app.get('/', function(req, res){
+app.get('/', function (req, res) {
 	
 	console.log('Page Loaded!');
-	if (req.session.user){
-		console.log('current session: '+req.session.user);
+	if (req.session.user) {
+		console.log('current session: ' + req.session.user);
         res.redirect('/postings.html');
 	} else {
-        res.sendFile('./public/intro.html',{root:__dirname});
+        res.sendFile('./public/intro.html', {root:__dirname});
         
     }
 });
 
 
-app.get('/signup.html', function(req, res){
-	res.sendFile('./public/views/signup.html',{root:__dirname});
+app.get('/signup.html', function (req, res) {
+	res.sendFile('./public/views/signup.html' , {root:__dirname});
 
 });
 
 
 //User Profile Viewing
-app.get('/user:id?', function(req, res){
+app.get('/user:id?', function (req, res) {
 	var id = req.params.id;
 	var dbQuery = 'SELECT ("Email", "HomeLocation", "Reputation", "About", "ProjectInterests", "FirstName", "LastName") FROM "User" WHERE "UserId"=$1';
 	var successMessage = 'User Succesfully Retreived';
@@ -77,7 +78,7 @@ app.get('/user:id?', function(req, res){
 
 });
 
-app.get('/postings.html', function(req, res){
+app.get('/postings.html', function (req, res) {
 	//res.sendFile('./public/views/postings.html',{root:__dirname});
     //res.render('postings.html', );
     //res.redirect('back');
@@ -91,7 +92,7 @@ app.get('/postings.html', function(req, res){
 
 
 //Log in Post
-app.post('/postings.html', function(req, res){
+app.post('/postings.html', function (req, res) {
 	var userEmail = req.body.email;
 	var userPass = req.body.password;
 
@@ -101,8 +102,8 @@ app.post('/postings.html', function(req, res){
 	var client = new pg.Client(conString);
 	var dbPass = [];
 
-	client.connect(function(err, done) {
-        if(err) {
+	client.connect(function (err, done) {
+        if (err) {
             return console.error('could not connect to postgres', err);
             res.send('sorry, there was an error', err);
         }
@@ -110,29 +111,29 @@ app.post('/postings.html', function(req, res){
 
         var query = client.query('SELECT "Password"	FROM "User" WHERE "Email"=$1', [userEmail]);
 
-        query.on('error', function(err){
-            res.send('Query Error '+err);
+        query.on('error', function (err) {
+            res.send('Query Error ' + err);
         });
-        query.on('row', function(row){
+        query.on('row', function (row) {
             dbPass.push(row.Password);
             passFound = true;
             console.log('a user with that email was found ' + dbPass[0]);
         });
-        query.on('end', function(){
+        query.on('end', function () {
             client.end();
             console.log('client ended');
-            if (passFound == false){
+            if (passFound == false) {
                 res.send('There was no user with that email');
-            }else if (dbPass[0] == userPass){
+            } else if (dbPass[0] == userPass) {
                 //Login Success!
 
                 req.session.user = userEmail;
-                console.log('session log for user '+req.session.user);
+                console.log('session log for user ' + req.session.user);
 
                 res.redirect('postings.html');
                 
                 //res.render('postings.html', {username: userEmail, password:userPass});
-            }else if (dbPass[0]!=userPass){
+            } else if (dbPass[0] != userPass) {
                 res.send('there was an error in log in ' + dbPass[0] + ' != ' + userPass);
             }
         });
@@ -143,40 +144,40 @@ app.post('/postings.html', function(req, res){
 
 
 //New User Creation Post
-app.post('/newUser', function(req, res){
+app.post('/newUser', function (req, res) {
 	var newEmail = req.body.email;
 	var newPass0 = req.body.pw;
 	var newPass1 = req.body.retype_pw;
-	if (req.body.signup_type=="Leasing my own space"){
-		var newUserType = "Owner"
-	}else{
-		var newUserType = "Tenant"
+	if (req.body.signup_type == "Leasing my own space") {
+		var newUserType = "Owner";
+	} else {
+		var newUserType = "Tenant";
 	}
 
 	var checkPass = newPass0 == newPass1;
 
-	if (checkPass){
+	if (checkPass) {
 		//res.send('Passwords Matched, new user is a(n)' + newUserType);
 		//Create the new user
 		var client = new pg.Client(conString);
-		client.connect(function(err, done) {
-            if(err) {
+		client.connect(function (err, done) {
+            if (err) {
                 return console.error('could not connect to postgres', err);
                 res.send('sorry, there was an error', err);
             }
 
             var query = client.query("INSERT INTO \"User\" VALUES (DEFAULT, $1,$2,'placeHolder', 0, 'placeHolder', 'placeHolder')", [newEmail, newPass0]);
 
-            query.on('error', function(err){
-                res.send('Query Error '+err);
+            query.on('error', function (err) {
+                res.send('Query Error ' + err);
             });
-            query.on('end', function(){
+            query.on('end', function () {
                 client.end();
                 req.session.user = newEmail;
                 res.render('postings.html', {username: newEmail, password: newPass0});
             });
 		});
-	}else{
+	} else {
 		res.send('Passwords do not match');
 		//Do not create the new user
 	}
@@ -257,12 +258,14 @@ app.get('/getAllUsers', function (req, res) {
 
 
 // Get user info
-app.get('/getUserInfo:id?', function (req, res) {
+//app.get('/getUserInfo:id?', function (req, res) {
+app.get('/getUserInfo', function (req, res) {
     var values = [];
-	var id = req.params.id;
+	//var id = req.params.id;
     //values.push(req.get('userId'));
-	values.push(id);
-    var getQuery = 'SELECT * FROM "User" WHERE "UserId" = $1';
+	//values.push(id);
+    values.push(req.session.user);
+    var getQuery = 'SELECT * FROM "User" WHERE "Email" = $1';
 
     var getSuccessMessage = 'Successfully retrieved user info';
     var getFailedMessage = 'Could not retrieve user info';
@@ -684,9 +687,9 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
 
         var query = client.query(dbQuery, values, function(err, result){
                                 
-                                 console.log('RESULT ' +result);
+                                 //console.log('RESULT ' +result);
                             
-                                 console.log('RESULT ROWS ' + result.rows);
+                                 //console.log('RESULT ROWS ' + result.rows);
                                 
                                 });
 
