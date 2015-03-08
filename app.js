@@ -741,8 +741,12 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
 }
 // Used for heroku host
 app.use(express.static(__dirname + '/app'));
-var port = Number(process.env.PORT || 3000);
-var server = app.listen(port, function() { console.log('Listening on port %d', server.address().port); });
+
+app.configure(function(){
+    app.set('port', process.env.PORT || 3000);
+})
+//var port = Number(process.env.PORT || 3000);
+var server = app.listen(app.get('port'), function() { console.log('Listening on port %d', server.address().port); });
 
 //app.listen(3000);
 //https.createServer(options, app).listen(3000);
