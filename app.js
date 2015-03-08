@@ -740,9 +740,9 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
     
 }
 // Used for heroku host
-/*app.use(express.static(__dirname + '/app'));
+app.use(express.static(__dirname + '/app'));
 var port = Number(process.env.PORT || 3000);
 var server = app.listen(port, function() { console.log('Listening on port %d', server.address().port); });
-*/
-app.listen(3000);
+
+//app.listen(3000);
 //https.createServer(options, app).listen(3000);
