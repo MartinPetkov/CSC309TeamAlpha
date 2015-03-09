@@ -82,10 +82,7 @@
             </div>
         </div>
         <div class="profile-info">
-			<p> Name: <%=profile[0].FirstName%> <%=profile[0].LastName%> </p>
-			<p> Home Location: <%=profile[0].HomeLocation%></p>
-
-            <div class="display">
+		 <div class="display">
                 <span class="user-profile glyphicon glyphicon-user" />
             </div>
             <div class="stars">
@@ -97,9 +94,29 @@
                     <span class="glyphicon glyphicon-star-empty" />
                 <% } %>
             </div>
-			<p> Project Interest: <%=profile[0].ProjectInterests%></p>
-			<p>About:<textarea> <%=profile[0].About%></textarea></p>
+			<form id="update_acc" action="/updateUserInfo" method="post">
+			Email:
+			<input type="text" id="email" placeholder = <%=profile[0].Email %> name="email"/><br/>
+			<% if(opt.currUser){%>
+			<input type="password" id="password" placeholder="new Password" name="password"/>
+			<% } %>
+			Name:
+			<input type="text" id="firstName" placeholder= <%=profile[0].FirstName%> name="firstName"/>
+			<input type="text" id="lastName" placeholder= <%=profile[0].LastName%> name="lastName"/><br/>
+			Home Location
+			<input type="text" id="homeLocation" placeholder=<%=profile[0].HomeLocation%> name="homeLocation"/><br/>
+			Project Interests:
+			<input type="text" id="projectInterest" placeholder=<%=profile[0].ProjectInterests%> name="projectInterests"/><br/>
+			About:
+			<input type="text" id="about" placeholder=<%=profile[0].About%> name="about"/><br/>
 			
+			<br/>
+			<% if(opt.currUser){%>
+			<input type="submit" id="update_acc" value="Submit"/>
+			<% } %>
+			</form>
+
+           
             
         </div>
     </div>
