@@ -8,10 +8,11 @@
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
       <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     </head>
-    
+
     <body>
         <script src="slider.js" type="text/javascript">
         </script>
+
 
         <div class="container">
             <h1><i>SynergySpace</i></h1>
@@ -40,7 +41,7 @@
                 </div>
             </div> <!-- Carousel -->
 
-            <div class="login">
+            <div id="login" class="login">
                 <h2> Login:</h2>
                 <form action = '/postings.html' method='POST'>
                     <input type="text" name="email" value="email" required="" />
@@ -53,4 +54,22 @@
             </div>
         </div>
     </body>
+
+    <script>
+      cutoffWidth = 992;
+      $(window).resize(function() {
+        if($(window).width() < cutoffWidth){
+          $("#login").css("float", "left");
+          $("#login").css("margin-top", "10px");
+        } else {
+          $("#login").css("float", "right");
+          $("#login").css("margin-top", "0px");
+        }
+      });
+
+      if($(window).width() < cutoffWidth){
+        $("#login").css("float", "left");
+        $("#login").css("margin-top", "10px");
+      }
+    </script>
 </html>

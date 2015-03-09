@@ -50,14 +50,14 @@ app.get('/logout', function (req, res) {
 
 
 app.get('/', function (req, res) {
-	
+
 	console.log('Page Loaded!');
 	if (req.session.user) {
 		console.log('current session: ' + req.session.user);
         res.redirect('/postings.html');
 	} else {
         res.sendFile('./public/intro.html', {root:__dirname});
-        
+
     }
 });
 
@@ -131,14 +131,14 @@ app.post('/postings.html', function (req, res) {
                 console.log('session log for user ' + req.session.user);
 
                 res.redirect('postings.html');
-                
+
                 //res.render('postings.html', {username: userEmail, password:userPass});
             } else if (dbPass[0] != userPass) {
                 res.send('there was an error in log in ' + dbPass[0] + ' != ' + userPass);
             }
         });
 	});
-    
+
   console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
 });
 
@@ -512,7 +512,7 @@ app.post('/deleteLeasing', function (req, res) {
     var deleteSuccessMessage = 'Successfully deleted leasing';
     var deleteFailedMessage = 'Could not delete leasing';
     executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
-    
+
 });
 
 
@@ -686,14 +686,14 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
         }
 
         var query = client.query(dbQuery, values, function(err, result){
-                                
+
                                  //console.log('RESULT ' +result);
-                            
+
                                  //console.log('RESULT ROWS ' + result.rows);
-                                
+
                                 });
 
-        
+
         query.on('error', function (error) {
         	res.writeHead(500);
         	console.log(failedMessage);
@@ -702,51 +702,49 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
         });
 
 
-        query.on('row', function (row){  
+        query.on('row', function (row){
             result.push(row);
-			console.log('row push '+row);
-
         });
         //return res.json(result);
         query.on('end', function (result){
-            
+
             client.end();
             console.log(successMessage);
             if (successMessage == 'Successfully inserted user' && !get_bool){
 				res.redirect('/postings.html');
 				res.end();
-			
+
 			}
 			else if (successMessage == 'Successfully retrieved user info' && get_bool){
 				console.log(result.rows[0]);
 				res.render('profile.html', {profile:result.rows});
-				
+
 				res.end();
 			}
             else if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
-                
+
                 res.render('postings.html', {postings:result.rows});
                 res.end();
             } else {
-            
+
             res.writeHead(200, {'Content-Type': 'text/plain'});
             res.write(JSON.stringify(result.rows) + "\n");
-            
+
             res.end();
-            
+
             }
         });
     });
-    
+
 }
 // Used for heroku host
-app.use(express.static(__dirname + '/app'));
+//app.use(express.static(__dirname + '/app'));
 
-app.configure(function(){
-    app.set('port', process.env.PORT || 3000);
-})
+//app.configure(function(){
+//    app.set('port', process.env.PORT || 3000);
+//})
 //var port = Number(process.env.PORT || 3000);
-var server = app.listen(app.get('port'), function() { console.log('Listening on port %d', server.address().port); });
+//var server = app.listen(app.get('port'), function() { console.log('Listening on port %d', server.address().port); });
 
-//app.listen(3000);
+app.listen(3000);
 //https.createServer(options, app).listen(3000);

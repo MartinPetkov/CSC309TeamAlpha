@@ -1,11 +1,11 @@
-@font-face { font-family: AdobeGothic; src: url("AdobeGothicStd-Bold.otf"); } 
+@font-face { font-family: AdobeGothic; src: url("AdobeGothicStd-Bold.otf"); }
 
-body{
+body {
     background-color: rgb(218, 243, 214);
     width: inherit;
 }
 
-h1{
+h1 {
     background-color: rgb(101, 188, 138);
     margin-top: 0px;
     margin-right: 0px;
@@ -16,7 +16,7 @@ h1{
     color: rgb(255, 255, 255);
 }
 
-.login{
+.login {
     background-color: white;
     height: 400px;
     width: 300px;
@@ -25,7 +25,7 @@ h1{
     border-width: 10px;
     border-color: rgb(101, 188, 138);
 }
-.carousel-inner{
+.carousel-inner {
     float: left;
     width: auto;
 }
@@ -34,25 +34,25 @@ h1{
     bottom:-350px;
 }
 
-.signup{
+.signup {
     font-family: helvetica;
     color: rgb(105, 124, 113);
     margin-top: 15px;
 }
-.dropdown select{
+.dropdown select {
     font-family: helvetica;
     color: rgb(105, 124, 113);
     background-color: rgb(241, 243, 242);
 }
-    
-h2{
+
+h2 {
     margin-top: 0px;
     padding: 15px;
     font-family: helvetica;
     color: rgb(105, 124, 113);
 }
 
-input{
+input {
     display: block;
     margin-top: 10px;
     margin-left: 15px;
@@ -64,13 +64,13 @@ input{
     color: rgb(105, 124, 113);
 }
 
-input[type=submit]{
+input[type=submit] {
     background-color: rgb(101, 188, 138);
     color: white;
 }
 
 
-p{
+p {
     color: rgb(105, 124, 113);
     margin-top: 20px;
     margin-left: 15px;
