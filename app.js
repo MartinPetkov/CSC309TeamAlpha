@@ -716,7 +716,9 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
 
             client.end();
             console.log(successMessage);
-            results_handler(result);
+            if(!(typeof results_handler == 'undefined')) {
+                results_handler(result);
+            }
 
             if (successMessage == 'Successfully inserted user' && !get_bool){
 				res.redirect('/postings.html');
