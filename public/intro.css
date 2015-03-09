@@ -16,6 +16,10 @@ h1 {
     color: rgb(255, 255, 255);
 }
 
+input {
+    padding-left: 5px;
+}
+
 .login {
     background-color: white;
     height: 400px;

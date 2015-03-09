@@ -253,7 +253,7 @@ app.get('/getAllUsers', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved all user info';
     var getFailedMessage = 'Could not retrieve all user info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, true);
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, [], true);
 });
 
 
@@ -350,7 +350,7 @@ app.get('/getAllSpaces', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved all space info';
     var getFailedMessage = 'Could not retrieve all space info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, true);
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, [], true);
 });
 
 
@@ -363,8 +363,14 @@ app.get('/getSpaceInfo', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved space info';
     var getFailedMessage = 'Could not retrieve space info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
+    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true, renderSpaceInfo);
 });
+
+function renderSpaceInfo(result) {
+    var spaceId = result[0].SpaceId;
+    // Should render space info
+    // ...
+}
 
 
 // Delete space
@@ -667,7 +673,7 @@ function get_availability(req, res, get_bool) {
 
 // Execute a query and return the results
 // The argument 'values' can be omitted if the query takes no parameters
-function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_bool) {
+function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_bool, results_handler) {
     var client = new pg.Client(conString);
     var result = [];
     var result_rows = [];
@@ -710,6 +716,8 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
 
             client.end();
             console.log(successMessage);
+            results_handler(result);
+
             if (successMessage == 'Successfully inserted user' && !get_bool){
 				res.redirect('/postings.html');
 				res.end();
