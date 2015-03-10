@@ -204,7 +204,7 @@ app.post('/addUser', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted user';
     var insertFailedMessage = 'Failed to insert user';
-    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
+    executeQuery(res,req, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 	req.session.user = req.body.email;
 });
 
@@ -242,7 +242,7 @@ app.post('/updateUserInfo', function (req, res) {
 
     var updateSuccessMessage = 'Successfully updated info for user';
     var updateFailedMessage = 'Failed to update info for user';
-    executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values);
+    executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values);
 });
 
 
@@ -252,7 +252,7 @@ app.get('/getAllUsers', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved all user info';
     var getFailedMessage = 'Could not retrieve all user info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, [], true);
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, [], true);
 });
 
 
@@ -266,7 +266,7 @@ app.get('/getUserInfo', function (req, res) {
 
 		var getSuccessMessage = 'Successfully retrieved user info';
 		var getFailedMessage = 'Could not retrieve user info';
-		executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true, get_thisUserInfo);
+		executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, true, get_thisUserInfo);
     } else {
         res.redirect('/');
     }
@@ -285,7 +285,7 @@ app.get('/getUserInfo:id?', function(req, res){
 
 	var getSuccessMessage = 'Successfully retrieved user info';
 	var getFailedMessage = 'Could not retrieve user info';
-	executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true, get_userInfo);
+	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, true, get_userInfo);
   
 });
 
@@ -313,7 +313,7 @@ app.post('/deleteUser', function (req, res) {
 
     var deleteSuccessMessage = 'Successfully deleted user';
     var deleteFailedMessage = 'Could not delete user';
-    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
+    executeQuery(res,req, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
 });
 
 
@@ -335,7 +335,7 @@ app.post('/addSpace', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted space';
     var insertFailedMessage = 'Failed to insert space';
-    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
+    executeQuery(res,req, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
 
 
@@ -371,7 +371,7 @@ app.post('/updateSpaceInfo', function (req, res) {
 
     var updateSuccessMessage = 'Successfully updated info for space';
     var updateFailedMessage = 'Failed to update info for space';
-    executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values, false);
+    executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values, false);
 });
 
 
@@ -381,7 +381,7 @@ app.get('/getAllSpaces', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved all space info';
     var getFailedMessage = 'Could not retrieve all space info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, [], true);
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, [], true);
 });
 
 
@@ -394,7 +394,7 @@ app.get('/getSpaceInfo', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved space info';
     var getFailedMessage = 'Could not retrieve space info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true, renderSpaceInfo);
+    executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true, renderSpaceInfo);
 });
 
 function renderSpaceInfo(result) {
@@ -413,7 +413,7 @@ app.post('/deleteSpace', function (req, res) {
 
     var deleteSuccessMessage = 'Successfully deleted space';
     var deleteFailedMessage = 'Could not delete space';
-    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
+    executeQuery(res, req, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
 });
 
 
@@ -429,7 +429,7 @@ app.post('/addAvailability', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted availability';
     var insertFailedMessage = 'Failed to insert availability';
-    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
+    executeQuery(res, req, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
 
 
@@ -449,7 +449,7 @@ app.post('/deleteAvailability', function (req, res) {
 
     var deleteSuccessMessage = 'Successfully deleted availability';
     var deleteFailedMessage = 'Could not delete availability';
-    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
+    executeQuery(res, req, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
 });
 
 
@@ -468,7 +468,7 @@ app.post('/addLeasing', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted leasing';
     var insertFailedMessage = 'Failed to insert leasing';
-    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
+    executeQuery(res,req, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
 
 // Update leasing
@@ -500,7 +500,7 @@ app.post('/updateLeasingInfo', function (req, res) {
 
     var updateSuccessMessage = 'Successfully updated info for leasing';
     var updateFailedMessage = 'Failed to update info for leasing';
-    executeQuery(res, updateSuccessMessage, updateFailedMessage, updateQuery, values, false);
+    executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values, false);
 });
 
 
@@ -534,7 +534,7 @@ app.get('/getLeasingInfo', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved leasing info';
     var getFailedMessage = 'Could not retrieve leasing info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
 
@@ -548,7 +548,7 @@ app.post('/deleteLeasing', function (req, res) {
 
     var deleteSuccessMessage = 'Successfully deleted leasing';
     var deleteFailedMessage = 'Could not delete leasing';
-    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
+    executeQuery(res, req, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
 
 });
 
@@ -568,7 +568,7 @@ app.post('/addForumPost', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted forum post';
     var insertFailedMessage = 'Failed to insert forum post';
-    executeQuery(res, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
+    executeQuery(res, req, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 });
 
 
@@ -581,7 +581,7 @@ app.get('/getForumPostsForSpace', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved forum posts for space';
     var getFailedMessage = 'Could not retrieve forum posts for space';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
+    executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
 
@@ -594,7 +594,7 @@ app.post('/deleteForumPost', function (req, res) {
 
     var deleteSuccessMessage = 'Successfully deleted forum post';
     var deleteFailedMessage = 'Could not delete forum post';
-    executeQuery(res, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
+    executeQuery(res, req, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values, false);
 });
 
 
@@ -697,14 +697,14 @@ function get_availability(req, res, get_bool) {
 
     var getSuccessMessage = 'Successfully retrieved availabilities';
     var getFailedMessage = 'Could not retrieve availabilities';
-    var query = executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, get_bool);
+    var query = executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, get_bool);
 
 }
 
 
 // Execute a query and return the results
 // The argument 'values' can be omitted if the query takes no parameters
-function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_bool, results_handler) {
+function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, get_bool, results_handler) {
     var client = new pg.Client(conString);
     var result = [];
     var result_rows = [];
@@ -752,6 +752,8 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
             }
 
             if (successMessage == 'Successfully inserted user' && !get_bool){
+				req.session.uid = result.rows[0].UserId;
+				console.log('inserted user with ID= '+result.rows[0].UserId)
 				res.redirect('/postings.html');
 				res.end();
 

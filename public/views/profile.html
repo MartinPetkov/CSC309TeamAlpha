@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="profile.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+
 </head>
 <body>
   
@@ -94,12 +96,15 @@
                     <span class="glyphicon glyphicon-star-empty" />
                 <% } %>
             </div>
+			<% if(opt.currUser){%>
 			<form id="update_acc" action="/updateUserInfo" method="post">
 			Email:
 			<input type="text" id="email" placeholder = <%=profile[0].Email %> name="email"/><br/>
-			<% if(opt.currUser){%>
+			
+			<!-- If The User is viewing their page, offer a form to change their data -->
+			
 			<input type="password" id="password" placeholder="new Password" name="password"/>
-			<% } %>
+			
 			Name:
 			<input type="text" id="firstName" placeholder= <%=profile[0].FirstName%> name="firstName"/>
 			<input type="text" id="lastName" placeholder= <%=profile[0].LastName%> name="lastName"/><br/>
@@ -111,17 +116,24 @@
 			<input type="text" id="about" placeholder=<%=profile[0].About%> name="about"/><br/>
 			
 			<br/>
-			<% if(opt.currUser){%>
+			
 			<input type="submit" id="update_acc" value="Submit"/>
-			<% } %>
-			</form>
-
-           
-            
+			
+			</form> 
+			
+			<% }else{ %>
+			<!-- If The User is viewing another user's page, just provide data -->
+			Name: <%=profile[0].FirstName%> <%=profile[0].LastName%> <br/>
+			
+			About:<textarea id="about"> <%=profile[0].About%></textarea>
+            <% } %>
         </div>
     </div>
           
 </div>
+
+ 
+
 
 </body>
 </html>
