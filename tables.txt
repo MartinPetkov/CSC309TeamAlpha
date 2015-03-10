@@ -13,6 +13,7 @@ Photo; type = bytea
 Space:
 SpaceId; type = serial, NOT NULL, primary key
 OwnerId; type = serial, NOT NULL, REFERENCES User.UserId
+SpaceName: type = text
 Location; type = text, NOT NULL
 Description; type = text
 SpaceType; type = text, NOT NULL
