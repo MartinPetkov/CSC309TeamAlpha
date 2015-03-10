@@ -63,8 +63,7 @@ app.get('/', function (req, res) {
 
 
 app.get('/signup.html', function (req, res) {
-	res.sendFile('./public/views/signup.html' , {root:__dirname});
-
+	res.render('signup.html');
 });
 
 
@@ -261,17 +260,49 @@ app.get('/getAllUsers', function (req, res) {
 //app.get('/getUserInfo:id?', function (req, res) {
 app.get('/getUserInfo', function (req, res) {
     var values = [];
+	 if (req.session.user) {
+         values.push(req.session.user);
+		var getQuery = 'SELECT * FROM "User" WHERE "Email" = $1';
+
+		var getSuccessMessage = 'Successfully retrieved user info';
+		var getFailedMessage = 'Could not retrieve user info';
+		executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true, get_thisUserInfo);
+    } else {
+        res.redirect('/');
+    }
 	//var id = req.params.id;
     //values.push(req.get('userId'));
 	//values.push(id);
-    values.push(req.session.user);
-    var getQuery = 'SELECT * FROM "User" WHERE "Email" = $1';
-
-    var getSuccessMessage = 'Successfully retrieved user info';
-    var getFailedMessage = 'Could not retrieve user info';
-    executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true);
+   
 });
 
+app.get('/getUserInfo:id?', function(req, res){
+	var values = [];
+	var id = req.params.id;
+	//values.push(req.get('userId'));
+	values.push(id);
+	var getQuery = 'SELECT * FROM "User" WHERE "UserId" = $1';
+
+	var getSuccessMessage = 'Successfully retrieved user info';
+	var getFailedMessage = 'Could not retrieve user info';
+	executeQuery(res, getSuccessMessage, getFailedMessage, getQuery, values, true, get_userInfo);
+  
+});
+
+function get_thisUserInfo(result, res){
+	//var currEmail = req.session.email;
+	var opt = {currUser:true};
+	res.render('profile.html', {profile:result.rows, opt:opt});
+	res.end();
+}
+
+function get_userInfo(result, res){
+	//var currEmail = req.session.email;
+	console.log('get user info func');
+	var opt = {currUser:false};
+	res.render('profile.html', {profile:result.rows, opt:opt});
+	res.end();
+}
 
 // Delete user
 app.post('/deleteUser', function (req, res) {
@@ -717,7 +748,7 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
             client.end();
             console.log(successMessage);
             if(!(typeof results_handler == 'undefined')) {
-                results_handler(result);
+                results_handler(result, res);
             }
 
             if (successMessage == 'Successfully inserted user' && !get_bool){
@@ -727,9 +758,9 @@ function executeQuery(res, successMessage, failedMessage, dbQuery, values, get_b
 			}
 			else if (successMessage == 'Successfully retrieved user info' && get_bool){
 				console.log(result.rows[0]);
-				res.render('profile.html', {profile:result.rows});
+				//res.render('profile.html', {profile:result.rows});
 
-				res.end();
+				//res.end();
 			}
             else if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
 
