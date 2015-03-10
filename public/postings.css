@@ -1,11 +1,12 @@
 @font-face { font-family: AdobeGothic; src: url("AdobeGothicStd-Bold.otf"); }
 
-body{
+body {
     background-color: rgb(218, 243, 214);
     width: inherit;
+    font-family: AdobeGothic;
 }
 
-h1{
+h1 {
     background-color: rgb(101, 188, 138);
     margin-top: 0px;
     margin-right: 0px;
@@ -16,8 +17,15 @@ h1{
     color: rgb(255, 255, 255);
 }
 
+.space-button {
+    width: 100%;
+    height: 20%;
+    font-size: 15px;
+    display: inline-block;
+    text-align: centre;
+}
 
-.spaces h3{
+.spaces h3 {
     margin-top: 0px;
     height: 40px;
     padding: 7px;
@@ -25,19 +33,19 @@ h1{
     color: white;
 }
 
-.spaces div{
+.spaces div {
     height: auto;
-    
+
     background-color: white;
 }
-.search_keywords{
+.search_keywords {
     font-size: 20px;
     height: 100%;
     font-family: AdobeGothic;
-    color:rgb(87,116,101);   
+    color:rgb(87,116,101);
 }
 
-input{
+input {
     display: block;
     margin-top: 10px;
     margin-left: 15px;
@@ -52,7 +60,7 @@ input{
 
 
 
-input[type=submit]{
+input[type=submit] {
     background-color: rgb(101, 188, 138);
     color: white;
 }
@@ -63,41 +71,51 @@ input[type=submit]{
     line-height: inherit;
     padding-left: 20px;
     margin-top: 0;
-    
+
     margin-bottom: 0;
     background-color: rgb(168, 206, 160);
     color: white;
     vertical-align: middle;
-    
+
 }
 
-.col-xs-8{
+.col-xs-8 {
     border-width: 2px;
     border-color: rgb(218, 243, 214);
     border-left: rgb(139, 203, 166);
-    border-style: solid;   
+    border-style: solid;
     height: auto;
 }
 
-.col-xs-12{
+.col-xs-12 {
     border-style: solid;
     border-color: rgb(101, 188, 138);
     border-width: 2px;
-    
+    padding-left: 0px;
+    margin-bottom: 10px;
 }
+
+.space-info {
+    padding: 10px;
+}
+
 p {
-    color: rgb(168, 208, 162);    
+    color: rgb(168, 208, 162);
 }
 
 span.tab{
     padding-left: 5em;
 }
 
+.image-container {
+    border-right: 3px solid rgb(101, 188, 138);
+    text-align: center;
+}
+
 span.display{
+    display: inline-block;
     height: 30%;
     font-size: 70px;
-    text-align: center;
-    padding: 20%;
     color: rgb(127, 161, 141);
 }
 
