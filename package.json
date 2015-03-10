@@ -1,6 +1,9 @@
 {
   "name": "CSC309TeamAlpha",
   "version": "1.0.0",
+  "engines": {
+    "node": "0.10.x"
+  },
   "description": "CSC309 Winter 2015 Team Alpha Group Project Repo",
   "main": "app.js",
   "dependencies": {
@@ -17,7 +20,6 @@
   },
   "devDependencies": {},
   "scripts": {
-    "install": "./dependencies.sh",
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
