@@ -94,7 +94,7 @@ app.get('/postings.html', function (req, res) {
 app.post('/postings.html', function (req, res) {
 	var userEmail = req.body.email;
 	var userPass = req.body.password;
-
+	var result = [];
     var passFound = false;
 	//res.send('Username ' + userEmail + '\n password '+ userPass);
 	console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
@@ -107,14 +107,17 @@ app.post('/postings.html', function (req, res) {
             res.send('sorry, there was an error', err);
         }
         console.log('Connected to db User: ' + userEmail);
+		//var queryString = 'SELECT "Password", "UserII FROM "User" WHERE "Email"='+ userEmail + 'RETURNING "UserId"'
 
-        var query = client.query('SELECT "Password"	FROM "User" WHERE "Email"=$1', [userEmail]);
+        var query = client.query('SELECT "Password", "UserId" FROM "User" WHERE "Email"=$1', [userEmail]);
+		//var query = client.query(queryString);
 
         query.on('error', function (err) {
             res.send('Query Error ' + err);
         });
         query.on('row', function (row) {
             dbPass.push(row.Password);
+			result.push(row.UserId);
             passFound = true;
             console.log('a user with that email was found ' + dbPass[0]);
         });
@@ -127,8 +130,9 @@ app.post('/postings.html', function (req, res) {
                 //Login Success!
 
                 req.session.user = userEmail;
+				req.session.uid = result[0];
                 console.log('session log for user ' + req.session.user);
-
+				console.log('session log for userid ' + req.session.uid);
                 res.redirect('postings.html');
 
                 //res.render('postings.html', {username: userEmail, password:userPass});
