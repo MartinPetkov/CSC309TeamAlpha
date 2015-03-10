@@ -787,7 +787,7 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
 //    app.set('port', process.env.PORT || 3000);
 //})
 var port = Number(process.env.PORT || 3000);
-var server = app.listen(app.get('port'), function() { console.log('Listening on port %d', server.address().port); });
+var server = app.listen(port, function() { console.log('Listening on port %d', server.address().port); });
 
 //app.listen(3000);
 //https.createServer(options, app).listen(3000);
