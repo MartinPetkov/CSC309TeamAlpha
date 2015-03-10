@@ -83,7 +83,7 @@
                                                 <span class="display">
                                                     <span class="glyphicon glyphicon-picture" />
                                                 </span>
-                                                <button id="view-space-button" class="space-button" onclick="openSpace(postings[i].spaceId)">
+                                                <button id="view-space-button" class="space-button" spaceId=<%=postings[i].SpaceId%>>
                                                     View
                                                 </button>
                                             </div>
@@ -121,13 +121,24 @@
     </body>
 
     <script type="text/javascript">
+        var spaceButtons = $(".space-button");
+        for(var i = 0, max = spaceButtons.length; i < max; i++) {
+            var btn = spaceButtons[i];
+            btn.onclick = openSpace($(btn).attr("spaceId"));
+        }
+
         function openSpace(thisSpaceId) {
-            $.get("/getSpaceInfo", {spaceId: thisSpaceId}, function(data) {
-                console.log("Winning");
-            },
-            function(error){
-                console.log(error);
-            });
+            return function() {
+                console.log(thisSpaceId);
+                /*
+                $.get("/getSpaceInfo", {spaceId: thisSpaceId}, function(data) {
+                    console.log("Winning");
+                },
+                function(error){
+                    console.log(error);
+                });
+                */
+            }
         };
     </script>
 </html>
