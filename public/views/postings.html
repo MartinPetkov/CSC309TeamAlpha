@@ -119,24 +119,11 @@
         var spaceButtons = $(".space-button");
         for(var i = 0, max = spaceButtons.length; i < max; i++) {
             var btn = spaceButtons[i];
-            btn.onclick = openSpace($(btn).attr("spaceId"));
+            btn.onclick = function(btnSpaceId) {
+                return function() {
+                    location.href = "/space-info.html?spaceId=" + btnSpaceId;
+                };
+            } ($(btn).attr("spaceId"));
         }
-
-        function openSpace(thisSpaceId) {
-            return function() {
-                $.ajax({
-                    url: "/getSpaceInfo",
-                    data: {},
-                    type: "GET",
-                    beforeSend: function(xhr){xhr.setRequestHeader('spaceId', thisSpaceId);},
-                    success: function(html, textStatus, jqXHR) {
-                        document.write(html);
-                    },
-                    error: function(jqXHR, textStatus, error) {
-                        console.log(error);
-                    }
-                });
-            }
-        };
     </script>
 </html>

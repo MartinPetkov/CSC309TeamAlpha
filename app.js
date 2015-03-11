@@ -419,12 +419,27 @@ app.get('/getSpaceInfo', function (req, res) {
 
     var getSuccessMessage = 'Successfully retrieved space info';
     var getFailedMessage = 'Could not retrieve space info';
-    executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true, renderSpaceInfo);
+    executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
 function renderSpaceInfo(result, res, req) {
     res.render('space-info.html', {spaceInfo: result.rows[0]});
 }
+
+app.get('/space-info.html', function (req, res) {
+    if(typeof req.query.spaceId == 'undefined') {
+        res.end();
+    }
+
+    var values = [];
+    values.push(req.query.spaceId);
+
+    var getQuery = 'SELECT * FROM "Space" WHERE "SpaceId" = $1';
+
+    var getSuccessMessage = 'Successfully retrieved space info';
+    var getFailedMessage = 'Could not retrieve space info';
+    executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true, renderSpaceInfo);
+});
 
 
 // Delete space
