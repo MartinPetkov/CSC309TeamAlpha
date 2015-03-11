@@ -17,12 +17,16 @@
     <h1>Create a new account</h1>
     <div class="signup">
         <form id="new_acc" action="/addUser" method="post">
+            First name:
+            <input type="text" id="firstName" placeholder="First Name" name="firstName"/> <br/>
+            Last name:<br/>
+            <input type="text" id="lastName" placeholder="Last Name" name="lastName"/> <br/>
             Email: <br/>
-            <input type="text" id="email" placeholder="email" name="email"/> <br/>
+            <input type="text" id="email" placeholder="Email" name="email"/> <br/>
             Password: <br/>
-            <input id="password" type="password" placeholder="password" name="password"/> <br/>
+            <input id="password" type="password" placeholder="Password" name="password"/> <br/>
             Retype password: <br/>
-            <input id="password-check" type="password" placeholder=" retype password" name="retype-pass"/> <br/>
+            <input id="password-check" type="password" placeholder=" Retype password" name="retype-pass"/> <br/>
             Home Location: <br/>
 			<input id="homeLocation" type="text" placeholder="Your Home Location" name= "homeLocation"/><br/>
             <input type="submit" id="create-acc" value="Submit"/>

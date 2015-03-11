@@ -152,19 +152,22 @@ app.post('/postings.html', function (req, res) {
 // Create new user
 app.post('/addUser', function (req, res) {
     var values = [];
-    //values.push(req.body.firstName);
-    //values.push(req.body.lastName);
+    values.push(req.body.firstName);
+    values.push(req.body.lastName);
     values.push(req.body.email);
     values.push(sha1(req.body.password));
 	//values.push(req.body.password);
     values.push(req.body.homeLocation);
+    values.push(0);
+    values.push(" ");
+    values.push(" ");
     //values.push(req.body.reputation);
     //values.push(req.body.about);
     //values.push(req.body.projectInterests);
     // No photo yet, don't wanna deal with that
 
     var params = createParams(values.length);
-    var insertQuery = 'INSERT INTO "User"( "Email", "Password", "HomeLocation") VALUES(' + params + ') RETURNING "UserId"';
+    var insertQuery = 'INSERT INTO "User"( "FirstName", "LastName", "Email", "Password", "HomeLocation", "Reputation", "About", "ProjectInterests") VALUES(' + params + ') RETURNING "UserId"';
 
     var insertSuccessMessage = 'Successfully inserted user';
     var insertFailedMessage = 'Failed to insert user';
