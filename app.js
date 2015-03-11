@@ -323,10 +323,64 @@ function get_thisUserInfo(result, res, req){
 
 function get_userInfo(result, res, req){
 	//var currEmail = req.session.email;
+	var viewUser = result.rows[0].UserId;
 	console.log('get user info func');
-	var opt = {currUser:false};
-	res.render('profile.html', {profile:result.rows, opt:opt});
-	res.end();
+	//var opt = {currUser:false};
+	var spaceResult = [];
+	var client = new pg.Client(conString);
+	var currSpace = '';
+	client.connect(function (err, done) {
+		if (err) {
+			return console.error('could not connect to postgres', err);
+			res.send('sorry, there was an error', err);
+		}
+	    var query = client.query('SELECT * FROM "Leasing" WHERE "TenantId"=$1', [viewUser]);
+		query.on('error', function (err) {
+            res.send('Query Error ' + err);
+        });
+
+		var spaceFound = false;
+        query.on('row', function (row) {
+            spaceFound = true;
+			currSpace = row.SpaceId;
+
+		});
+		query.on('end', function(){
+			if (spaceFound){
+				//The user is currently occupying a space
+				var innerQuery = client.query('Select * FROM "Space" WHERE "SpaceId"=$1',[currSpace]);
+				//console.log('innerQuery for spaceId= '+currSpace);
+				innerQuery.on('error', function (err) {
+					res.send('Query Error ' + err);
+				});
+				innerQuery.on('row', function(row){
+					spaceResult.push(row);
+					console.log('space Result push', row);
+				});
+				innerQuery.on('end', function(){
+					client.end();
+					var opt = {currUser:true,spaceFound:true};
+					console.log(spaceResult[0]);
+					res.render('profile.html', {profile:result.rows, opt:opt, Space:spaceResult[0]});
+					res.end();
+
+				});
+			}else{
+				//The user is not occupying a space
+				client.end();
+				var opt = {currUser:true,spaceFound:false};
+				console.log('No Space found');
+				res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
+				res.end();
+			}
+		});
+		});
+	
+	
+	
+	console.log('looking at user with id '+ result.rows[0].UserId);
+	//res.render('profile.html', {profile:result.rows, opt:opt});
+	//res.end();
 }
 
 // Delete user
