@@ -111,9 +111,9 @@
 			Home Location
 			<input type="text" id="homeLocation" value=<%=profile[0].HomeLocation%> name="homeLocation"/><br/>
 			Project Interests:
-			<input type="text" id="projectInterest" value=<%=profile[0].ProjectInterests%> name="projectInterests"/><br/>
+			<input type="text" id="projectInterests" name="projectInterests" value=<%=profile[0].ProjectInterests? profile[0].ProjectInterests : ""%>></input><br/>
 			About:
-			<input type="text" id="about" value=<%=profile[0].About%> name="about"/><br/>
+			<input type="text" id="about" name="about" value=<%= profile[0].About ? profile[0].About : ""%>></input><br/>
 			
 			<br/>
 			
