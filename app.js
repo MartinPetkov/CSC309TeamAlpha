@@ -277,14 +277,14 @@ function get_thisUserInfo(result, res, req){
 		query.on('error', function (err) {
             res.send('Query Error ' + err);
         });
-		
+
 		var spaceFound = false;
         query.on('row', function (row) {
 
             spaceFound = true;
 			currSpace = row.SpaceId;
-			
-			
+
+
 		});
         query.on('end', function () {
 			if (spaceFound){
@@ -314,9 +314,9 @@ function get_thisUserInfo(result, res, req){
 				res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
 				res.end();
 			}
-            
+
 		});
-	
+
 	});
 
 }
@@ -422,7 +422,7 @@ app.get('/getSpaceInfo', function (req, res) {
     executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true, renderSpaceInfo);
 });
 
-function renderSpaceInfo(result) {
+function renderSpaceInfo(result, res, req) {
     res.render('space-info.html', {spaceInfo: result[0]});
 }
 
