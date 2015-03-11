@@ -63,6 +63,13 @@
                 <div class="col-xs-9 col-xs-height">
                     Desctiption: <%=Space.Description%><br/>
 					Type: <%Space.SpaceType%>
+				<br/>
+                <button id="view-space-button" class="space-button" spaceId=<%=Space.SpaceId%>>
+                    View
+                </button>
+				
+					
+					
                 </div>
             </div>
 			
@@ -159,4 +166,16 @@
 
 
 </body>
+
+ <script type="text/javascript">
+        var spaceButtons = $(".space-button");
+        for(var i = 0, max = spaceButtons.length; i < max; i++) {
+            var btn = spaceButtons[i];
+            btn.onclick = function(btnSpaceId) {
+                return function() {
+                    location.href = "/space-info.html?spaceId=" + btnSpaceId;
+                };
+            } ($(btn).attr("spaceId"));
+        }
+    </script>
 </html>

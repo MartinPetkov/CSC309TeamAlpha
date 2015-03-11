@@ -431,7 +431,6 @@ app.get('/space-info.html', function (req, res) {
     if(typeof req.query.spaceId == 'undefined') {
         res.end();
     }
-
     var values = [];
     values.push(req.query.spaceId);
 
