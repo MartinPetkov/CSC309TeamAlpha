@@ -814,7 +814,7 @@ function get_availability(req, res, get_bool) {
     if(updateColumns.length > 0) {
     	getQuery += ' WHERE ' + updateColumns.join(' AND ');
     }
-
+    
     var getSuccessMessage = 'Successfully retrieved availabilities';
     var getFailedMessage = 'Could not retrieve availabilities';
     var query = executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, get_bool);
@@ -890,7 +890,7 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
                     //res.end();
                 }
                 else if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
-
+                    console.log(result.rows);
                     res.render('postings.html', {postings:result.rows});
                     res.end();
                 } else {
