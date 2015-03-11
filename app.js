@@ -103,8 +103,8 @@ app.post('/postings.html', function (req, res) {
 
 	client.connect(function (err, done) {
         if (err) {
-            return console.error('could not connect to postgres', err);
-            res.send('sorry, there was an error', err);
+            return console.error('Could not connect to postgres', err);
+            res.send('Sorry, there was an error', err);
         }
         console.log('Connected to db User: ' + userEmail);
 		//var queryString = 'SELECT "Password", "UserII FROM "User" WHERE "Email"='+ userEmail + 'RETURNING "UserId"'
@@ -126,18 +126,18 @@ app.post('/postings.html', function (req, res) {
             //console.log('client ended');
             if (passFound == false) {
                 res.send('There was no user with that email');
-            } else if (dbPass[0] == userPass) {
+            } else if (dbPass[0] == sha1(userPass)) {
                 //Login Success!
 
                 req.session.user = userEmail;
 				req.session.uid = result[0];
 
-				console.log('session log for userid ' + req.session.uid);
+				console.log('Session log for userid ' + req.session.uid);
                 res.redirect('postings.html');
 
                 //res.render('postings.html', {username: userEmail, password:userPass});
             } else if (dbPass[0] != userPass) {
-                res.send('there was an error in log in ' + dbPass[0] + ' != ' + userPass);
+                res.send('There was an error in log in ' + dbPass[0] + ' != ' + sha1(userPass));
             }
         });
 	});
@@ -195,8 +195,8 @@ app.post('/addUser', function (req, res) {
     //values.push(req.body.firstName);
     //values.push(req.body.lastName);
     values.push(req.body.email);
-    //values.push(sha1(req.body.password));
-	values.push(req.body.password);
+    values.push(sha1(req.body.password));
+	//values.push(req.body.password);
     values.push(req.body.homeLocation);
     //values.push(req.body.reputation);
     //values.push(req.body.about);
@@ -220,10 +220,10 @@ app.post('/updateUserInfo', function (req, res) {
     	'FirstName': req.body.firstName,
     	'LastName': req.body.lastName,
     	'Email': userEmail,
-    	//'Password': sha1(req.body.password),
-		'Password': req.body.password,
+    	'Password': sha1(req.body.password),
+		//'Password': req.body.password,
     	'HomeLocation': req.body.homeLocation,
-    	//'Reputation': req.body.reputation,
+    	'Reputation': req.body.reputation,
     	'About': req.body.about,
     	'ProjectInterests': req.body.projectInterests
 	};
@@ -249,7 +249,7 @@ app.post('/updateUserInfo', function (req, res) {
     var updateSuccessMessage = 'Successfully updated info for user';
     var updateFailedMessage = 'Failed to update info for user';
     executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values, false, update_userInfo);
-	
+
 });
 function update_userInfo(result, res, req){
 	console.log('update user info func callback');
@@ -284,7 +284,7 @@ app.get('/getUserInfo', function (req, res) {
 	//var id = req.params.id;
     //values.push(req.get('userId'));
 	//values.push(id);
-   
+
 });
 
 app.get('/getUserInfo:id?', function(req, res){
@@ -297,7 +297,7 @@ app.get('/getUserInfo:id?', function(req, res){
 	var getSuccessMessage = 'Successfully retrieved user info';
 	var getFailedMessage = 'Could not retrieve user info';
 	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, true, get_userInfo);
-  
+
 });
 
 function get_thisUserInfo(result, res, req){
@@ -409,9 +409,7 @@ app.get('/getSpaceInfo', function (req, res) {
 });
 
 function renderSpaceInfo(result) {
-    var spaceId = result[0].SpaceId;
-    // Should render space info
-    // ...
+    res.render('space-info.html', {spaceInfo: result[0]});
 }
 
 
