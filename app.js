@@ -146,46 +146,6 @@ app.post('/postings.html', function (req, res) {
 });
 
 
-//New User Creation Post
-app.post('/newUser', function (req, res) {
-	var newEmail = req.body.email;
-	var newPass0 = req.body.pw;
-	var newPass1 = req.body.retype_pw;
-	if (req.body.signup_type == "Leasing my own space") {
-		var newUserType = "Owner";
-	} else {
-		var newUserType = "Tenant";
-	}
-
-	var checkPass = newPass0 == newPass1;
-
-	if (checkPass) {
-		//res.send('Passwords Matched, new user is a(n)' + newUserType);
-		//Create the new user
-		var client = new pg.Client(conString);
-		client.connect(function (err, done) {
-            if (err) {
-                return console.error('could not connect to postgres', err);
-                res.send('sorry, there was an error', err);
-            }
-
-            var query = client.query("INSERT INTO \"User\" VALUES (DEFAULT, $1,$2,'placeHolder', 0, 'placeHolder', 'placeHolder')", [newEmail, newPass0]);
-
-            query.on('error', function (err) {
-                res.send('Query Error ' + err);
-            });
-            query.on('end', function () {
-                client.end();
-                req.session.user = newEmail;
-                res.render('postings.html', {username: newEmail, password: newPass0});
-            });
-		});
-	} else {
-		res.send('Passwords do not match');
-		//Do not create the new user
-	}
-});
-
 
 // Database interaction endpoints, add future functions here
 /* User */
@@ -301,10 +261,61 @@ app.get('/getUserInfo:id?', function(req, res){
 });
 
 function get_thisUserInfo(result, res, req){
-	//var currEmail = req.session.email;
-	var opt = {currUser:true};
-	res.render('profile.html', {profile:result.rows, opt:opt});
-	res.end();
+	var spaceResult =[];
+	var currUser = req.session.uid;
+	var client = new pg.Client(conString);
+	var currSpace = '';
+	client.connect(function (err, done) {
+		if (err) {
+			return console.error('could not connect to postgres', err);
+			res.send('sorry, there was an error', err);
+		}
+	    var query = client.query('SELECT * FROM "Leasing" WHERE "TenantId"=$1', [currUser]);
+		query.on('error', function (err) {
+            res.send('Query Error ' + err);
+        });
+		
+		var spaceFound = false;
+        query.on('row', function (row) {
+
+            spaceFound = true;
+			currSpace = row.SpaceId;
+			
+			
+		});
+        query.on('end', function () {
+			if (spaceFound){
+				//The user is currently occupying a space
+				var innerQuery = client.query('Select * FROM "Space" WHERE "SpaceId"=$1',[currSpace]);
+				console.log('innerQuery for spaceId= '+currSpace);
+				innerQuery.on('error', function (err) {
+					res.send('Query Error ' + err);
+				});
+				innerQuery.on('row', function(row){
+					spaceResult.push(row);
+					console.log('space Result push', row);
+				});
+				innerQuery.on('end', function(){
+					client.end();
+					var opt = {currUser:true,spaceFound:true};
+					console.log(spaceResult[0]);
+					res.render('profile.html', {profile:result.rows, opt:opt, Space:spaceResult[0]});
+					res.end();
+
+				});
+			}else{
+				//The user is not occupying a space
+				client.end();
+				var opt = {currUser:true,spaceFound:false};
+				console.log('No Space found');
+				res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
+				res.end();
+			}
+            
+		});
+	
+	});
+
 }
 
 function get_userInfo(result, res, req){
