@@ -375,9 +375,9 @@ function get_userInfo(result, res, req){
 			}
 		});
 		});
-	
-	
-	
+
+
+
 	console.log('looking at user with id '+ result.rows[0].UserId);
 	//res.render('profile.html', {profile:result.rows, opt:opt});
 	//res.end();
@@ -514,10 +514,11 @@ app.post('/deleteSpace', function (req, res) {
 app.post('/addAvailability', function (req, res) {
     var values = [];
     values.push(req.body.spaceId);
-    values.push(req.body.date);
+    values.push(req.body.fromDate);
+    values.push(req.body.toDate);
 
     var params = createParams(values.length);
-    var insertQuery = 'INSERT INTO "Availability"("SpaceId", "Date") VALUES(' + params + ') RETURNING "SpaceId", "Date"';
+    var insertQuery = 'INSERT INTO "Availability"("SpaceId", "FromDate", "ToDate") VALUES(' + params + ') RETURNING "SpaceId", "FromDate", "ToDate"';
 
     var insertSuccessMessage = 'Successfully inserted availability';
     var insertFailedMessage = 'Failed to insert availability';
@@ -535,9 +536,10 @@ app.get('/getAvailabilities', function (req, res) {
 app.post('/deleteAvailability', function (req, res) {
     var values = [];
     values.push(req.body.spaceId);
-    values.push(req.body.date);
+    values.push(req.body.fromDate);
+    values.push(req.body.toDate);
 
-    var deleteQuery = 'DELETE FROM "Availability" WHERE "SpaceId" = $1 AND "Date" = $2';
+    var deleteQuery = 'DELETE FROM "Availability" WHERE "SpaceId" = $1 AND "FromDate" = $2 AND "ToDate" = $3';
 
     var deleteSuccessMessage = 'Successfully deleted availability';
     var deleteFailedMessage = 'Could not delete availability';
