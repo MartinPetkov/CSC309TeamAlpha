@@ -424,6 +424,7 @@ app.get('/getSpaceInfo', function (req, res) {
 
 function renderSpaceInfo(result, res, req) {
     res.render('space-info.html', {spaceInfo: result.rows[0]});
+    res.end();
 }
 
 app.get('/space-info.html', function (req, res) {
@@ -787,37 +788,38 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
             console.log(successMessage);
             if(!(typeof results_handler == 'undefined')) {
                 results_handler(result, res, req);
-                res.end();
-                return;
-            }
-
-            if (successMessage == 'Successfully inserted user' && !get_bool){
-				req.session.uid = result.rows[0].UserId;
-				console.log('inserted user with ID= '+result.rows[0].UserId)
-				res.redirect('/postings.html');
-				res.end();
-
-			}
-			else if(successMessage == 'Successfully updated info for user'){
-				console.log('user update query');
-			}
-			else if (successMessage == 'Successfully retrieved user info' && get_bool){
-				console.log(result.rows[0]);
-				//res.render('profile.html', {profile:result.rows});
-
-				//res.end();
-			}
-            else if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
-
-                res.render('postings.html', {postings:result.rows});
-                res.end();
+                //res.end();
+                //return;
             } else {
 
-                res.writeHead(200, {'Content-Type': 'text/plain'});
-                res.write(JSON.stringify(result.rows) + "\n");
+                if (successMessage == 'Successfully inserted user' && !get_bool){
+                    req.session.uid = result.rows[0].UserId;
+                    console.log('inserted user with ID= '+result.rows[0].UserId)
+                    res.redirect('/postings.html');
+                    res.end();
 
-                res.end();
+                }
+                else if(successMessage == 'Successfully updated info for user'){
+                    console.log('user update query');
+                }
+                else if (successMessage == 'Successfully retrieved user info' && get_bool){
+                    console.log(result.rows[0]);
+                    //res.render('profile.html', {profile:result.rows});
 
+                    //res.end();
+                }
+                else if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
+
+                    res.render('postings.html', {postings:result.rows});
+                    res.end();
+                } else {
+
+                    res.writeHead(200, {'Content-Type': 'text/plain'});
+                    res.write(JSON.stringify(result.rows) + "\n");
+
+                    res.end();
+
+                }
             }
         });
     });
