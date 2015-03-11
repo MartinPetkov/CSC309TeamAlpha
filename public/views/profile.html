@@ -99,21 +99,21 @@
 			<% if(opt.currUser){%>
 			<form id="update_acc" action="/updateUserInfo" method="post">
 			Email:
-			<input type="text" id="email" placeholder = <%=profile[0].Email %> name="email"/><br/>
+			<input type="text" id="email" value = <%=profile[0].Email %> name="email"/><br/>
 			
 			<!-- If The User is viewing their page, offer a form to change their data -->
 			
-			<input type="password" id="password" placeholder="new Password" name="password"/>
+			<input type="password" id="password" value=<%= profile[0].Password%> name="password"/>
 			
 			Name:
-			<input type="text" id="firstName" placeholder= <%=profile[0].FirstName%> name="firstName"/>
-			<input type="text" id="lastName" placeholder= <%=profile[0].LastName%> name="lastName"/><br/>
+			<input type="text" id="firstName" value= <%=profile[0].FirstName%> name="firstName"/>
+			<input type="text" id="lastName" value= <%=profile[0].LastName%> name="lastName"/><br/>
 			Home Location
-			<input type="text" id="homeLocation" placeholder=<%=profile[0].HomeLocation%> name="homeLocation"/><br/>
+			<input type="text" id="homeLocation" value=<%=profile[0].HomeLocation%> name="homeLocation"/><br/>
 			Project Interests:
-			<input type="text" id="projectInterest" placeholder=<%=profile[0].ProjectInterests%> name="projectInterests"/><br/>
+			<input type="text" id="projectInterest" value=<%=profile[0].ProjectInterests%> name="projectInterests"/><br/>
 			About:
-			<input type="text" id="about" placeholder=<%=profile[0].About%> name="about"/><br/>
+			<input type="text" id="about" value=<%=profile[0].About%> name="about"/><br/>
 			
 			<br/>
 			

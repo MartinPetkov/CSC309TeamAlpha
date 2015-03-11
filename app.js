@@ -97,7 +97,7 @@ app.post('/postings.html', function (req, res) {
 	var result = [];
     var passFound = false;
 	//res.send('Username ' + userEmail + '\n password '+ userPass);
-	console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
+	//console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
 	var client = new pg.Client(conString);
 	var dbPass = [];
 
@@ -119,11 +119,11 @@ app.post('/postings.html', function (req, res) {
             dbPass.push(row.Password);
 			result.push(row.UserId);
             passFound = true;
-            console.log('a user with that email was found ' + dbPass[0]);
+            //console.log('a user with that email was found ' + dbPass[0]);
         });
         query.on('end', function () {
             client.end();
-            console.log('client ended');
+            //console.log('client ended');
             if (passFound == false) {
                 res.send('There was no user with that email');
             } else if (dbPass[0] == userPass) {
@@ -131,7 +131,7 @@ app.post('/postings.html', function (req, res) {
 
                 req.session.user = userEmail;
 				req.session.uid = result[0];
-                console.log('session log for user ' + req.session.user);
+
 				console.log('session log for userid ' + req.session.uid);
                 res.redirect('postings.html');
 
@@ -142,7 +142,7 @@ app.post('/postings.html', function (req, res) {
         });
 	});
 
-  console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
+  //console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
 });
 
 
@@ -220,9 +220,10 @@ app.post('/updateUserInfo', function (req, res) {
     	'FirstName': req.body.firstName,
     	'LastName': req.body.lastName,
     	'Email': userEmail,
-    	'Password': sha1(req.body.password),
+    	//'Password': sha1(req.body.password),
+		'Password': req.body.password,
     	'HomeLocation': req.body.homeLocation,
-    	'Reputation': req.body.reputation,
+    	//'Reputation': req.body.reputation,
     	'About': req.body.about,
     	'ProjectInterests': req.body.projectInterests
 	};
@@ -232,23 +233,32 @@ app.post('/updateUserInfo', function (req, res) {
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
+		console.log('looking at property '+property + ' value = '+valuesObj[property]);
     	if((valuesObj.hasOwnProperty(property))
     		&& (typeof valuesObj[property] != 'undefined')) {
 
     		updateColumns.push('"' + property + '" = $' + i);
     		values.push(valuesObj[property]);
+			console.log('pushing value '+property);
     		i++;
     	}
     }
     values.push(userEmail);
+	//console.log(req.sess
 
     var updateQuery = 'UPDATE "User" SET ' + updateColumns.join(', ') + ' WHERE "Email"=$' + (updateColumns.length + 1);
-
+	console.log(updateQuery);
+	console.log(values);
     var updateSuccessMessage = 'Successfully updated info for user';
     var updateFailedMessage = 'Failed to update info for user';
-    executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values);
+    executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values, false, update_userInfo);
+	
 });
-
+function update_userInfo(result, res, req){
+	console.log('update user info func callback');
+	res.redirect('/getUserInfo');
+	res.end();
+}
 
 // Get all users
 app.get('/getAllUsers', function (req, res) {
@@ -293,14 +303,14 @@ app.get('/getUserInfo:id?', function(req, res){
   
 });
 
-function get_thisUserInfo(result, res){
+function get_thisUserInfo(result, res, req){
 	//var currEmail = req.session.email;
 	var opt = {currUser:true};
 	res.render('profile.html', {profile:result.rows, opt:opt});
 	res.end();
 }
 
-function get_userInfo(result, res){
+function get_userInfo(result, res, req){
 	//var currEmail = req.session.email;
 	console.log('get user info func');
 	var opt = {currUser:false};
@@ -752,7 +762,7 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
             client.end();
             console.log(successMessage);
             if(!(typeof results_handler == 'undefined')) {
-                results_handler(result, res);
+                results_handler(result, res, req);
             }
 
             if (successMessage == 'Successfully inserted user' && !get_bool){
@@ -761,6 +771,9 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
 				res.redirect('/postings.html');
 				res.end();
 
+			}
+			else if(successMessage == 'Successfully updated info for user'){
+				console.log('user update query');
 			}
 			else if (successMessage == 'Successfully retrieved user info' && get_bool){
 				console.log(result.rows[0]);
