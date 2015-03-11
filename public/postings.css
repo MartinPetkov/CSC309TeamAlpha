@@ -27,7 +27,8 @@ h1 {
 
 .spaces h3 {
     margin-top: 0px;
-    height: 40px;
+    height: 100%;
+    position:relative;
     padding: 7px;
     background-color: rgb(127, 161, 141);
     color: white;
@@ -71,7 +72,6 @@ input[type=submit] {
     line-height: inherit;
     padding-left: 20px;
     margin-top: 0;
-
     margin-bottom: 0;
     background-color: rgb(168, 206, 160);
     color: white;
@@ -87,7 +87,7 @@ input[type=submit] {
     height: auto;
 }
 
-.col-xs-12 {
+.indiv-postings {
     border-style: solid;
     border-color: rgb(101, 188, 138);
     border-width: 2px;
@@ -127,4 +127,14 @@ span.display{
 .glyphicon-home, .glyphicon-user, .glyphicon-log-out {
     margin-top: 0%;
     font-size: 30px;
+}
+
+.available-spaces-background {
+    background-color: rgb(168, 206, 160);
+    
+}
+.add-leasing{
+    width:100%;
+    min-width: 100px;
+    position: relative;
 }

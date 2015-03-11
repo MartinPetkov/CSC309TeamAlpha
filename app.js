@@ -146,6 +146,31 @@ app.post('/postings.html', function (req, res) {
 });
 
 
+app.get('/getOwnerSpace', function (req, res) {
+    var values = [];
+    if (req.session.user) {
+        values.push(req.session.uid);
+
+        var getQuery = 'SELECT * FROM "Space" WHERE "OwnerId" = $1'; 
+        var getSuccessMessage = 'Successfully retrieved all owner spaceIDs';
+        var getFailedMessage = 'Could not retrieve owner space info';
+        console.log('In owner space');
+        executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true, renderOwnerSpace);
+    } else {
+        res.redirect('/');
+    }
+    
+});
+
+
+function renderOwnerSpace(result, res, req) {
+    console.log('Getting Owner spaces');
+    console.log(result.rows);
+    //res.render('add-leasing.html');
+    res.render('add-leasing.html', {space: result.rows, tenantId:req.session.user});
+    res.end();
+}
+
 
 // Database interaction endpoints, add future functions here
 /* User */
@@ -516,7 +541,7 @@ app.post('/addAvailability', function (req, res) {
     values.push(req.body.spaceId);
     values.push(req.body.fromDate);
     values.push(req.body.toDate);
-
+    console.log(values);
     var params = createParams(values.length);
     var insertQuery = 'INSERT INTO "Availability"("SpaceId", "FromDate", "ToDate") VALUES(' + params + ') RETURNING "SpaceId", "FromDate", "ToDate"';
 
@@ -557,6 +582,7 @@ app.post('/addLeasing', function (req, res) {
     values.push(req.body.toDate);
     values.push(req.body.negotiatedPricePerDay);
 
+    
     var params = createParams(values.length);
     var insertQuery = 'INSERT INTO "Leasing"("SpaceId", "TenantId", "FromDate", "ToDate", "NegotiatedPricePerDay") VALUES(' + params + ') RETURNING "SpaceId", "TenantId"';
 

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Bootstrap Example</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="intro.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        
+              <link href="http://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+      <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+      <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+      <!-- Javascript -->
+      <script>
+         $(function() {
+            $( "#datepicker-13" ).datepicker({ dateFormat: 'yy-mm-dd' });
+            $( "#datepicker-13" ).datepicker("show");
+            $( "#datepicker-14" ).datepicker({ dateFormat: 'yy-mm-dd' });
+            $( "#datepicker-14" ).datepicker("show");
+         });
+      </script>
+   </head>
+    </head>
+    <body>
+  
+<div class="container">
+    <h1>Add Available Leasing</h1>
+    <div class="signup">
+        
+        Select Your Space
+        <form id="add-leasing" action="/addAvailability" method="post">
+            <% for (var i=0; i < space.length; i++) { %>
+                <input type="radio" name="spaceId" value=<%=space[i].SpaceId%> > <%=space[i].SpaceId%> <%=space[i].SpaceName%>
+
+            <% } %>
+            <p>From Date: <input type="text" name=fromDate id="datepicker-13"></p>
+            <p>To Date: <input type="text" name=toDate id="datepicker-14"></p>
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+    
+          
+</div>
+
+
+        
+        
+        
+        
+    </body>
+</html>
