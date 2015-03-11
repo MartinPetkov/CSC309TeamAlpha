@@ -129,15 +129,18 @@
 
         function openSpace(thisSpaceId) {
             return function() {
-                console.log(thisSpaceId);
-                /*
-                $.get("/getSpaceInfo", {spaceId: thisSpaceId}, function(data) {
-                    console.log("Winning");
-                },
-                function(error){
-                    console.log(error);
+                $.ajax({
+                    url: "/getSpaceInfo",
+                    data: {},
+                    type: "GET",
+                    beforeSend: function(xhr){xhr.setRequestHeader('spaceId', thisSpaceId);},
+                    success: function() {
+                        console.log('Winning!');
+                    },
+                    error: function(jqXHR, textStatus, error) {
+                        console.log(error);
+                    }
                 });
-                */
             }
         };
     </script>
