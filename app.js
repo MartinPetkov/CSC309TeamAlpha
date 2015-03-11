@@ -239,7 +239,6 @@ app.post('/updateUserInfo', function (req, res) {
 
     		updateColumns.push('"' + property + '" = $' + i);
     		values.push(valuesObj[property]);
-			console.log('pushing value '+property);
     		i++;
     	}
     }
@@ -247,8 +246,6 @@ app.post('/updateUserInfo', function (req, res) {
 	//console.log(req.sess
 
     var updateQuery = 'UPDATE "User" SET ' + updateColumns.join(', ') + ' WHERE "Email"=$' + (updateColumns.length + 1);
-	console.log(updateQuery);
-	console.log(values);
     var updateSuccessMessage = 'Successfully updated info for user';
     var updateFailedMessage = 'Failed to update info for user';
     executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values, false, update_userInfo);
