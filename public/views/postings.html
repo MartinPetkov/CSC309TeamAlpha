@@ -72,46 +72,41 @@
                     </div>
 
                      <div class="col-xs-8">
+                        <div class="spaces">
+                           <% for (var i=0; i < postings.length; i++) { %>
+                                 <div class="col-xs-12">
+                                    <div class="col-xs-3 image-container">
+                                        <span class="display">
+                                            <span class="glyphicon glyphicon-picture" />
+                                        </span>
 
-                        <!-- <div class="row"> -->
-                            <div class="spaces">
-
-                               <% for (var i=0; i < postings.length; i++) { %>
-                                     <div class="col-xs-12">
-                                        <!-- <div class="row"> -->
-                                            <div class="col-xs-3 image-container">
-                                                <span class="display">
-                                                    <span class="glyphicon glyphicon-picture" />
-                                                </span>
-                                                <button id="view-space-button" class="space-button" spaceId=<%=postings[i].SpaceId%>>
-                                                    View
-                                                </button>
-                                            </div>
-                                            <div class="col-xs-9 space-info">
-                                                <p>Space ID:<%=postings[i].SpaceId%>
-                                                    <span class="tab">
-                                                    Location: <%=postings[i].Location%>
-                                                    </span>
-                                                </p>
-                                                <p>Date: <%=postings[i].Date%></p>
-
-                                                <p>Description: <%=postings[i].Description%></p>
-                                                <p>Space Type: <%=postings[i].SpaceType%></p>
-
-                                                <p>Area: <%=postings[i].Area%>
-                                                <span class="tab">
-                                                    Rooms: <%=postings[i].Rooms%>
-                                                </span>
-                                                </p>
-
-                                                <p>Vacancy Amount: <%=postings[i].VacancyAmount%></p>
-                                            </div>
-                                       <!-- </div> -->
+                                        <button id="view-space-button" class="space-button" spaceId=<%=postings[i].SpaceId%>>
+                                            View
+                                        </button>
                                     </div>
-                                <% } %>
+                                    <div class="col-xs-9 space-info">
+                                        <p>Space ID:<%=postings[i].SpaceId%>
+                                            <span class="tab">
+                                            Location: <%=postings[i].Location%>
+                                            </span>
+                                        </p>
+                                        <p>Date: <%=postings[i].Date%></p>
 
-                            </div>
-                        <!--</div>-->
+                                        <p>Description: <%=postings[i].Description%></p>
+                                        <p>Space Type: <%=postings[i].SpaceType%></p>
+
+                                        <p>Area: <%=postings[i].Area%>
+                                        <span class="tab">
+                                            Rooms: <%=postings[i].Rooms%>
+                                        </span>
+                                        </p>
+
+                                        <p>Vacancy Amount: <%=postings[i].VacancyAmount%></p>
+                                    </div>
+                                </div>
+                            <% } %>
+
+                        </div>
                     </div>
 
                 </div>
@@ -134,8 +129,8 @@
                     data: {},
                     type: "GET",
                     beforeSend: function(xhr){xhr.setRequestHeader('spaceId', thisSpaceId);},
-                    success: function() {
-                        console.log('Winning!');
+                    success: function(html, textStatus, jqXHR) {
+                        document.write(html);
                     },
                     error: function(jqXHR, textStatus, error) {
                         console.log(error);

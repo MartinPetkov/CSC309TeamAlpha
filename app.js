@@ -423,7 +423,7 @@ app.get('/getSpaceInfo', function (req, res) {
 });
 
 function renderSpaceInfo(result, res, req) {
-    res.render('space-info.html', {spaceInfo: result[0]});
+    res.render('space-info.html', {spaceInfo: result.rows[0]});
 }
 
 
@@ -772,6 +772,8 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
             console.log(successMessage);
             if(!(typeof results_handler == 'undefined')) {
                 results_handler(result, res, req);
+                res.end();
+                return;
             }
 
             if (successMessage == 'Successfully inserted user' && !get_bool){
@@ -796,10 +798,10 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
                 res.end();
             } else {
 
-            res.writeHead(200, {'Content-Type': 'text/plain'});
-            res.write(JSON.stringify(result.rows) + "\n");
+                res.writeHead(200, {'Content-Type': 'text/plain'});
+                res.write(JSON.stringify(result.rows) + "\n");
 
-            res.end();
+                res.end();
 
             }
         });
