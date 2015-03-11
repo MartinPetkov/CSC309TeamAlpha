@@ -46,12 +46,19 @@
             </h1>
         </div>
         <div class="spaces">
-            <h3> Available Spaces
+            <h3> <%if (opt.spaceFound){ %>
+					Your Space
+				<%}else{%>	
+					Available Spaces
+				<%}%>
             </h3>
             <div class="bs-docs-grid">
             <div class="row-same-height">
                 <div class="col-xs-3 col-xs-height">
-                    womp
+                    <% if (opt.spaceFound){%>
+					Space Location: <%= Space.Location %>
+					
+					<% } %>
                 </div>
                 <div class="col-xs-9 col-xs-height">
                     womp womp
