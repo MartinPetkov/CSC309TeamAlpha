@@ -54,6 +54,7 @@
             </h3>
 			
 			<% if (opt.spaceFound){%>
+			<!-- User Is currently occupying a space -->
 			<div class="bs-docs-grid">
             <div class="row-same-height">
                 <div class="col-xs-3 col-xs-height">
@@ -77,11 +78,21 @@
 			</div>		
 			</div>	
 			<% }else{ %>
+			<!-- User Is NOT currently occupying a space -->
             <div class="bs-docs-grid">
             <div class="row-same-height">
                 <div class="col-xs-3 col-xs-height">
-                    
-                </div>
+					
+						<form action = '/postings.html' method='GET' >
+							<button type="submit" class="btn btn-success btn-lrg">
+							<span class="glyphicon glyphicon-th-list"/>
+							</button>
+							<br/>
+							View Available Spaces
+						</form>
+
+				</div>
+               
                 <div class="col-xs-9 col-xs-height">
                     womp womp
                 </div>
