@@ -31,9 +31,10 @@ ToDate; type = date, NOT NULL
 NegotiatedPricePerDay; type = numeric, NOT NULL
 
 Availability:
-PRIMARY KEY(SpaceId, Date)
+PRIMARY KEY(SpaceId, FromDate, ToDate)
 SpaceId; type = serial, NOT NULL, REFERENCES Space.SpaceId
-Date; type = date, NOT NULL
+FromDate; type = date, NOT NULL
+ToDate; type = date, NOT NULL
 
 ForumPost:
 ForumPostId; type = serial, NOT NULL
