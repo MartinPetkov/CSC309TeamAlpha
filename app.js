@@ -207,8 +207,8 @@ app.post('/updateUserInfo', function (req, res) {
 	var valuesObj = {
     	'FirstName': req.body.firstName,
     	'LastName': req.body.lastName,
-    	'Email': userEmail,
-    	'Password': sha1(req.body.password),
+    	//'Email': userEmail,
+    	//'Password': sha1(req.body.password),
 		//'Password': req.body.password,
     	'HomeLocation': req.body.homeLocation,
     	'Reputation': req.body.reputation,
