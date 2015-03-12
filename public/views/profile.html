@@ -46,6 +46,7 @@
             
             <div class="spaces">
                 <h3> 
+					
                     <%if (opt.spaceFound){ %>
                         Joined Spaces
                     <%}else{%>	
@@ -73,7 +74,7 @@
                         </div>
                     </div>
 					<% } %>
-                </div>	
+               
                             
                 <% }else{ %>
                     <!-- User Is NOT currently occupying a space -->
@@ -92,6 +93,44 @@
                         </div>
                     </div>
                 <%}%>
+				<!--User owns a space-->
+				<h3>
+				Owned Spaces
+				</h3>
+				<% if (Owner){%>
+				<% for (var j=0; j<ownerSpace.length;j++){%>
+				<div class="bs-docs-grid">
+                    <div class="row-same-height">
+                        <div class="col-xs-3 col-xs-height">
+                            Name: <%=ownerSpace[j].SpaceName%> <br/>
+                            Location: <%= ownerSpace[j].Location %>
+                        </div>
+                        <div class="col-xs-9 col-xs-height">
+                            Description: <%=ownerSpace[j].Description%><br/>
+                            Type: <%ownerSpace[j].SpaceType%>
+                            <br/>
+                            <button id="view-space-button" class="space-button" spaceId=<%=ownerSpace[j].SpaceId%>>
+                                View Space
+                            </button>
+                        </div>
+                    </div>
+                </div>
+				 <%}%>
+				<!-- User does not own a space--> 
+				<%}else{%>
+				<div class="bs-docs-grid">
+                    <div class="row-same-height">
+                        <div class="col-xs-3 col-xs-height">
+                            <br/>
+							This user does not own any spaces
+							
+                        </div>
+                    </div>
+                </div>
+				 
+				 
+				 <% }%>
+				 </div>	
             </div>
         <div class="profile-info">
             <div class="display">

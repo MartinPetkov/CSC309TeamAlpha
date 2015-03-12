@@ -366,6 +366,7 @@ function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
 			isOwner = true;
 		});
 		ownerQuery.on('end', function(){
+			client.end();
 			console.log(tSpace);
 			res.render('profile.html', {profile:profileResult, opt:opt, tennantSpace:tSpace, ownerSpace:ownerResult,Owner:isOwner});
 			res.end();
@@ -405,6 +406,7 @@ function get_userInfo(result, res, req){
 				var opt = {currUser:false,spaceFound:true};
 				console.log('result.rows '+ result.rows);
 				console.log('space result.rows ' + spaceResult);
+				client.end();
 				get_userOwnerInfo(res, req, result.rows,spaceResult,opt, viewUser);
 
 				
