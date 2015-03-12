@@ -51,9 +51,9 @@ app.get('/logout', function (req, res) {
 
 app.get('/', function (req, res) {
 
-	console.log('Page Loaded!');
+	//console.log('Page Loaded!');
 	if (req.session.user) {
-		console.log('current session: ' + req.session.user);
+		//console.log('current session: ' + req.session.user);
         res.redirect('/postings.html');
 	} else {
         res.sendFile('./public/intro.html', {root:__dirname});
@@ -83,7 +83,7 @@ app.get('/postings.html', function (req, res) {
     //res.redirect('back');
     if (req.session.user) {
         get_availability(req,res, false);
-        console.log("Postings page loaded");
+        //console.log("Postings page loaded");
     } else {
         res.redirect('/');
     }
@@ -106,7 +106,7 @@ app.post('/postings.html', function (req, res) {
             return console.error('Could not connect to postgres', err);
             res.send('Sorry, there was an error', err);
         }
-        console.log('Connected to db User: ' + userEmail);
+        //console.log('Connected to db User: ' + userEmail);
 		//var queryString = 'SELECT "Password", "UserII FROM "User" WHERE "Email"='+ userEmail + 'RETURNING "UserId"'
 
         var query = client.query('SELECT "Password", "UserId" FROM "User" WHERE "Email"=$1', [userEmail]);
@@ -132,7 +132,7 @@ app.post('/postings.html', function (req, res) {
                 req.session.user = userEmail;
 				req.session.uid = result[0];
 
-				console.log('Session log for userid ' + req.session.uid);
+				//console.log('Session log for userid ' + req.session.uid);
                 res.redirect('postings.html');
 
                 //res.render('postings.html', {username: userEmail, password:userPass});
@@ -154,7 +154,7 @@ app.get('/getOwnerSpace', function (req, res) {
         var getQuery = 'SELECT * FROM "Space" WHERE "OwnerId" = $1';
         var getSuccessMessage = 'Successfully retrieved all owner spaceIDs';
         var getFailedMessage = 'Could not retrieve owner space info';
-        console.log('In owner space');
+        //console.log('In owner space');
         executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true, renderOwnerSpace);
     } else {
         res.redirect('/');
@@ -164,8 +164,8 @@ app.get('/getOwnerSpace', function (req, res) {
 
 
 function renderOwnerSpace(result, res, req) {
-    console.log('Getting Owner spaces');
-    console.log(result.rows);
+    //console.log('Getting Owner spaces');
+    //console.log(result.rows);
 
     res.render('add-availability.html', {space: result.rows, tenantId:req.session.user});
     res.end();
@@ -221,7 +221,7 @@ app.post('/updateUserInfo', function (req, res) {
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-		console.log('looking at property '+property + ' value = '+valuesObj[property]);
+		//console.log('looking at property '+property + ' value = '+valuesObj[property]);
     	if((valuesObj.hasOwnProperty(property))
     		&& (typeof valuesObj[property] != 'undefined')) {
 
@@ -240,7 +240,7 @@ app.post('/updateUserInfo', function (req, res) {
 
 });
 function update_userInfo(result, res, req){
-	console.log('update user info func callback');
+	//console.log('update user info func callback');
 	res.redirect('/getUserInfo');
 	res.end();
 }
@@ -280,7 +280,7 @@ app.get('/getUserInfoPlain:id?', function(req, res){
     var values = [];
     var id = req.params.id;
     values.push(id);
-    console.log(id);
+    //console.log(id);
     var getQuery = 'SELECT * FROM "User" WHERE "UserId" = $1';
 
     var getSuccessMessage = 'Successfully retrieved user info';
@@ -328,18 +328,18 @@ function get_thisUserInfo(result, res, req){
 			if (spaceFound){
 				client.end();
 				var opt = {currUser:true,spaceFound:true};
-				console.log('SPACE RESULT BEGIN');
+				//console.log('SPACE RESULT BEGIN');
 				//for (var i =0;i<spaceResult.length;i++){
-					console.log(spaceResult);
+					//console.log(spaceResult);
 				//}
-				console.log('SPACE RESULT END');
+				//console.log('SPACE RESULT END');
 				get_userOwnerInfo(res, req, result.rows, spaceResult, opt, currUser);
 
 			}else{
 				//The user is not occupying a space
 				client.end();
 				var opt = {currUser:true,spaceFound:false};
-				console.log('No Space found');
+				//console.log('No Space found');
 				get_userOwnerInfo(res, req, result.rows, [], opt, currUser);
 
 				//res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
@@ -367,7 +367,6 @@ function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
 		});
 		ownerQuery.on('end', function(){
 			client.end();
-			console.log(tSpace);
 			res.render('profile.html', {profile:profileResult, opt:opt, tennantSpace:tSpace, ownerSpace:ownerResult,Owner:isOwner});
 			res.end();
 		});
@@ -377,7 +376,7 @@ function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
 function get_userInfo(result, res, req){
 	//var currEmail = req.session.email;
 	var viewUser = result.rows[0].UserId;
-	console.log('get user info func');
+	//console.log('get user info func');
 	//var opt = {currUser:false};
 	var spaceResult = [];
 	var client = new pg.Client(conString);
@@ -397,15 +396,15 @@ function get_userInfo(result, res, req){
             spaceFound = true;
 			currSpace = row.SpaceId;
 			spaceResult.push(row);
-			console.log('row push ' + row.SpaceId);
-			console.log(row);
-			console.log('space result immediately post push ' + spaceResult);
+			//console.log('row push ' + row.SpaceId);
+			//console.log(row);
+			//console.log('space result immediately post push ' + spaceResult);
 		});
 		query.on('end', function(){
 			if (spaceFound){
 				var opt = {currUser:false,spaceFound:true};
-				console.log('result.rows '+ result.rows);
-				console.log('space result.rows ' + spaceResult);
+				//console.log('result.rows '+ result.rows);
+				//console.log('space result.rows ' + spaceResult);
 				client.end();
 				get_userOwnerInfo(res, req, result.rows,spaceResult,opt, viewUser);
 
@@ -414,7 +413,7 @@ function get_userInfo(result, res, req){
 				//The user is not occupying a space
 				client.end();
 				var opt = {currUser:false,spaceFound:false};
-				console.log('No Space found');
+				//console.log('No Space found');
 				get_userOwnerInfo(res, req, result.rows,[],opt, viewUser);
 				//res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
 				//res.end();
@@ -424,7 +423,7 @@ function get_userInfo(result, res, req){
 
 
 
-	console.log('looking at user with id '+ result.rows[0].UserId);
+	//console.log('looking at user with id '+ result.rows[0].UserId);
 	//res.render('profile.html', {profile:result.rows, opt:opt});
 	//res.end();
 }
@@ -562,7 +561,7 @@ app.post('/addAvailability', function (req, res) {
     values.push(req.body.spaceId);
     values.push(req.body.fromDate);
     values.push(req.body.toDate);
-    console.log(values);
+    //console.log(values);
     var params = createParams(values.length);
     var insertQuery = 'INSERT INTO "Availability"("SpaceId", "FromDate", "ToDate") VALUES(' + params + ') RETURNING "SpaceId", "FromDate", "ToDate"';
 
@@ -887,7 +886,7 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
         query.on('end', function (result){
 
             client.end();
-            console.log(successMessage);
+            //console.log(successMessage);
             if(!(typeof results_handler == 'undefined')) {
                 results_handler(result, res, req);
                 //res.end();
@@ -896,22 +895,22 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
 
                 if (successMessage == 'Successfully inserted user' && !get_bool){
                     req.session.uid = result.rows[0].UserId;
-                    console.log('inserted user with ID= '+result.rows[0].UserId)
+                    //console.log('inserted user with ID= '+result.rows[0].UserId)
                     res.redirect('/postings.html');
                     res.end();
 
                 }
                 else if(successMessage == 'Successfully updated info for user'){
-                    console.log('user update query');
+                   //console.log('user update query');
                 }
                 else if (successMessage == 'Successfully retrieved user info' && get_bool){
-                    console.log(result.rows[0]);
+                    //console.log(result.rows[0]);
                     //res.render('profile.html', {profile:result.rows});
 
                     //res.end();
                 }
                 else if (successMessage == 'Successfully retrieved availabilities' && !get_bool) {
-                    console.log(result.rows);
+                    //console.log(result.rows);
                     res.render('postings.html', {postings:result.rows});
                     res.end();
                 } else {
