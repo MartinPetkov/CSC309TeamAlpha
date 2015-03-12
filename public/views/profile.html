@@ -47,7 +47,7 @@
             <div class="spaces">
                 <h3> 
                     <%if (opt.spaceFound){ %>
-                        Your Space
+                        Joined Spaces
                     <%}else{%>	
                         Available Spaces
                     <%}%>
@@ -64,10 +64,10 @@
                             </div>
                             <div class="col-xs-9 col-xs-height">
                                 Description: <%=tennantSpace[i].Description%><br/>
-                                Type: <%tennantSpace[0].SpaceType%>
+                                Type: <%tennantSpace[i].SpaceType%>
                                 <br/>
                                 <button id="view-space-button" class="space-button" spaceId=<%=tennantSpace[i].SpaceId%>>
-                                    View
+                                    View Space
                                 </button>
                             </div>
                         </div>

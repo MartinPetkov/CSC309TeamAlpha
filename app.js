@@ -312,7 +312,7 @@ function get_thisUserInfo(result, res, req){
 			return console.error('could not connect to postgres', err);
 			res.send('sorry, there was an error', err);
 		}
-	    var query = client.query('SELECT * FROM "Leasing" WHERE "TenantId"=$1', [currUser]);
+	    var query = client.query('SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId"=$1', [currUser]);
 		query.on('error', function (err) {
             res.send('Query Error ' + err);
         });
@@ -328,26 +328,13 @@ function get_thisUserInfo(result, res, req){
 			if (spaceFound){
 				client.end();
 				var opt = {currUser:true,spaceFound:true};
-				get_userOwnerInfo(res, req, result.rows, spaceResult.rows, opt, currUser);
+				console.log('SPACE RESULT BEGIN');
+				//for (var i =0;i<spaceResult.length;i++){
+					console.log(spaceResult);
+				//}
+				console.log('SPACE RESULT END');
+				get_userOwnerInfo(res, req, result.rows, spaceResult, opt, currUser);
 
-				//The user is currently occupying a space
-				/*var innerQuery = client.query('Select * FROM "Space" WHERE "SpaceId"=$1',[currSpace]);
-				console.log('innerQuery for spaceId= '+currSpace);
-				innerQuery.on('error', function (err) {
-					res.send('Query Error ' + err);
-				});
-				innerQuery.on('row', function(row){
-					spaceResult.push(row);
-					console.log('space Result push', row);
-				});
-				innerQuery.on('end', function(){
-					client.end();
-					var opt = {currUser:true,spaceFound:true};
-					console.log(spaceResult[0]);
-					get_userOwnerInfo(res, req, result.rows, spaceResult[0], opt, currUser);
-					//res.render('profile.html', {profile:result.rows, opt:opt, Space:spaceResult[0]});
-					//res.end();
-				});*/
 			}else{
 				//The user is not occupying a space
 				client.end();
@@ -420,25 +407,6 @@ function get_userInfo(result, res, req){
 				console.log('space result.rows ' + spaceResult);
 				get_userOwnerInfo(res, req, result.rows,spaceResult,opt, viewUser);
 
-				//The user is currently occupying a space
-				/*var innerQuery = client.query('Select * FROM "Space" WHERE "SpaceId"=$1',[currSpace]);
-				//console.log('innerQuery for spaceId= '+currSpace);
-				innerQuery.on('error', function (err) {
-					res.send('Query Error ' + err);
-				});
-				innerQuery.on('row', function(row){
-					spaceResult.push(row);
-					console.log('space Result push', row);
-				});
-				innerQuery.on('end', function(){
-					client.end();
-					var opt = {currUser:false,spaceFound:true};
-					console.log(spaceResult[0]);
-					get_userOwnerInfo(res, req, result.rows,spaceResult[0],opt, viewUser);
-					//res.render('profile.html', {profile:result.rows, opt:opt, Space:spaceResult[0]});
-					//res.end();
-
-				});*/
 				
 			}else{
 				//The user is not occupying a space
