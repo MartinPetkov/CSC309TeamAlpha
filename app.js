@@ -305,12 +305,10 @@ function get_thisUserInfo(result, res, req){
 
 		var spaceFound = false;
         query.on('row', function (row) {
-
             spaceFound = true;
 			currSpace = row.SpaceId;
-
-
 		});
+		
         query.on('end', function () {
 			if (spaceFound){
 				//The user is currently occupying a space
@@ -327,24 +325,46 @@ function get_thisUserInfo(result, res, req){
 					client.end();
 					var opt = {currUser:true,spaceFound:true};
 					console.log(spaceResult[0]);
-					res.render('profile.html', {profile:result.rows, opt:opt, Space:spaceResult[0]});
-					res.end();
-
+					get_userOwnerInfo(res, req, result.rows, spaceResult[0], opt, currUser);
+					//res.render('profile.html', {profile:result.rows, opt:opt, Space:spaceResult[0]});
+					//res.end();
 				});
 			}else{
 				//The user is not occupying a space
 				client.end();
 				var opt = {currUser:true,spaceFound:false};
 				console.log('No Space found');
-				res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
-				res.end();
+				get_userOwnerInfo(res, req, result.rows, [], opt, currUser);
+
+				//res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
+				//res.end();
 			}
-
 		});
-
 	});
-
 }
+
+function get_userOwnerInfo(res, req, profileResult, tenantSpace, opt, user){
+	var ownerResult = [];
+	var isOwner = false;
+	var client = new pg.Client(conString);
+	client.connect(function(err, done){
+		if (err){
+			res.send('sorry, there was an connection error', err);
+		}
+		var ownerQuery = client.query('Select * FROM "Space" WHERE "OwnerId"=$1',[user]);
+		ownerQuery.on('error', function(err){
+			res.send('Query Error ' + err);
+		});
+		ownerQuery.on('row', function(row){
+			ownerResult.push(row);
+			isOwner = true;
+		});
+		ownerQuery.on('end', function(){
+			res.render('profile.html', {profile:profileResult, opt:opt, tennantSpace:tenantSpace, ownerSpace:ownerResult,Owner:isOwner});
+			res.end();
+		});
+	});
+};
 
 function get_userInfo(result, res, req){
 	//var currEmail = req.session.email;
@@ -386,8 +406,9 @@ function get_userInfo(result, res, req){
 					client.end();
 					var opt = {currUser:true,spaceFound:true};
 					console.log(spaceResult[0]);
-					res.render('profile.html', {profile:result.rows, opt:opt, Space:spaceResult[0]});
-					res.end();
+					get_userOwnerInfo(res, req, result.rows,spaceResult[0],opt, viewUser);
+					//res.render('profile.html', {profile:result.rows, opt:opt, Space:spaceResult[0]});
+					//res.end();
 
 				});
 			}else{
@@ -395,8 +416,9 @@ function get_userInfo(result, res, req){
 				client.end();
 				var opt = {currUser:true,spaceFound:false};
 				console.log('No Space found');
-				res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
-				res.end();
+				get_userOwnerInfo(res, req, result.rows,[],opt, viewUser);
+				//res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
+				//res.end();
 			}
 		});
 		});
