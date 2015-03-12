@@ -205,7 +205,7 @@ app.post('/addUser', function (req, res) {
 // Update user info
 app.post('/updateUserInfo', function (req, res) {
 	//Get necessary values from form and session
-	var userEmail = req.body.email;
+	var userEmail = req.session.user;
 	var valuesObj = {
     	'FirstName': req.body.firstName,
     	'LastName': req.body.lastName,
