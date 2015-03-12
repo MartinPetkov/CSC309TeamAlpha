@@ -38,6 +38,8 @@ app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
 app.get('/logout', function (req, res) {
+	//Log out functionality, 
+	//User is only logged in through the session
     console.log(req.session.user);
     req.session.destroy(function (err) {
         if (err) {
@@ -50,8 +52,6 @@ app.get('/logout', function (req, res) {
 
 
 app.get('/', function (req, res) {
-
-	//console.log('Page Loaded!');
 	if (req.session.user) {
 		//console.log('current session: ' + req.session.user);
         res.redirect('/postings.html');
@@ -78,6 +78,8 @@ app.get('/user:id?', function (req, res) {
 });
 
 app.get('/postings.html', function (req, res) {
+	//Postings is actually handled by get_availability function
+
 	//res.sendFile('./public/views/postings.html',{root:__dirname});
     //res.render('postings.html', );
     //res.redirect('back');
@@ -106,29 +108,29 @@ app.post('/postings.html', function (req, res) {
             return console.error('Could not connect to postgres', err);
             res.send('Sorry, there was an error', err);
         }
-        //console.log('Connected to db User: ' + userEmail);
-		//var queryString = 'SELECT "Password", "UserII FROM "User" WHERE "Email"='+ userEmail + 'RETURNING "UserId"'
-
+		
+		//Query to check if the user exists
         var query = client.query('SELECT "Password", "UserId" FROM "User" WHERE "Email"=$1', [userEmail]);
-		//var query = client.query(queryString);
-
         query.on('error', function (err) {
             res.send('Query Error ' + err);
         });
         query.on('row', function (row) {
+			//User Does exist
             dbPass.push(row.Password);
 			result.push(row.UserId);
             passFound = true;
-            //console.log('a user with that email was found ' + dbPass[0]);
         });
         query.on('end', function () {
             client.end();
             //console.log('client ended');
             if (passFound == false) {
                 res.send('There was no user with that email');
+				
+			//check if the passwords match (Really ugly user validation)
             } else if (dbPass[0] == sha1(userPass)) {
                 //Login Success!
 
+				//Log the Users email and UserId in the session to access later
                 req.session.user = userEmail;
 				req.session.uid = result[0];
 
@@ -136,7 +138,9 @@ app.post('/postings.html', function (req, res) {
                 res.redirect('postings.html');
 
                 //res.render('postings.html', {username: userEmail, password:userPass});
-            } else if (dbPass[0] != userPass) {
+				
+			//Username and password did no match
+            } else if (dbPass[0] != userPass) {				
                 res.send('There was an error in log in ' + dbPass[0] + ' != ' + sha1(userPass));
             }
         });
@@ -183,7 +187,10 @@ app.post('/addUser', function (req, res) {
     values.push(sha1(req.body.password));
 	//values.push(req.body.password);
     values.push(req.body.homeLocation);
+	
+	//Place holder Reputation
     values.push(0);
+	//Place holder about and project Interests
     values.push(" ");
     values.push(" ");
     //values.push(req.body.reputation);
@@ -197,18 +204,22 @@ app.post('/addUser', function (req, res) {
     var insertSuccessMessage = 'Successfully inserted user';
     var insertFailedMessage = 'Failed to insert user';
     executeQuery(res,req, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
+	
+	//Log the User's email in the session
+	//We log their UserId in Execute query (admittedly not the prettiest)
 	req.session.user = req.body.email;
 });
 
 
 // Update user info
 app.post('/updateUserInfo', function (req, res) {
+	//Get necessary values from form and session
 	var userEmail = req.body.email;
 	var valuesObj = {
     	'FirstName': req.body.firstName,
     	'LastName': req.body.lastName,
-    	'Email': userEmail,
-    	'Password': sha1(req.body.password),
+    	//'Email': userEmail,
+    	//'Password': sha1(req.body.password),
 		//'Password': req.body.password,
     	'HomeLocation': req.body.homeLocation,
     	'Reputation': req.body.reputation,
@@ -231,16 +242,15 @@ app.post('/updateUserInfo', function (req, res) {
     	}
     }
     values.push(userEmail);
-	//console.log(req.sess
-
     var updateQuery = 'UPDATE "User" SET ' + updateColumns.join(', ') + ' WHERE "Email"=$' + (updateColumns.length + 1);
     var updateSuccessMessage = 'Successfully updated info for user';
     var updateFailedMessage = 'Failed to update info for user';
     executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values, false, update_userInfo);
 
 });
+
+//Callback for updateUser Info post, just redirects to userProfile
 function update_userInfo(result, res, req){
-	//console.log('update user info func callback');
 	res.redirect('/getUserInfo');
 	res.end();
 }
@@ -256,16 +266,22 @@ app.get('/getAllUsers', function (req, res) {
 
 
 // Get user info
-//app.get('/getUserInfo:id?', function (req, res) {
+//This one has the specific function of being for viewing only YOUR info (including spaces)
+//And allowing the user to change their information
+//If no ID is provided, the app assumes you are trying to view/change your info
 app.get('/getUserInfo', function (req, res) {
     var values = [];
+	
+	//Check if user is logged in
 	 if (req.session.user) {
-         values.push(req.session.user);
+		//User is logged in, do queries
+        values.push(req.session.user);
 		var getQuery = 'SELECT * FROM "User" WHERE "Email" = $1';
 
 		var getSuccessMessage = 'Successfully retrieved user info';
 		var getFailedMessage = 'Could not retrieve user info';
 		executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, true, get_thisUserInfo);
+	//If not redirect to home page
     } else {
         res.redirect('/');
     }
@@ -289,6 +305,9 @@ app.get('/getUserInfoPlain:id?', function(req, res){
 
 });
 
+//This getUserInfo is for when a user wants to view another user's info
+//Just displays their basic user info and spaces
+//So user's cant edit other user's infoo
 app.get('/getUserInfo:id?', function(req, res){
 	var values = [];
 	var id = req.params.id;
@@ -302,6 +321,10 @@ app.get('/getUserInfo:id?', function(req, res){
 
 });
 
+//Callback for getting/changing your own user info
+//There is another callback for viewing another users info and they both
+//converge on getting the info about spaces the user owns
+//Gets info about the spaces they are leasing
 function get_thisUserInfo(result, res, req){
 	var spaceResult =[];
 	var currUser = req.session.uid;
@@ -312,6 +335,8 @@ function get_thisUserInfo(result, res, req){
 			return console.error('could not connect to postgres', err);
 			res.send('sorry, there was an error', err);
 		}
+		
+		//Find the info on spaces the user is currently leasing
 	    var query = client.query('SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId"=$1', [currUser]);
 		query.on('error', function (err) {
             res.send('Query Error ' + err);
@@ -325,14 +350,12 @@ function get_thisUserInfo(result, res, req){
 		});
 		
         query.on('end', function () {
+			//If the user is occupying a space
 			if (spaceFound){
 				client.end();
 				var opt = {currUser:true,spaceFound:true};
-				//console.log('SPACE RESULT BEGIN');
-				//for (var i =0;i<spaceResult.length;i++){
-					//console.log(spaceResult);
-				//}
-				//console.log('SPACE RESULT END');
+
+				//Pass info on spaces user is currently leasing to convergent get_userOwnerInfo
 				get_userOwnerInfo(res, req, result.rows, spaceResult, opt, currUser);
 
 			}else{
@@ -340,6 +363,8 @@ function get_thisUserInfo(result, res, req){
 				client.end();
 				var opt = {currUser:true,spaceFound:false};
 				//console.log('No Space found');
+				
+				//Pass info on spaces user is currently leasing to convergent get_userOwnerInfo
 				get_userOwnerInfo(res, req, result.rows, [], opt, currUser);
 
 				//res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
@@ -349,6 +374,9 @@ function get_thisUserInfo(result, res, req){
 	});
 }
 
+//Both callbacks for getting you user info and getting someones else user info converge
+//here, this is where we actually render the page with all the relevant data
+//This is also where we get info on spaces the user owns
 function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
 	var ownerResult = [];
 	var isOwner = false;
@@ -373,6 +401,8 @@ function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
 	});
 };
 
+//Callback for viewing another user's info
+//Gets info about the spaces they are leasing
 function get_userInfo(result, res, req){
 	//var currEmail = req.session.email;
 	var viewUser = result.rows[0].UserId;
@@ -521,11 +551,13 @@ app.get('/getSpaceInfo', function (req, res) {
     executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
+//
 function renderSpaceInfo(result, res, req) {
     res.render('space-info.html', {spaceInfo: result.rows[0]});
     res.end();
 }
 
+//Get space info, requires a space Id to be passed in
 app.get('/space-info.html', function (req, res) {
     if(typeof req.query.spaceId == 'undefined') {
         res.end();
@@ -803,7 +835,7 @@ function createParams(len) {
     return params.join(',');
 }
 
-
+//Get availability function for postings.html
 function get_availability(req, res, get_bool) {
     var valuesObj = {
 		'SpaceId': req.get('spaceId'),
@@ -814,6 +846,8 @@ function get_availability(req, res, get_bool) {
     var updateColumns = [];
     var values = [];
     var i = 1;
+	
+	//Check if values make sense
     if(typeof valuesObj['SpaceId'] != 'undefined') {
 		updateColumns.push('"SpaceId" = $' + i);
 		values.push(valuesObj['SpaceId']);
@@ -894,6 +928,8 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
             } else {
 
                 if (successMessage == 'Successfully inserted user' && !get_bool){
+				
+					//Log user's UserId on user creation
                     req.session.uid = result.rows[0].UserId;
                     //console.log('inserted user with ID= '+result.rows[0].UserId)
                     res.redirect('/postings.html');

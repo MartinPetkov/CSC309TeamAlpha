@@ -149,12 +149,12 @@
                     
             <% if(opt.currUser){%>
                 <form id="update_acc" action="/updateUserInfo" method="post">
-                    Email:
-                    <input type="text" id="email" value = <%=profile[0].Email %> name="email"/><br/>
+                    <!--Email:
+                    <input type="text" id="email" value = <%=profile[0].Email %> name="email"/><br/>-->
 
                     <!-- If The User is viewing their page, offer a form to change their data -->
-                    New Password:
-                    <input type="password" id="password" value=<%= profile[0].Password%> name="password"/>
+                    <!--New Password:
+                    <input type="password" id="password" value=<%= profile[0].Password%> name="password"/>-->
 
                     Name:
                     <input type="text" id="firstName" value= <%=profile[0].FirstName%> name="firstName"/>
