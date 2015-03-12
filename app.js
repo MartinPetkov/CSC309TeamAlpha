@@ -321,12 +321,17 @@ function get_thisUserInfo(result, res, req){
         query.on('row', function (row) {
             spaceFound = true;
 			currSpace = row.SpaceId;
+			spaceResult.push(row);
 		});
 		
         query.on('end', function () {
 			if (spaceFound){
+				client.end();
+				var opt = {currUser:true,spaceFound:true};
+				get_userOwnerInfo(res, req, result.rows, spaceResult.rows, opt, currUser);
+
 				//The user is currently occupying a space
-				var innerQuery = client.query('Select * FROM "Space" WHERE "SpaceId"=$1',[currSpace]);
+				/*var innerQuery = client.query('Select * FROM "Space" WHERE "SpaceId"=$1',[currSpace]);
 				console.log('innerQuery for spaceId= '+currSpace);
 				innerQuery.on('error', function (err) {
 					res.send('Query Error ' + err);
@@ -342,7 +347,7 @@ function get_thisUserInfo(result, res, req){
 					get_userOwnerInfo(res, req, result.rows, spaceResult[0], opt, currUser);
 					//res.render('profile.html', {profile:result.rows, opt:opt, Space:spaceResult[0]});
 					//res.end();
-				});
+				});*/
 			}else{
 				//The user is not occupying a space
 				client.end();
@@ -357,7 +362,7 @@ function get_thisUserInfo(result, res, req){
 	});
 }
 
-function get_userOwnerInfo(res, req, profileResult, tenantSpace, opt, user){
+function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
 	var ownerResult = [];
 	var isOwner = false;
 	var client = new pg.Client(conString);
@@ -374,7 +379,8 @@ function get_userOwnerInfo(res, req, profileResult, tenantSpace, opt, user){
 			isOwner = true;
 		});
 		ownerQuery.on('end', function(){
-			res.render('profile.html', {profile:profileResult, opt:opt, tennantSpace:tenantSpace, ownerSpace:ownerResult,Owner:isOwner});
+			console.log(tSpace);
+			res.render('profile.html', {profile:profileResult, opt:opt, tennantSpace:tSpace, ownerSpace:ownerResult,Owner:isOwner});
 			res.end();
 		});
 	});
@@ -393,7 +399,7 @@ function get_userInfo(result, res, req){
 			return console.error('could not connect to postgres', err);
 			res.send('sorry, there was an error', err);
 		}
-	    var query = client.query('SELECT * FROM "Leasing" WHERE "TenantId"=$1', [viewUser]);
+	    var query = client.query('SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId"=$1', [viewUser]);
 		query.on('error', function (err) {
             res.send('Query Error ' + err);
         });
@@ -402,12 +408,20 @@ function get_userInfo(result, res, req){
         query.on('row', function (row) {
             spaceFound = true;
 			currSpace = row.SpaceId;
-
+			spaceResult.push(row);
+			console.log('row push ' + row.SpaceId);
+			console.log(row);
+			console.log('space result immediately post push ' + spaceResult);
 		});
 		query.on('end', function(){
 			if (spaceFound){
+				var opt = {currUser:false,spaceFound:true};
+				console.log('result.rows '+ result.rows);
+				console.log('space result.rows ' + spaceResult);
+				get_userOwnerInfo(res, req, result.rows,spaceResult,opt, viewUser);
+
 				//The user is currently occupying a space
-				var innerQuery = client.query('Select * FROM "Space" WHERE "SpaceId"=$1',[currSpace]);
+				/*var innerQuery = client.query('Select * FROM "Space" WHERE "SpaceId"=$1',[currSpace]);
 				//console.log('innerQuery for spaceId= '+currSpace);
 				innerQuery.on('error', function (err) {
 					res.send('Query Error ' + err);
@@ -418,17 +432,18 @@ function get_userInfo(result, res, req){
 				});
 				innerQuery.on('end', function(){
 					client.end();
-					var opt = {currUser:true,spaceFound:true};
+					var opt = {currUser:false,spaceFound:true};
 					console.log(spaceResult[0]);
 					get_userOwnerInfo(res, req, result.rows,spaceResult[0],opt, viewUser);
 					//res.render('profile.html', {profile:result.rows, opt:opt, Space:spaceResult[0]});
 					//res.end();
 
-				});
+				});*/
+				
 			}else{
 				//The user is not occupying a space
 				client.end();
-				var opt = {currUser:true,spaceFound:false};
+				var opt = {currUser:false,spaceFound:false};
 				console.log('No Space found');
 				get_userOwnerInfo(res, req, result.rows,[],opt, viewUser);
 				//res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});

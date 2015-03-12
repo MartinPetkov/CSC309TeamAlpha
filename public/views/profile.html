@@ -54,23 +54,25 @@
                 </h3>
 
                 <% if (opt.spaceFound){%>
+				<%for (var i=0; i<tennantSpace.length;i++){ %>
                     <!-- User Is currently occupying a space -->
                     <div class="bs-docs-grid">
                         <div class="row-same-height">
                             <div class="col-xs-3 col-xs-height">
-                                Name: <%=Space.SpaceName%> <br/>
-                                Location: <%= Space.Location %>
+                                Name: <%=tennantSpace[i].SpaceName%> <br/>
+                                Location: <%= tennantSpace[i].Location %>
                             </div>
                             <div class="col-xs-9 col-xs-height">
-                                Description: <%=Space.Description%><br/>
-                                Type: <%Space.SpaceType%>
+                                Description: <%=tennantSpace[i].Description%><br/>
+                                Type: <%tennantSpace[0].SpaceType%>
                                 <br/>
-                                <button id="view-space-button" class="space-button" spaceId=<%=Space.SpaceId%>>
+                                <button id="view-space-button" class="space-button" spaceId=<%=tennantSpace[i].SpaceId%>>
                                     View
                                 </button>
                             </div>
                         </div>
                     </div>
+					<% } %>
                 </div>	
                             
                 <% }else{ %>
