@@ -29,6 +29,7 @@ input {
     border-width: 10px;
     border-color: rgb(101, 188, 138);
 }
+/* Carousel */
 .carousel-inner {
     float: left;
     width: auto;
@@ -38,11 +39,13 @@ input {
     bottom:-350px;
 }
 
+/* For signup.html */
 .signup {
     font-family: helvetica;
     color: rgb(105, 124, 113);
     margin-top: 15px;
 }
+
 .dropdown select {
     font-family: helvetica;
     color: rgb(105, 124, 113);

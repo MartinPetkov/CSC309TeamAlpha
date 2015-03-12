@@ -15,86 +15,90 @@
 <div class="container">
     <div class="bs-docs-grid">
         <div class="row show-grid">
-        <h1>
-            <div class="col-xs-9 col-md-9">
-                <i>SynergySpace</i>
-            </div>
-
-            <!-- Menu Heading -->
-            <div class="col-xs-1 col-md-1">
-                <form action = '/' method='GET' >
-                    <button type="submit" class="btn btn-success btn-lrg">
-                        <span class="glyphicon glyphicon-home"/>
-                    </button>
-                </form>
-            </div>
-
-            <div class="col-xs-1 col-md-1">
-                <form action = '/getUserInfo' method='GET' >
-                    <button type="submit" class="btn btn-success btn-lrg">
-                        <span class="glyphicon glyphicon-user"/>
-                    </button>
-                </form>
-            </div>
-
-            <div class="col-xs-1 col-md-1">
-                <form action = '/logout' method='GET' >
-
-                    <button type="submit" class="btn btn-success btn-lrg">
-                        <span class="glyphicon glyphicon-log-out"/>
-                    </button>
-                    </input>
-                </form>
-            </div>
-            <!-- End Menu Heading -->
-        </h1>
-        </div>
-
-        </div>
-        <div class="space_info">
-            <div class="display">
-                <span class="glyphicon glyphicon-picture" />
-            </div>
-            <div class="stars">
-                Current rating:
-                <span class="glyphicon glyphicon-star" />
-                <span class="glyphicon glyphicon-star" />
-                <span class="glyphicon glyphicon-star" />
-                <span class="glyphicon glyphicon-star" />
-                <span class="glyphicon glyphicon-star-empty" />
-            </div>
-            <form class="rating" method ="get">
-                Your rating:
-                <div class="dropdown">
-                    <select id="star_rating" name="star_rating">
-                        <option> 1
-                        </option>
-                        <option> 2
-                        </option>
-                        <option> 3
-                        </option>
-                        <option> 4
-                        </option>
-                        <option> 5
-                        </option>
-                    </select>
+            <h1>
+                <div class="col-xs-9 col-md-9">
+                    <i>SynergySpace</i>
                 </div>
-                <input type="submit" name="star" value="submit"/>
-            </form>
 
+                <!-- Menu Heading -->
+                <div class="col-xs-1 col-md-1">
+                    <form action = '/' method='GET' >
+                        <button type="submit" class="btn btn-success btn-lrg">
+                            <span class="glyphicon glyphicon-home"/>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="col-xs-1 col-md-1">
+                    <form action = '/getUserInfo' method='GET' >
+                        <button type="submit" class="btn btn-success btn-lrg">
+                            <span class="glyphicon glyphicon-user"/>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="col-xs-1 col-md-1">
+                    <form action = '/logout' method='GET' >
+
+                        <button type="submit" class="btn btn-success btn-lrg">
+                            <span class="glyphicon glyphicon-log-out"/>
+                        </button>
+                        </input>
+                    </form>
+                </div>
+                <!-- End Menu Heading -->
+            </h1>
         </div>
+    </div>
+    
+    <div class="space_info">
+        <div class="display">
+            <span class="glyphicon glyphicon-picture" />
+        </div>
+        
+        <!-- Reputation of the Space -->
+        <div class="stars">
+            Current rating:
+            <span class="glyphicon glyphicon-star" />
+            <span class="glyphicon glyphicon-star" />
+            <span class="glyphicon glyphicon-star" />
+            <span class="glyphicon glyphicon-star" />
+            <span class="glyphicon glyphicon-star-empty" />
+        </div>
+        
+        <form class="rating" method ="get">
+            Your rating:
+            <div class="dropdown">
+                <select id="star_rating" name="star_rating">
+                    <option> 1
+                    </option>
+                    <option> 2
+                    </option>
+                    <option> 3
+                    </option>
+                    <option> 4
+                    </option>
+                    <option> 5
+                    </option>
+                </select>
+            </div>
+            <input type="submit" name="star" value="submit"/>
+        </form>
+    </div>
 </div>
 
 
-
+<!-- Owner Bar -->
 <div class="members" id="owner" ownerId="<%=spaceInfo.OwnerId%>">
     <h4>Owner: <span id="ownerName"></span></h4>
 </div>
 
+<!-- Team Bar -->
 <div class="team">
     <h4>Teams:</h4>
 </div>
 
+<!-- Property Information -->
 <div class="info">
     <div class="bs-docs-grid">
         <h3>Property Information:</h3>
