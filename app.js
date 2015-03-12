@@ -31,15 +31,16 @@ app.use(express.static(__dirname + '/public'));
 app.use(session({secret: '123', resave: 'false', saveUninitialized: 'false'}));
 
 app.use(morgan('dev'));
-//app.use(bodyParser());
+
 
 app.set('views', __dirname + '/public/views');
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
+/* GET FUNCTIONS */
+/* Log out functionality */
+// User is only logged in through the session
 app.get('/logout', function (req, res) {
-	//Log out functionality, 
-	//User is only logged in through the session
     console.log(req.session.user);
     req.session.destroy(function (err) {
         if (err) {
@@ -50,24 +51,25 @@ app.get('/logout', function (req, res) {
     });
 });
 
-
+/* Home page */
+// Redirects user to log in page if they are signed in
 app.get('/', function (req, res) {
 	if (req.session.user) {
 		//console.log('current session: ' + req.session.user);
         res.redirect('/postings.html');
 	} else {
         res.sendFile('./public/intro.html', {root:__dirname});
-
     }
 });
 
 
+/* Sign up page */
 app.get('/signup.html', function (req, res) {
 	res.render('signup.html');
 });
 
 
-//User Profile Viewing
+/* User Profile Viewing */
 app.get('/user:id?', function (req, res) {
 	var id = req.params.id;
 	var dbQuery = 'SELECT ("Email", "HomeLocation", "Reputation", "About", "ProjectInterests", "FirstName", "LastName") FROM "User" WHERE "UserId"=$1';
@@ -77,12 +79,10 @@ app.get('/user:id?', function (req, res) {
 
 });
 
+/* Main Menu - List of all postings */
 app.get('/postings.html', function (req, res) {
-	//Postings is actually handled by get_availability function
+	// Postings is actually handled by get_availability function
 
-	//res.sendFile('./public/views/postings.html',{root:__dirname});
-    //res.render('postings.html', );
-    //res.redirect('back');
     if (req.session.user) {
         get_availability(req,res, false);
         //console.log("Postings page loaded");
@@ -92,14 +92,12 @@ app.get('/postings.html', function (req, res) {
 });
 
 
-//Log in Post
+/* Log in Post */
 app.post('/postings.html', function (req, res) {
 	var userEmail = req.body.email;
 	var userPass = req.body.password;
 	var result = [];
     var passFound = false;
-	//res.send('Username ' + userEmail + '\n password '+ userPass);
-	//console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
 	var client = new pg.Client(conString);
 	var dbPass = [];
 
@@ -109,8 +107,9 @@ app.post('/postings.html', function (req, res) {
             res.send('Sorry, there was an error', err);
         }
 		
-		//Query to check if the user exists
+		// Query to check if the user exists
         var query = client.query('SELECT "Password", "UserId" FROM "User" WHERE "Email"=$1', [userEmail]);
+        
         query.on('error', function (err) {
             res.send('Query Error ' + err);
         });
@@ -126,20 +125,18 @@ app.post('/postings.html', function (req, res) {
             if (passFound == false) {
                 res.send('There was no user with that email');
 				
-			//check if the passwords match (Really ugly user validation)
+			// Check if the passwords match (Really ugly user validation)
             } else if (dbPass[0] == sha1(userPass)) {
-                //Login Success!
+                // Login Success!
 
-				//Log the Users email and UserId in the session to access later
+				// Log the Users email and UserId in the session to access later
                 req.session.user = userEmail;
 				req.session.uid = result[0];
 
 				//console.log('Session log for userid ' + req.session.uid);
                 res.redirect('postings.html');
-
-                //res.render('postings.html', {username: userEmail, password:userPass});
 				
-			//Username and password did no match
+			// Username and password did no match
             } else if (dbPass[0] != userPass) {				
                 res.send('There was an error in log in ' + dbPass[0] + ' != ' + sha1(userPass));
             }
@@ -149,7 +146,7 @@ app.post('/postings.html', function (req, res) {
   //console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
 });
 
-
+/* Retreive list of spaces the user owns for add-availability.html */
 app.get('/getOwnerSpace', function (req, res) {
     var values = [];
     if (req.session.user) {
@@ -166,11 +163,8 @@ app.get('/getOwnerSpace', function (req, res) {
 
 });
 
-
+/* Helper function: Renders the spaces for add-availability.html */
 function renderOwnerSpace(result, res, req) {
-    //console.log('Getting Owner spaces');
-    //console.log(result.rows);
-
     res.render('add-availability.html', {space: result.rows, tenantId:req.session.user});
     res.end();
 }
@@ -185,17 +179,14 @@ app.post('/addUser', function (req, res) {
     values.push(req.body.lastName);
     values.push(req.body.email);
     values.push(sha1(req.body.password));
-	//values.push(req.body.password);
     values.push(req.body.homeLocation);
 	
-	//Place holder Reputation
+	// Place holder Reputation
     values.push(0);
-	//Place holder about and project Interests
+	// Place holder for about and project Interests
     values.push(" ");
     values.push(" ");
-    //values.push(req.body.reputation);
-    //values.push(req.body.about);
-    //values.push(req.body.projectInterests);
+
     // No photo yet, don't wanna deal with that
 
     var params = createParams(values.length);
@@ -205,8 +196,8 @@ app.post('/addUser', function (req, res) {
     var insertFailedMessage = 'Failed to insert user';
     executeQuery(res,req, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
 	
-	//Log the User's email in the session
-	//We log their UserId in Execute query (admittedly not the prettiest)
+	// Log the User's email in the session
+	// We log their UserId in execute-query (admittedly not the prettiest)
 	req.session.user = req.body.email;
 });
 
@@ -218,9 +209,11 @@ app.post('/updateUserInfo', function (req, res) {
 	var valuesObj = {
     	'FirstName': req.body.firstName,
     	'LastName': req.body.lastName,
-    	//'Email': userEmail,
-    	//'Password': sha1(req.body.password),
-		//'Password': req.body.password,
+        
+        /* TBC IN PHASE 4 */
+    	/* 'Email': userEmail,
+    	   'Password': sha1(req.body.password),
+		   'Password': req.body.password, */
     	'HomeLocation': req.body.homeLocation,
     	'Reputation': req.body.reputation,
     	'About': req.body.about,
@@ -243,13 +236,14 @@ app.post('/updateUserInfo', function (req, res) {
     }
     values.push(userEmail);
     var updateQuery = 'UPDATE "User" SET ' + updateColumns.join(', ') + ' WHERE "Email"=$' + (updateColumns.length + 1);
+    
     var updateSuccessMessage = 'Successfully updated info for user';
     var updateFailedMessage = 'Failed to update info for user';
     executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values, false, update_userInfo);
 
 });
 
-//Callback for updateUser Info post, just redirects to userProfile
+// Helper function: Callback for updateUserInfo post, just redirects to userProfile
 function update_userInfo(result, res, req){
 	res.redirect('/getUserInfo');
 	res.end();
@@ -265,30 +259,27 @@ app.get('/getAllUsers', function (req, res) {
 });
 
 
-// Get user info
-//This one has the specific function of being for viewing only YOUR info (including spaces)
-//And allowing the user to change their information
-//If no ID is provided, the app assumes you are trying to view/change your info
+/* Get user info
+   This one has the specific function of being for viewing only YOUR info (including spaces)
+   And allowing the user to change their information
+   If no ID is provided, the app assumes you are trying to view/change your info */
 app.get('/getUserInfo', function (req, res) {
     var values = [];
 	
-	//Check if user is logged in
+	// Check if user is logged in
 	 if (req.session.user) {
-		//User is logged in, do queries
+		// User is logged in, do queries
         values.push(req.session.user);
 		var getQuery = 'SELECT * FROM "User" WHERE "Email" = $1';
-
+         
 		var getSuccessMessage = 'Successfully retrieved user info';
 		var getFailedMessage = 'Could not retrieve user info';
 		executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, true, get_thisUserInfo);
-	//If not redirect to home page
+         
+	// If not redirect to home page
     } else {
         res.redirect('/');
     }
-	//var id = req.params.id;
-    //values.push(req.get('userId'));
-	//values.push(id);
-
 });
 
 // Pls don't modify this function, we need some way to get simple data rather than a web page as the result
@@ -298,16 +289,16 @@ app.get('/getUserInfoPlain:id?', function(req, res){
     values.push(id);
     //console.log(id);
     var getQuery = 'SELECT * FROM "User" WHERE "UserId" = $1';
-
+    
     var getSuccessMessage = 'Successfully retrieved user info';
     var getFailedMessage = 'Could not retrieve user info';
     executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, false);
 
 });
 
-//This getUserInfo is for when a user wants to view another user's info
-//Just displays their basic user info and spaces
-//So user's cant edit other user's infoo
+/* This getUserInfo is for when a user wants to view another user's info
+   Just displays their basic user info and spaces
+   So user's cant edit other user's info */
 app.get('/getUserInfo:id?', function(req, res){
 	var values = [];
 	var id = req.params.id;
@@ -321,10 +312,10 @@ app.get('/getUserInfo:id?', function(req, res){
 
 });
 
-//Callback for getting/changing your own user info
-//There is another callback for viewing another users info and they both
-//converge on getting the info about spaces the user owns
-//Gets info about the spaces they are leasing
+/* Helper function: Callback for getting/changing your own user info
+   There is another callback for viewing another users info and they both
+   converge on getting the info about spaces the user owns
+   Gets info about the spaces they are leasing */
 function get_thisUserInfo(result, res, req){
 	var spaceResult =[];
 	var currUser = req.session.uid;
@@ -374,9 +365,9 @@ function get_thisUserInfo(result, res, req){
 	});
 }
 
-//Both callbacks for getting you user info and getting someones else user info converge
-//here, this is where we actually render the page with all the relevant data
-//This is also where we get info on spaces the user owns
+/* Helper function: Both callbacks for getting your user info and getting someones else user info converge
+   here, this is where we actually render the page with all the relevant data
+   This is also where we get info on spaces the user owns */
 function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
 	var ownerResult = [];
 	var isOwner = false;
@@ -401,8 +392,8 @@ function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
 	});
 };
 
-//Callback for viewing another user's info
-//Gets info about the spaces they are leasing
+/* Helper function: Callback for viewing another user's info
+   Gets info about the spaces they are leasing */
 function get_userInfo(result, res, req){
 	//var currEmail = req.session.email;
 	var viewUser = result.rows[0].UserId;
@@ -551,11 +542,6 @@ app.get('/getSpaceInfo', function (req, res) {
     executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
-//
-function renderSpaceInfo(result, res, req) {
-    res.render('space-info.html', {spaceInfo: result.rows[0]});
-    res.end();
-}
 
 //Get space info, requires a space Id to be passed in
 app.get('/space-info.html', function (req, res) {
@@ -571,6 +557,13 @@ app.get('/space-info.html', function (req, res) {
     var getFailedMessage = 'Could not retrieve space info';
     executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true, renderSpaceInfo);
 });
+
+
+// Helper function: Renders for space-info.html GET
+function renderSpaceInfo(result, res, req) {
+    res.render('space-info.html', {spaceInfo: result.rows[0]});
+    res.end();
+}
 
 
 // Delete space
@@ -964,12 +957,8 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
     });
 
 }
-// Used for heroku host
-//app.use(express.static(__dirname + '/app'));
 
-//app.configure(function(){
-//    app.set('port', process.env.PORT || 3000);
-//})
+// Used for Heroku host
 var port = Number(process.env.PORT || 3000);
 var server = app.listen(port, function() { console.log('Listening on port %d', server.address().port); });
 
