@@ -166,8 +166,8 @@ app.get('/getOwnerSpace', function (req, res) {
 function renderOwnerSpace(result, res, req) {
     console.log('Getting Owner spaces');
     console.log(result.rows);
-    //res.render('add-leasing.html');
-    res.render('add-leasing.html', {space: result.rows, tenantId:req.session.user});
+
+    res.render('add-availability.html', {space: result.rows, tenantId:req.session.user});
     res.end();
 }
 

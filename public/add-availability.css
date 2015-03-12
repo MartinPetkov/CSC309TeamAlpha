@@ -111,3 +111,9 @@ a:active {
     background-image: none;
   color: #ffffff;
   font-weight: bold;
+}
+
+.glyphicon-home, .glyphicon-user, .glyphicon-log-out {
+    margin-top: 0%;
+    font-size: 30px;
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Add Availability</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="add-availability.css">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        
+        <link href="//code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+        <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+        <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+        <!-- Javascript -->
+        <script>
+            $(function() {
+                $( "#datepicker-13" ).datepicker({ dateFormat: 'yy-mm-dd' });
+                $( "#datepicker-13" ).datepicker("show");
+                $( "#datepicker-14" ).datepicker({ dateFormat: 'yy-mm-dd' });
+                $( "#datepicker-14" ).datepicker("show");
+            });
+        </script>
+    </head>
+    <body>
+  
+<div class="container">
+    <div class="row show-grid">
+        <h1>
+            <div class="col-xs-9 col-md-9">
+                <i> Add Availability </i>
+            </div>
+
+            <!-- Menu Heading -->
+            <div class="col-xs-1 col-md-1">
+                <form action = '/' method='GET' >
+                    <button type="submit" class="btn btn-success btn-lrg">
+                        <span class="glyphicon glyphicon-home"/>
+                    </button>
+                </form>
+            </div>
+
+            <div class="col-xs-1 col-md-1">
+                <form action = '/getUserInfo' method='GET' >
+                    <button type="submit" class="btn btn-success btn-lrg">
+                        <span class="glyphicon glyphicon-user"/>
+                    </button>
+                </form>
+            </div>
+
+            <div class="col-xs-1 col-md-1">
+                <form action = '/logout' method='GET' >
+
+                    <button type="submit" class="btn btn-success btn-lrg">
+                        <span class="glyphicon glyphicon-log-out"/>
+                    </button>
+                    </input>
+                </form>
+            </div>
+            <!-- End Menu Heading -->
+        </h1>
+    </div>
+    
+    
+    <div class="signup">
+        
+        Select Your Space
+        <form id="add-leasing" action="/addAvailability" method="post">
+            <% for (var i=0; i < space.length; i++) { %>
+                <input type="radio" name="spaceId" value=<%=space[i].SpaceId%> > <%=space[i].SpaceId%> <%=space[i].SpaceName%>
+
+            <% } %>
+            <p>From Date: <input type="text" name=fromDate id="datepicker-13"></p>
+            <p>To Date: <input type="text" name=toDate id="datepicker-14"></p>
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+    
+          
+</div>
+
+
+        
+        
+        
+        
+    </body>
+</html>
