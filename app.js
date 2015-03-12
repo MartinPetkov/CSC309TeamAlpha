@@ -151,7 +151,7 @@ app.get('/getOwnerSpace', function (req, res) {
     if (req.session.user) {
         values.push(req.session.uid);
 
-        var getQuery = 'SELECT * FROM "Space" WHERE "OwnerId" = $1'; 
+        var getQuery = 'SELECT * FROM "Space" WHERE "OwnerId" = $1';
         var getSuccessMessage = 'Successfully retrieved all owner spaceIDs';
         var getFailedMessage = 'Could not retrieve owner space info';
         console.log('In owner space');
@@ -159,7 +159,7 @@ app.get('/getOwnerSpace', function (req, res) {
     } else {
         res.redirect('/');
     }
-    
+
 });
 
 
@@ -272,6 +272,20 @@ app.get('/getUserInfo', function (req, res) {
 	//var id = req.params.id;
     //values.push(req.get('userId'));
 	//values.push(id);
+
+});
+
+// Pls don't modify this function, we need some way to get simple data rather than a web page as the result
+app.get('/getUserInfoPlain:id?', function(req, res){
+    var values = [];
+    var id = req.params.id;
+    values.push(id);
+    console.log(id);
+    var getQuery = 'SELECT * FROM "User" WHERE "UserId" = $1';
+
+    var getSuccessMessage = 'Successfully retrieved user info';
+    var getFailedMessage = 'Could not retrieve user info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, false);
 
 });
 
@@ -582,7 +596,7 @@ app.post('/addLeasing', function (req, res) {
     values.push(req.body.toDate);
     values.push(req.body.negotiatedPricePerDay);
 
-    
+
     var params = createParams(values.length);
     var insertQuery = 'INSERT INTO "Leasing"("SpaceId", "TenantId", "FromDate", "ToDate", "NegotiatedPricePerDay") VALUES(' + params + ') RETURNING "SpaceId", "TenantId"';
 
@@ -814,7 +828,7 @@ function get_availability(req, res, get_bool) {
     if(updateColumns.length > 0) {
     	getQuery += ' WHERE ' + updateColumns.join(' AND ');
     }
-    
+
     var getSuccessMessage = 'Successfully retrieved availabilities';
     var getFailedMessage = 'Could not retrieve availabilities';
     var query = executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, get_bool);
@@ -894,9 +908,11 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
                     res.render('postings.html', {postings:result.rows});
                     res.end();
                 } else {
-
                     res.writeHead(200, {'Content-Type': 'text/plain'});
-                    res.write(JSON.stringify(result.rows) + "\n");
+
+                    var jsonShit = {};
+                    jsonShit.results = result.rows;
+                    res.write(JSON.stringify(jsonShit, 0, 4));
 
                     res.end();
 
