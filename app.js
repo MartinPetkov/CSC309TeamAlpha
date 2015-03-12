@@ -232,7 +232,7 @@ app.post('/updateUserInfo', function (req, res) {
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-		console.log('looking at property '+property + ' value = '+valuesObj[property]);
+		//console.log('looking at property '+property + ' value = '+valuesObj[property]);
     	if((valuesObj.hasOwnProperty(property))
     		&& (typeof valuesObj[property] != 'undefined')) {
 
@@ -243,10 +243,6 @@ app.post('/updateUserInfo', function (req, res) {
     }
     values.push(userEmail);
     var updateQuery = 'UPDATE "User" SET ' + updateColumns.join(', ') + ' WHERE "Email"=$' + (updateColumns.length + 1);
-	console.log(updateQuery);
-	for (var i=0;i<values.length;i++){
-		console.log('value = ' + values[i]);
-	}
     var updateSuccessMessage = 'Successfully updated info for user';
     var updateFailedMessage = 'Failed to update info for user';
     executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values, false, update_userInfo);
