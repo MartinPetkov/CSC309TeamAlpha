@@ -1,42 +1,42 @@
-@font-face { font-family: AdobeGothic; src: url("AdobeGothicStd-Bold.otf"); } 
+@font-face { font-family: AdobeGothic; src: url("AdobeGothicStd-Bold.otf"); }
 
 body{
     background-color: rgb(218, 243, 214);
     width: inherit;
 }
 
-.space_info{
+.space_info {
     margin-top: 0px;
     height: 210px;
 }
-.display{
+.display {
     font-size: 70px;
     text-align: center;
     color: rgb(127, 161, 141);
 }
-.stars{
+.stars {
     color: rgb(127, 161, 141);
     text-align: center;
 
 }
 
-.dropdown select{
+.dropdown select {
     font-family: helvetica;
     color: rgb(105, 124, 113);
     background-color: rgb(241, 243, 242);
 }
 
-.rating{
+.rating {
     text-align: center;
     color: rgb(127, 161, 141);
 }
-.info{
+.info {
     background-color: none;
     color: rgb(127, 161, 141);
-    
+
 }
 
-.info h3{
+.info h3 {
     margin-top: 0px;
     height: 40px;
     font-size: 20px;
@@ -45,12 +45,12 @@ body{
     background-color: rgb(127, 161, 141);
     color: white;
 }
-.members{
+.members {
     height: 30%;
 }
 
 
-h1{
+h1 {
     background-color: rgb(101, 188, 138);
     width: 100%;
     margin-top: 0px;
@@ -63,7 +63,7 @@ h1{
 }
 
 
-h4{
+h4 {
     margin-top: 0px;
     width = 100%;
     background-color: rgb(129, 201, 160);
@@ -72,7 +72,7 @@ h4{
     color: white;
 }
 
-input{
+input {
     display: block;
     margin-top: 10px;
     margin-left: 15px;
@@ -84,16 +84,28 @@ input{
     color: rgb(105, 124, 113);
 }
 
-input[type=submit]{
+input[type=submit] {
     background-color: rgb(101, 188, 138);
     color: white;
     margin-left: 43%;
-    
+
 }
 
 
-p{
+p {
     color: rgb(105, 124, 113);
     margin-top: 20px;
     margin-left: 15px;
+}
+
+.glyphicon-home, .glyphicon-user, .glyphicon-log-out {
+    margin-top: 0%;
+    font-size: 30px;
+}
+
+.info-label {
+    font-family: helvetica;
+    font-size: 14px;
+    font-weight: bold;
+    float: left;
 }

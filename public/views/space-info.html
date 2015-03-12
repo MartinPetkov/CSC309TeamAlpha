@@ -15,20 +15,39 @@
 <div class="container">
     <div class="bs-docs-grid">
         <div class="row show-grid">
-            <h1>
+        <h1>
             <div class="col-xs-9 col-md-9">
                 <i>SynergySpace</i>
             </div>
+
+            <!-- Menu Heading -->
             <div class="col-xs-1 col-md-1">
-                <span class="glyphicon glyphicon-envelope" />
+                <form action = '/' method='GET' >
+                    <button type="submit" class="btn btn-success btn-lrg">
+                        <span class="glyphicon glyphicon-home"/>
+                    </button>
+                </form>
             </div>
+
             <div class="col-xs-1 col-md-1">
-                <span class="glyphicon glyphicon-globe" />
+                <form action = '/getUserInfo' method='GET' >
+                    <button type="submit" class="btn btn-success btn-lrg">
+                        <span class="glyphicon glyphicon-user"/>
+                    </button>
+                </form>
             </div>
+
             <div class="col-xs-1 col-md-1">
-                <span class="glyphicon glyphicon-log-out"/>
+                <form action = '/logout' method='GET' >
+
+                    <button type="submit" class="btn btn-success btn-lrg">
+                        <span class="glyphicon glyphicon-log-out"/>
+                    </button>
+                    </input>
+                </form>
             </div>
-            </h1>
+            <!-- End Menu Heading -->
+        </h1>
         </div>
 
         </div>
@@ -68,8 +87,8 @@
 
 
 
-<div class="members">
-    <h4>Members: </h4>
+<div class="members" id="owner" ownerId="<%=spaceInfo.OwnerId%>">
+    <h4>Owner: <span id="ownerName"></span></h4>
 </div>
 
 <div class="team">
@@ -80,52 +99,88 @@
     <div class="bs-docs-grid">
         <h3>Property Information:</h3>
         <div class="row-same-height data-row">
-            <div class="col-xs-12 col-xs-height">
-                Space Name: <%=spaceInfo.SpaceName%>
+            <div class="col-xs-3 col-xs-height">
+                <span class="info-label">Space Name:</span>
+            </div>
+            <div class="col-xs-9 col-xs-height">
+                <%=spaceInfo.SpaceName%>
             </div>
         </div>
-        <div class="row-same-height">
-            <div class="col-xs-12 col-xs-height">
-                Price Per Day: <%=spaceInfo.PricePerDay%>
+        <div class="row-same-height data-row">
+            <div class="col-xs-3 col-xs-height">
+                <span class="info-label">Price Per Day:</span>
+            </div>
+            <div class="col-xs-9 col-xs-height">
+                <%=spaceInfo.PricePerDay%>
             </div>
         </div>
-        <div class="row-same-height">
-            <div class="col-xs-12 col-xs-height">
-                Vacancy: <%=spaceInfo.VacancyAmount%>
+        <div class="row-same-height data-row">
+            <div class="col-xs-3 col-xs-height">
+                <span class="info-label">Vacancy:</span>
+            </div>
+            <div class="col-xs-9 col-xs-height">
+                <%=spaceInfo.VacancyAmount%>
             </div>
         </div>
-        <div class="row-same-height">
-            <div class="col-xs-12 col-xs-height">
-                Address: <%=spaceInfo.Location%>
+        <div class="row-same-height data-row">
+            <div class="col-xs-3 col-xs-height">
+                <span class="info-label">Address:</span>
+            </div>
+            <div class="col-xs-9 col-xs-height">
+                <%=spaceInfo.Location%>
             </div>
         </div>
-        <div class="row-same-height">
-            <div class="col-xs-12 col-xs-height">
-                Description: <%=spaceInfo.Description%>
+        <div class="row-same-height data-row">
+            <div class="col-xs-3 col-xs-height">
+                <span class="info-label">Propety Type:</span>
+            </div>
+            <div class="col-xs-9 col-xs-height">
+                <%=spaceInfo.SpaceType%>
             </div>
         </div>
-        <div class="row-same-height">
-            <div class="col-xs-12 col-xs-height">
-                Property type: <%=spaceInfo.SpaceType%>
+        <div class="row-same-height data-row">
+            <div class="col-xs-3 col-xs-height">
+                <span class="info-label">Size:</span>
+            </div>
+            <div class="col-xs-9 col-xs-height">
+                <%=spaceInfo.Area%>
             </div>
         </div>
-        <div class="row-same-height">
-            <div class="col-xs-12 col-xs-height">
-                Size: <%=spaceInfo.Area%>
+        <div class="row-same-height data-row">
+            <div class="col-xs-3 col-xs-height">
+                <span class="info-label">Rooms:</span>
+            </div>
+            <div class="col-xs-9 col-xs-height">
+                <%=spaceInfo.Rooms%>
             </div>
         </div>
-        <div class="row-same-height">
-            <div class="col-xs-12 col-xs-height">
-                Rooms: <%=spaceInfo.Rooms%>
+        <div class="row-same-height data-row">
+            <div class="col-xs-3 col-xs-height">
+                <span class="info-label">Description:</span>
             </div>
-        </div>
-        <div class="row-same-height">
-            <div class="col-xs-12 col-xs-height">
-                Description: <%=spaceInfo.Description%>
+            <div class="col-xs-9 col-xs-height">
+                <%=spaceInfo.Description%>
             </div>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var owner = $("#owner");
+        var ownerId = owner.attr("ownerId");
+        $.ajax({
+            url: "/getUserInfoPlain" + ownerId + "?",
+            success: function(data) {
+                results = JSON.parse(data).results[0];
+                $("#ownerName").html(results.FirstName + " " + results.LastName);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
+</script>
 
 </body>
 </html>
