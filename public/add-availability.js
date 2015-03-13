@@ -9,7 +9,7 @@ $(function(){
             
             
         if (spaceVal == false) {
-            $('#spaceId').before('<span id="temp" class="glyphicon glyphicon-remove" style="color:red"/><span class="error" style="color:red">Please enter an email.</span>');
+            $('#spaceId').before('<span id="temp" class="glyphicon glyphicon-remove" style="color:red"/><span class="error" style="color:red">Please select a space ID</span>');
             hasError = true;
         }
         else if (fromVal == null) {
