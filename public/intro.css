@@ -102,3 +102,8 @@ a:hover {
 a:active {
     color: #0000FF;
 }
+
+.glyphicon-home, .glyphicon-user, .glyphicon-log-out {
+    margin-top: 0%;
+    font-size: 30px;
+}

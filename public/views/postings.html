@@ -75,7 +75,12 @@
                             <div class="col-xs-5">
                                 <form action = '/getOwnerSpace' method='GET'>
                                     <button type="submit" class="btn btn-success btn-lrg add-availability">
-                                        <span class="glyphicon glyphicon-plus"> <b> Availability </b></span> 
+                                        <span class="glyphicon glyphicon-plus"> <b> Availability </b></span>
+                                    </button>
+                                </form>
+                                <form action = '/getAddSpace' method='GET'>
+                                    <button type="submit" class="btn btn-success btn-lrg add-availability">
+                                        <span class="glyphicon glyphicon-plus"> <b> New Space </b></span>
                                     </button>
                                 </form>
                             </div>
@@ -91,7 +96,7 @@
                                         <span class="display">
                                             <span class="glyphicon glyphicon-picture" />
                                         </span>
-	
+
                                         <button id="view-space-button" class="space-button" spaceId=<%=postings[i].SpaceId%>>
                                             View
                                         </button>

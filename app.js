@@ -106,10 +106,10 @@ app.post('/postings.html', function (req, res) {
             return console.error('Could not connect to postgres', err);
             res.send('Sorry, there was an error', err);
         }
-		
+
 		// Query to check if the user exists
         var query = client.query('SELECT "Password", "UserId" FROM "User" WHERE "Email"=$1', [userEmail]);
-        
+
         query.on('error', function (err) {
             res.send('Query Error ' + err);
         });
@@ -124,7 +124,7 @@ app.post('/postings.html', function (req, res) {
             //console.log('client ended');
             if (passFound == false) {
                 res.send('There was no user with that email');
-				
+
 			// Check if the passwords match (Really ugly user validation)
             } else if (dbPass[0] == sha1(userPass)) {
                 // Login Success!
@@ -135,9 +135,9 @@ app.post('/postings.html', function (req, res) {
 
 				//console.log('Session log for userid ' + req.session.uid);
                 res.redirect('postings.html');
-				
+
 			// Username and password did no match
-            } else if (dbPass[0] != userPass) {				
+            } else if (dbPass[0] != userPass) {
                 res.send('There was an error in log in ' + dbPass[0] + ' != ' + sha1(userPass));
             }
         });
@@ -180,7 +180,7 @@ app.post('/addUser', function (req, res) {
     values.push(req.body.email);
     values.push(sha1(req.body.password));
     values.push(req.body.homeLocation);
-	
+
 	// Place holder Reputation
     values.push(0);
 	// Place holder for about and project Interests
@@ -195,7 +195,7 @@ app.post('/addUser', function (req, res) {
     var insertSuccessMessage = 'Successfully inserted user';
     var insertFailedMessage = 'Failed to insert user';
     executeQuery(res,req, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
-	
+
 	// Log the User's email in the session
 	// We log their UserId in execute-query (admittedly not the prettiest)
 	req.session.user = req.body.email;
@@ -209,7 +209,7 @@ app.post('/updateUserInfo', function (req, res) {
 	var valuesObj = {
     	'FirstName': req.body.firstName,
     	'LastName': req.body.lastName,
-        
+
         /* TBC IN PHASE 4 */
     	/* 'Email': userEmail,
     	   'Password': sha1(req.body.password),
@@ -236,7 +236,7 @@ app.post('/updateUserInfo', function (req, res) {
     }
     values.push(userEmail);
     var updateQuery = 'UPDATE "User" SET ' + updateColumns.join(', ') + ' WHERE "Email"=$' + (updateColumns.length + 1);
-    
+
     var updateSuccessMessage = 'Successfully updated info for user';
     var updateFailedMessage = 'Failed to update info for user';
     executeQuery(res,req, updateSuccessMessage, updateFailedMessage, updateQuery, values, false, update_userInfo);
@@ -265,17 +265,17 @@ app.get('/getAllUsers', function (req, res) {
    If no ID is provided, the app assumes you are trying to view/change your info */
 app.get('/getUserInfo', function (req, res) {
     var values = [];
-	
+
 	// Check if user is logged in
 	 if (req.session.user) {
 		// User is logged in, do queries
         values.push(req.session.user);
 		var getQuery = 'SELECT * FROM "User" WHERE "Email" = $1';
-         
+
 		var getSuccessMessage = 'Successfully retrieved user info';
 		var getFailedMessage = 'Could not retrieve user info';
 		executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, true, get_thisUserInfo);
-         
+
 	// If not redirect to home page
     } else {
         res.redirect('/');
@@ -289,7 +289,7 @@ app.get('/getUserInfoPlain:id?', function(req, res){
     values.push(id);
     //console.log(id);
     var getQuery = 'SELECT * FROM "User" WHERE "UserId" = $1';
-    
+
     var getSuccessMessage = 'Successfully retrieved user info';
     var getFailedMessage = 'Could not retrieve user info';
     executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, false);
@@ -326,7 +326,7 @@ function get_thisUserInfo(result, res, req){
 			return console.error('could not connect to postgres', err);
 			res.send('sorry, there was an error', err);
 		}
-		
+
 		//Find the info on spaces the user is currently leasing
 	    var query = client.query('SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId"=$1', [currUser]);
 		query.on('error', function (err) {
@@ -339,7 +339,7 @@ function get_thisUserInfo(result, res, req){
 			currSpace = row.SpaceId;
 			spaceResult.push(row);
 		});
-		
+
         query.on('end', function () {
 			//If the user is occupying a space
 			if (spaceFound){
@@ -354,7 +354,7 @@ function get_thisUserInfo(result, res, req){
 				client.end();
 				var opt = {currUser:true,spaceFound:false};
 				//console.log('No Space found');
-				
+
 				//Pass info on spaces user is currently leasing to convergent get_userOwnerInfo
 				get_userOwnerInfo(res, req, result.rows, [], opt, currUser);
 
@@ -429,7 +429,7 @@ function get_userInfo(result, res, req){
 				client.end();
 				get_userOwnerInfo(res, req, result.rows,spaceResult,opt, viewUser);
 
-				
+
 			}else{
 				//The user is not occupying a space
 				client.end();
@@ -466,7 +466,8 @@ app.post('/deleteUser', function (req, res) {
 // Create new space
 app.post('/addSpace', function (req, res) {
     var values = [];
-    values.push(req.body.ownerId);
+    values.push(req.session.uid);
+    values.push(req.body.spaceName);
     values.push(req.body.location);
     values.push(req.body.description)
     values.push(req.body.spaceType);
@@ -476,11 +477,18 @@ app.post('/addSpace', function (req, res) {
     values.push(req.body.vacancyAmount);
 
     var params = createParams(values.length);
-    var insertQuery = 'INSERT INTO "Space"("OwnerId", "Location", "Description", "SpaceType", "Area", "Rooms", "PricePerDay", "VacancyAmount") VALUES(' + params + ') RETURNING "SpaceId"';
+    var insertQuery = 'INSERT INTO "Space"("OwnerId", "SpaceName", "Location", "Description", "SpaceType", "Area", "Rooms", "PricePerDay", "VacancyAmount") VALUES(' + params + ') RETURNING "SpaceId"';
 
     var insertSuccessMessage = 'Successfully inserted space';
     var insertFailedMessage = 'Failed to insert space';
-    executeQuery(res,req, insertSuccessMessage, insertFailedMessage, insertQuery, values, false);
+    executeQuery(res,req, insertSuccessMessage, insertFailedMessage, insertQuery, values, false,
+        function(result, res, req) {
+            res.redirect('/postings.html');
+        });
+});
+
+app.get('/getAddSpace', function (req, res) {
+    res.redirect('/addSpace.html');
 });
 
 
@@ -839,7 +847,7 @@ function get_availability(req, res, get_bool) {
     var updateColumns = [];
     var values = [];
     var i = 1;
-	
+
 	//Check if values make sense
     if(typeof valuesObj['SpaceId'] != 'undefined') {
 		updateColumns.push('"SpaceId" = $' + i);
@@ -921,7 +929,7 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, g
             } else {
 
                 if (successMessage == 'Successfully inserted user' && !get_bool){
-				
+
 					//Log user's UserId on user creation
                     req.session.uid = result.rows[0].UserId;
                     //console.log('inserted user with ID= '+result.rows[0].UserId)
