@@ -758,6 +758,26 @@ app.get('/getForumPostsForSpace', function (req, res) {
 });
 
 
+app.get('/create-team', function(req, res){
+ var values = [];
+    if (req.session.user) {
+        values.push(req.session.uid);
+
+        var getQuery = 'SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId" = $1';
+        var getSuccessMessage = 'Successfully retrieved all tenant spaceIDs';
+        var getFailedMessage = 'Could not retrieve tenant space info';
+        //console.log('In owner space');
+        executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true, renderCreateTeams);
+    } else {
+        res.redirect('/');
+    }
+	//res.render('create-team.html');
+});
+function renderCreateTeams(result, res, req){
+	res.render('create-team.html', {space:result.rows});
+	res.end();
+};
+
 // Delete forum post
 app.post('/deleteForumPost', function (req, res) {
     var values = [];

@@ -10,10 +10,63 @@
 </head>
     
 <body>
-	  <form action = '/' method='GET' >
-		<button type="submit" class="btn btn-success btn-lrg">
-			<span class="glyphicon glyphicon-home"/>
-		</button>
-	</form>
+	<div class="container">
+		  <div class="bs-docs-grid">
+			<div class="row show-grid">
+				<h1>
+					<div class="col-xs-9 col-md-9">
+						<i>Create Team</i>
+					</div>
+
+					<!-- Menu Heading -->
+					<div class="col-xs-1 col-md-1">
+						<form action = '/' method='GET' >
+							<button type="submit" class="btn btn-success btn-lrg">
+								<span class="glyphicon glyphicon-home"/>
+							</button>
+						</form>
+					</div>
+
+					<div class="col-xs-1 col-md-1">
+						<form action = '/getUserInfo' method='GET' >
+							<button type="submit" class="btn btn-success btn-lrg">
+								<span class="glyphicon glyphicon-user"/>
+							</button>
+						</form>
+					</div>
+
+					<div class="col-xs-1 col-md-1">
+						<form action = '/logout' method='GET' >
+
+							<button type="submit" class="btn btn-success btn-lrg">
+								<span class="glyphicon glyphicon-log-out"/>
+							</button>
+							</input>
+						</form>
+					</div>
+					<!-- End Menu Heading -->
+				</h1>
+			</div>
+		</div>
+		<div class="createTeam">
+		<form id="create-team" action="/createTeam" method="post">
+				<%if (space.length==0){%>
+					You must be leasing a space to create a team
+				
+				<%}else{%>
+                <% for (var i=0; i < space.length; i++) { %>
+                    <input type="radio" name="spaceId" id="spaceId" value=<%=space[i].SpaceId%>> 
+                    <label>
+                        Space ID: <%=space[i].SpaceId%> 
+                        <span class="tab">SpaceName: <%=space[i].SpaceName%> </span>
+                    </label>
+                <% } %>
+               
+                <input type="submit" id="submit-availability" value="Submit"/>
+				<%}%>
+            </form> 
+		</div>
+		
+	</div>
 </body>
 </html>
