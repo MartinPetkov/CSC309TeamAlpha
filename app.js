@@ -788,9 +788,12 @@ app.post('/create-team', function(req, res){
 	
 	var createSuccessMessage = 'Successfully created a Team';
 	var createFailedMessage = 'Could not create a team';
-	executeQuery(res,req, createSuccessMessage, createFailedMessage, createTeamQuery,values, false);
+	executeQuery(res,req, createSuccessMessage, createFailedMessage, createTeamQuery,values, false,redirectCreateTeam);
 	//res.send(values);
 });
+function redirectCreateTeam(req, res){
+	res.redirect('/postings.html');
+};
 
 // Delete forum post
 app.post('/deleteForumPost', function (req, res) {
