@@ -112,6 +112,7 @@
                             <button id="view-space-button" class="space-button" spaceId=<%=ownerSpace[j].SpaceId%>>
                                 View Space
                             </button>
+                            <input type="hidden" id="joined" value = <%=Owner%>>
                         </div>
                     </div>
                 </div>
@@ -185,12 +186,18 @@
     <script type="text/javascript">
         var spaceButtons = $(".space-button");
         for(var i = 0, max = spaceButtons.length; i < max; i++) {
+            
             var btn = spaceButtons[i];
+            //if (i == 3) {
             btn.onclick = function(btnSpaceId) {
                 return function() {
-                    location.href = "/space-info.html?spaceId=" + btnSpaceId;
+                
+                    location.href = "/space-info.html?spaceId=" + btnSpaceId + "&joined=" + document.getElementById('joined').value;
+                    //window.alert(location.href);
                 };
             } ($(btn).attr("spaceId"));
+           // } 
+            
         }
     </script>
 </html>

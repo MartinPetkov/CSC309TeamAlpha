@@ -141,7 +141,7 @@
             var btn = spaceButtons[i];
             btn.onclick = function(btnSpaceId) {
                 return function() {
-                    location.href = "/space-info.html?spaceId=" + btnSpaceId;
+                    location.href = "/space-info.html?spaceId=" + btnSpaceId + "&joined=false";
                 };
             } ($(btn).attr("spaceId"));
         }

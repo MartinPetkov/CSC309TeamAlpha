@@ -109,3 +109,19 @@ p {
     font-weight: bold;
     float: left;
 }
+
+
+button {
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+    
+}
+
+.glow {
+    border-collapse: collapse;
+    box-shadow: 0 0 10px 10px white;  
+}

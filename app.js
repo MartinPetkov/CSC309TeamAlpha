@@ -20,16 +20,10 @@ var sanitizer = require('sanitizer');
 var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-	extended: true
-}));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));
-app.use(session({
-    secret: '123', 
-    resave: 'false', 
-    saveUninitialized: 'false'
-}));
+app.use(session({secret: '123', resave: 'false', saveUninitialized: 'false'}));
 app.use(morgan('dev'));
 
 app.set('views', __dirname + '/public/views');
@@ -118,7 +112,7 @@ app.post('/postings.html', function (req, res) {
         });
         query.on('end', function () {
             client.end();
-            //console.log('client ended');
+
             if (passFound == false) {
                 res.send('There was no user with that email');
 
@@ -139,8 +133,6 @@ app.post('/postings.html', function (req, res) {
             }
         });
 	});
-
-  //console.log('login: ' + userEmail + ' from IP ' + req.connection.remoteAddress);
 });
 
 /* Retreive list of spaces the user owns for add-availability.html */
@@ -440,10 +432,7 @@ function get_userInfo(result, res, req){
 				//res.end();
 			}
 		});
-		});
-
-
-
+    });
 	//console.log('looking at user with id '+ result.rows[0].UserId);
 	//res.render('profile.html', {profile:result.rows, opt:opt});
 	//res.end();
@@ -553,23 +542,74 @@ app.get('/getSpaceInfo', function (req, res) {
 
 //Get space info, requires a space Id to be passed in
 app.get('/space-info.html', function (req, res) {
-    if(typeof req.query.spaceId == 'undefined') {
+    if(typeof req.query.spaceId == 'undefined' || typeof req.query.joined == 'undefined') {
         res.end();
     }
-    var values = [];
-    values.push(req.query.spaceId);
+    console.log(req.query.joined);
+    req.session.joined = req.query.joined;
+    console.log(req.session.joined);
+    //var values = [];
+    //values.push(req.query.spaceId);
 
-    var getQuery = 'SELECT * FROM "Space" WHERE "SpaceId" = $1';
+    var getQuery = 'SELECT *, $1::integer AS LikeDislike FROM "Space" WHERE "SpaceId" = $2';
 
     var getSuccessMessage = 'Successfully retrieved space info';
     var getFailedMessage = 'Could not retrieve space info';
-    executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, renderSpaceInfo);
+    
+    var getRatingQuery = 'SELECT * FROM "SpaceRating" WHERE "UserId"= $1 AND "SpaceId"= $2';
+    var client = new pg.Client(conString);
+	var result = [];
+
+	client.connect(function (err, done) {
+        
+        /* Unable to connect to postgreSQL server */
+        if (err) {
+            res.writeHead(500);
+            console.log('Unable to connect to database');
+        }
+		
+		// Query to check if the user exists
+        var query = client.query(getRatingQuery, [req.session.uid, req.query.spaceId], function(err, result){});
+        
+        /* Unable to execute query */
+        query.on('error', function (err) {
+            res.send('Query Error ' + err);
+        });
+        
+        query.on('row', function (row) {
+			result.push(row);
+        });
+        
+        query.on('end', function () {
+            client.end();
+            console.log(result);
+            console.log(result[0]);
+            var currentRating;
+            if (typeof result[0] == 'undefined') {
+                console.log('empty');
+                currentRating = null;
+            } else {
+                console.log(result.rows);
+                currentRating = result[0].LikeDislike;
+            }
+            console.log('Rating: ' + currentRating);
+            
+            var values = [];
+            values.push(currentRating);
+            values.push(req.query.spaceId);
+            console.log(values)
+
+            console.log(getQuery);
+            executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, renderSpaceInfo);
+
+        });
+	});
 });
 
 
 // Helper function: Renders for space-info.html GET
 function renderSpaceInfo(result, res, req) {
-    res.render('space-info.html', {spaceInfo: result.rows[0]});
+    res.render('space-info.html', {spaceInfo: result.rows[0], currentUser: req.session.joined});
     res.end();
 }
 
@@ -811,7 +851,6 @@ app.get('/create-team', function(req, res){
     } else {
         res.redirect('/');
     }
-	//res.render('create-team.html');
 });
 
 function renderCreateTeams(result, res, req){
@@ -831,7 +870,6 @@ app.post('/create-team', function(req, res){
 	var createSuccessMessage = 'Successfully created a Team';
 	var createFailedMessage = 'Could not create a team';
 	executeQuery(res,req, createSuccessMessage, createFailedMessage, createTeamQuery,values, redirectCreateTeam);
-	//res.send(values);
 });
 
 function redirectCreateTeam(req, res){
@@ -849,6 +887,117 @@ app.post('/deleteForumPost', function (req, res) {
     var deleteFailedMessage = 'Could not delete forum post';
     executeQuery(res, req, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
 });
+
+
+/* TASK 7: User can express preference in favour or against an idea (like or dislike function) */
+app.post('/addUpdateRating', function (req, res) {
+    console.log('In addUpdateRating' + req.body.rating);
+
+    var client = new pg.Client(conString),
+        result = [],
+        result2 = [],
+        dbQuery = 'INSERT INTO "SpaceRating" ("UserId", "SpaceId", "LikeDislike") SELECT $1, $2, $3 WHERE NOT EXISTS (SELECT "UserId","SpaceId" FROM "SpaceRating" WHERE "UserId" = $4 AND "SpaceId"= $5) RETURNING "SpaceId"';
+    
+    client.connect(function (err, done) {
+        /* Unable to connect to postgreSQL server */
+        if (err) {
+            res.writeHead(500);
+            console.log('Unable to connect to database');
+        }
+        
+        var query = client.query(dbQuery, [req.session.uid, req.body.spaceId, req.body.rating, req.session.uid, req.body.spaceId], function(err, result){});
+        
+        /* Unable to connect to database */
+        query.on('error', function (err) {
+            res.send('Query Error ' + err);
+        });
+        
+        query.on('row', function (row) {
+            result.push(row);
+        });
+
+        // Update ratings
+        query.on('end', function () {
+            client.end();
+            
+            /* No new likes/dislikes were added -- user already previously selected a choice */
+            if (result.length == 0) {
+                console.log('The like/dislikes were updated not added');
+                
+
+                /* Update the user's choice of either like or dislike for this particular idea */
+                var values2 = [];
+                values2.push(req.body.rating);
+                values2.push(req.session.uid);
+                values2.push(req.body.spaceId);
+
+                var updateQuery = 'UPDATE "SpaceRating" SET "LikeDislike" = $1 WHERE "UserId"=$2 AND "SpaceId"=$3  RETURNING "SpaceId"';
+                
+                var client2 = new pg.Client(conString);
+                client2.connect(function (err, done) {
+                    /* Unable to connect to postgreSQL server */
+                    if (err) {
+                        res.writeHead(500);
+                        console.log('Unable to connect to database');
+                    }
+
+                    var query2 = client2.query(updateQuery, values2, function(err, result2){});
+
+                    /* Unable to connect to database */
+                    query2.on('error', function (err) {
+                        res.send('Query Error ' + err);
+                    });
+
+                    query2.on('row', function (row) {
+                        result2.push(row);
+                    });
+
+                    query2.on('end', function () {
+                        client2.end();
+                        updateTotalLikesDislikes(res, req, req.body.rating, req.body.spaceId);
+                    });
+                });
+            } else {
+                console.log('It is a new like/dislike');
+                updateTotalLikesDislikes(res, req, req.body.rating, req.body.spaceId);
+            }            
+        });
+    });    
+});
+
+/* Update the aggregated likes/dislikes assuming they cannot choose the same choice as previously  */
+function updateTotalLikesDislikes (res, req, rating, spaceId) {
+    var updateAllLikesQuery;
+    console.log('In updateTotalLikesDislikes. Rating: ' + rating + ' ' + spaceId); 
+    if (rating == 0) {
+        console.log('Decrement space rating');
+        // Decrement total likes   
+        var updateAllLikesQuery = 'UPDATE "Space" SET "SpaceTotalRating" = "SpaceTotalRating" - 1 WHERE "SpaceId"=$1 RETURNING "SpaceId"';
+    } else {
+        // Increment total likes 
+        var updateAllLikesQuery = 'UPDATE "Space" SET "SpaceTotalRating" = "SpaceTotalRating" + 1 WHERE "SpaceId"=$1 RETURNING "SpaceId"';
+        
+    }
+    
+    var successMessage = 'Successfully updated aggregated space rating';
+    var failedMessage = 'Could not update aggregated space rating';
+    
+    executeQuery(res, req, successMessage, failedMessage, updateAllLikesQuery, [spaceId], reloadSpacePage);
+}
+
+function reloadSpacePage(result, res, req) {
+    
+    console.log('In reloadIdeaPage: ' + result);
+    console.log(result.rows[0].SpaceId);
+
+    res.redirect('/space-info.html?spaceId=' + result.rows[0].SpaceId + '&joined=true');
+    res.end();
+    
+}
+
+
+
+
 
 
 /* Other */
@@ -916,7 +1065,6 @@ function createParams(len) {
     return params.join(',');
 }
 
-
 // Execute a query and return the results
 // The argument 'values' can be omitted if the query takes no parameters
 function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, results_handler) {
@@ -946,13 +1094,11 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, r
 			res.end();
         });
 
-
         query.on('row', function (row){
             result.push(row);
         });
 
         query.on('end', function (result){
-
             client.end();
             console.log(successMessage);
             if(!(typeof results_handler == 'undefined')) {
@@ -968,7 +1114,6 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, r
             }
         });
     });
-
 }
 
 // Used for Heroku host

@@ -56,34 +56,33 @@
             <span class="glyphicon glyphicon-picture" />
         </div>
         
+        <%=spaceInfo.SpaceId%>
         <!-- Reputation of the Space -->
-        <div class="stars">
-            Current rating:
-            <span class="glyphicon glyphicon-star" />
-            <span class="glyphicon glyphicon-star" />
-            <span class="glyphicon glyphicon-star" />
-            <span class="glyphicon glyphicon-star" />
-            <span class="glyphicon glyphicon-star-empty" />
-        </div>
-        
-        <form class="rating" method ="get">
+                
+         <% if(currentUser == 'true'){%>
+
             Your rating:
-            <div class="dropdown">
-                <select id="star_rating" name="star_rating">
-                    <option> 1
-                    </option>
-                    <option> 2
-                    </option>
-                    <option> 3
-                    </option>
-                    <option> 4
-                    </option>
-                    <option> 5
-                    </option>
-                </select>
-            </div>
-            <input type="submit" name="star" value="submit"/>
-        </form>
+             <form action = '/addUpdateRating' method='POST'>
+                <input type="hidden" name="spaceId" value=<%=spaceInfo.SpaceId%> >
+                <button onclick="window.location.reload()" name="rating" value=1>
+                    <%if (spaceInfo.likedislike == 1) { %>
+                        <span class="glyphicon glyphicon-thumbs-up glow" />     
+                    <% } else { %>
+                        <span class="glyphicon glyphicon-thumbs-up" />
+                    <% } %>
+                    
+                </button>
+                <button onclick="window.location.reload()" name="rating" value=0>
+                    <%if (spaceInfo.likedislike == 0) { %>
+                        <span class="glyphicon glyphicon-thumbs-down glow" />   
+                    <% } else { %>
+                        <span class="glyphicon glyphicon-thumbs-down" />
+                    <% } %>
+                    
+                </button>
+            </form>
+
+        <% } %>
     </div>
 </div>
 
