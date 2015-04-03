@@ -757,7 +757,7 @@ app.get('/getForumPostsForSpace', function (req, res) {
     executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, true);
 });
 
-
+//Create a Team
 app.get('/create-team', function(req, res){
  var values = [];
     if (req.session.user) {
@@ -774,9 +774,23 @@ app.get('/create-team', function(req, res){
 	//res.render('create-team.html');
 });
 function renderCreateTeams(result, res, req){
-	res.render('create-team.html', {space:result.rows});
+	res.render('create-team.html', {space:result.rows, currUser:req.session.uid});
 	res.end();
 };
+app.post('/create-team', function(req, res){
+	var values = [];
+	values.push(req.body.userId);
+    values.push(req.body.spaceId);
+    values.push(req.body.teamName);
+    values.push(req.body.teamDescription);
+	
+	var createTeamQuery = 'INSERT INTO "Teams" VALUES($1,$2,$3,$4)'
+	
+	var createSuccessMessage = 'Successfully created a Team';
+	var createFailedMessage = 'Could not create a team';
+	executeQuery(res,req, createSuccessMessage, createFailedMessage, createTeamQuery,values, false);
+	//res.send(values);
+});
 
 // Delete forum post
 app.post('/deleteForumPost', function (req, res) {

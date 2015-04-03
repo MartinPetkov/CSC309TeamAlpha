@@ -48,21 +48,28 @@
 				</h1>
 			</div>
 		</div>
+		
 		<div class="createTeam">
-		<form id="create-team" action="/createTeam" method="post">
+			<h3 class="headings"> Select Your Space </h3>
+			<form id="create-team" action="/create-team" method="post">
 				<%if (space.length==0){%>
 					You must be leasing a space to create a team
 				
 				<%}else{%>
                 <% for (var i=0; i < space.length; i++) { %>
+					
+					
                     <input type="radio" name="spaceId" id="spaceId" value=<%=space[i].SpaceId%>> 
                     <label>
                         Space ID: <%=space[i].SpaceId%> 
                         <span class="tab">SpaceName: <%=space[i].SpaceName%> </span>
                     </label>
+
                 <% } %>
-               
-                <input type="submit" id="submit-availability" value="Submit"/>
+               	<input type="text" name="teamName" placeholder="Team Name" value=""/><br/>
+				<input type="text" name="teamDescription" placeholder="Team Description" value=""/><br/>
+				<input type="hidden" name="userId" value="<%=currUser%>"/>
+                <input type="submit" id="submit-team" value="Submit"/>
 				<%}%>
             </form> 
 		</div>
