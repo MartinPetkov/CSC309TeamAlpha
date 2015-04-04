@@ -702,8 +702,8 @@ app.post('/updateApplication', function(req, res){
 					var fromDate1 = new Date(fromDate);
 					var toDate1  = new Date(toDate);
 					//fromDate1.format('YYYY-MM-DD');
-					dateHack1 =''+(fromDate1.getYear()-100+2000)+'-'+fromDate1.getMonth()+'-'+fromDate1.getDate();
-					dateHack2 =''+(toDate1.getYear()-100+2000)+'-'+toDate1.getMonth()+'-'+toDate1.getDate();
+					dateHack1 =''+(fromDate1.getYear()-100+2000)+'-'+(fromDate1.getMonth()+1)+'-'+fromDate1.getDate();
+					dateHack2 =''+(toDate1.getYear()-100+2000)+'-'+(toDate1.getMonth()+1)+'-'+toDate1.getDate();
 					//console.log(dateHack);
 					var insertQuery = 'INSERT INTO "Leasing" ("SpaceId", "FromDate", "TenantId", "ToDate", "NegotiatedPricePerDay") SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT "TenantId", "SpaceId" FROM "Leasing" WHERE "TenantId" = $3 AND "SpaceId"= $1)';
 					var query3 = client.query(insertQuery, [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price], function(err, result){});
