@@ -22,7 +22,7 @@ var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public/css'));
 app.use(session({secret: '123', resave: 'false', saveUninitialized: 'false'}));
 app.use(morgan('dev'));
 
@@ -30,19 +30,8 @@ app.set('views', __dirname + '/public/views');
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
-/* GET FUNCTIONS */
-/* Log out functionality */
-// User is only logged in through the session
-app.get('/logout', function (req, res) {
-    console.log(req.session.user);
-    req.session.destroy(function (err) {
-        if (err) {
-            console.log(err);
-        } else {
-            res.redirect('/');
-        }
-    });
-});
+var logout = require("./routes/logout")(app),
+    login = require("./routes/login")(app);
 
 /* Home page */
 // Redirects user to log in page if they are signed in
@@ -50,7 +39,7 @@ app.get('/', function (req, res) {
 	if (req.session.user) {
         res.redirect('/postings.html');
 	} else {
-        res.sendFile('./public/intro.html', {root:__dirname});
+        res.sendFile('./public/views/intro.html', {root:__dirname});
     }
 });
 
@@ -83,57 +72,7 @@ app.get('/postings.html', function (req, res) {
 });
 
 
-/* Log in Post */
-app.post('/postings.html', function (req, res) {
-	var userEmail = req.body.email;
-	var userPass = req.body.password;
-	var result = [];
-    var passFound = false;
-	var client = new pg.Client(conString);
-	var dbPass = [];
 
-	client.connect(function (err, done) {
-        if (err) {
-            return console.error('Could not connect to postgres', err);
-            res.send('Sorry, there was an error', err);
-        }
-
-		// Query to check if the user exists
-        var query = client.query('SELECT "Password", "UserId" FROM "User" WHERE "Email"=$1', [userEmail]);
-
-        query.on('error', function (err) {
-            res.send('Query Error ' + err);
-        });
-        query.on('row', function (row) {
-			//User Does exist
-            dbPass.push(row.Password);
-			result.push(row.UserId);
-            passFound = true;
-        });
-        query.on('end', function () {
-            client.end();
-
-            if (passFound == false) {
-                res.send('There was no user with that email');
-
-			// Check if the passwords match (Really ugly user validation)
-            } else if (dbPass[0] == sha1(userPass)) {
-                // Login Success!
-
-				// Log the Users email and UserId in the session to access later
-                req.session.user = userEmail;
-				req.session.uid = result[0];
-
-				//console.log('Session log for userid ' + req.session.uid);
-                res.redirect('postings.html');
-
-			// Username and password did no match
-            } else if (dbPass[0] != userPass) {
-                res.send('There was an error in log in ' + dbPass[0] + ' != ' + sha1(userPass));
-            }
-        });
-	});
-});
 
 /* Retreive list of spaces the user owns for add-availability.html */
 app.get('/getOwnerSpace', function (req, res) {
