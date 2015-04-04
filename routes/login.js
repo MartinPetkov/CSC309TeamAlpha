@@ -27,7 +27,7 @@ module.exports = function (app) {
             //check password
             if (userPass == adminPass){
                 req.session.user = userEmail;
-                res.redirect('/postings.html');
+                res.redirect('/admin.html');
             }
             
             else{

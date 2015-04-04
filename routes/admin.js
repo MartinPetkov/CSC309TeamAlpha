@@ -21,6 +21,29 @@ module.exports = function (app) {
         console.log("admin logged in");  
         res.render('admin.html');
     });
+}
+    /*
+    app.get('/getTeams', function (req, res){
+        var client = new pg.Client(conString);
+        client.connect(function (err, done) {
+            if (err) {
+                return console.error('could not connect to postgres', err);
+                res.send('sorry, there was an error', err);
+            }
+            var query = client.query('SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId"=$1', [viewUser]);
+            query.on('error', function (err) {
+                res.send('Query Error ' + err);
+            });
+            
+            query.on('row', function (row) {
+                spaceFound = true;
+                currSpace = row.SpaceId;
+                spaceResult.push(row);
+                //console.log('row push ' + row.SpaceId);
+                //console.log(row);
+                //console.log('space result immediately post push ' + spaceResult);
+                });
+            query.on('end', function(){
     
     
-};
+};*/
