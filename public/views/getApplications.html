@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>View Applications | SynergySpace</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+		<link rel="stylesheet" href="getApplications.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+		<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+		<link href="//code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+	</head>
+	<body>
+		
+		<div class="container">
+			<div class="bs-docs-grid">
+			<div class="row show-grid">
+				<h1>
+					<div class="col-xs-9 col-md-9">
+						<i>Applications for your Spaces</i>
+					</div>
+
+					<!-- Menu Heading -->
+					<div class="col-xs-1 col-md-1">
+						<form action = '/' method='GET' >
+							<button type="submit" class="btn btn-success btn-lrg">
+								<span class="glyphicon glyphicon-home"/>
+							</button>
+						</form>
+					</div>
+
+					<div class="col-xs-1 col-md-1">
+						<form action = '/getUserInfo' method='GET' >
+							<button type="submit" class="btn btn-success btn-lrg">
+								<span class="glyphicon glyphicon-user"/>
+							</button>
+						</form>
+					</div>
+
+					<div class="col-xs-1 col-md-1">
+						<form action = '/logout' method='GET' >
+
+							<button type="submit" class="btn btn-success btn-lrg">
+								<span class="glyphicon glyphicon-log-out"/>
+							</button>
+							</input>
+						</form>
+					</div>
+					<!-- End Menu Heading -->
+				</h1>
+			</div>
+			</div>
+			<%if (appInfo.length==0){%>
+				<div id ="applications" class="applications">
+					No Applications for any of your owned spaces
+				</div>
+				<%}%>
+			<%for(i=0;i<appInfo.length;i++){%>
+				<div id ="applications" class="applications">
+					APPLICATIONS!<br/>
+					<b>User:  </b><u><%=appInfo[i].FirstName%> <%=appInfo[i].LastName%></u> (Reputation: <%=appInfo[i].UserTotalRating%>)<br/> 
+					<b> Would like to rent your space</b>, <u><%=appInfo[i].SpaceName%></u><br/>
+					<b>From:  </b><u> <%=appInfo[i].FromDate%></u><br/>
+					<b>To:</b> <u><%=appInfo[i].ToDate%></u><br/>
+					<b>For Price:</b>  <u><%=appInfo[i].PricePerDay%></u>
+					<div>
+					  <form action = '/updateApplication' method='POST' >
+                            <button type="submit" class="btn btn-success">
+                                <span class="glyphicon glyphicon-ok"> Accept</span>
+                            </button>
+							<input type="hidden" name="fromDate"value=<%=appInfo[i].FromDate%>>
+							<input type="hidden" name="toDate" value=<%=appInfo[i].ToDate%>>
+							<input type="hidden" name="spaceId" value=<%=appInfo[i].SpaceId%>>
+							<input type="hidden" name="tenant" value=<%=appInfo[i].UserId%>>
+							<input type="hidden" name="price" value=<%=appInfo[i].PricePerDay%>>
+							<input type="hidden" name="response" value="accepted">
+                        </form>
+						<form action = '/updateApplication' method='POST' >
+                            <button type="submit" class="btn btn-danger">
+                                <span class="glyphicon glyphicon-remove"> Deny  </span>
+                            </button>
+							<input type="hidden" name="fromDate"value=<%=appInfo[i].FromDate%>>
+							<input type="hidden" name="toDate" value=<%=appInfo[i].ToDate%>>
+							<input type="hidden" name="spaceId" value=<%=appInfo[i].SpaceId%>>
+							<input type="hidden" name="tenant" value=<%=appInfo[i].UserId%>>
+							<input type="hidden" name="price" value=<%=appInfo[i].PricePerDay%>>
+							<input type="hidden" name="response" value="rejected">
+                        </form>
+					</div>
+					<br/>
+				</div>
+				
+			<%}%>
+		</div>
+	<body>
+</html>
