@@ -565,7 +565,51 @@ app.post('/apply-space', function(req, res){
 	var applicationQuery = 'INSERT INTO "Applications" VALUES ($1, $2, $3, $4)';
 	var applicationSuccessMessage = 'Successfully inserted application';
 	var applicationFailedMessage = 'Could not insert application';
-	executeQuery(res, req, applicationSuccessMessage, applicationFailedMessage, applicationQuery, values, redirectApplySpace);
+	//executeQuery(res, req, applicationSuccessMessage, applicationFailedMessage, applicationQuery, values, redirectApplySpace);
+	
+	var client = new pg.Client(conString),
+        result = [],
+        result2 = [],
+        dbQuery = 'INSERT INTO "Applications" ("UserId", "SpaceId", "FromDate", "ToDate") SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT "UserId","SpaceId" FROM "Applications" WHERE "UserId" = $5 AND "SpaceId"= $6) RETURNING "SpaceId"';
+    
+    client.connect(function (err, done) {
+        /* Unable to connect to postgreSQL server */
+        if (err) {
+            res.writeHead(500);
+            console.log('Unable to connect to database');
+        }
+        
+        var query = client.query(dbQuery, [req.session.uid, req.body.spaceId, req.body.fromDate, req.body.toDate, req.session.uid, req.body.spaceId], function(err, result){});
+        console.log("InsertQuery");
+
+        /* Unable to connect to database */
+        query.on('error', function (err) {
+            res.send('Query Error ' + err);
+        });
+        
+        query.on('row', function (row) {
+            result.push(row);
+        });
+
+        // Update ratings
+        query.on('end', function () {
+			
+			var updateQuery = 'UPDATE "Applications" SET "UserId"=$1, "SpaceId"=$2, "FromDate"=$3, "ToDate"=$4 WHERE "UserId" = $1 AND "SpaceId" = $2 RETURNING "SpaceId"';
+			var query2 = client.query(updateQuery, [req.session.uid, req.body.spaceId, req.body.fromDate, req.body.toDate], function(err, result){});
+
+			query2.on('error', function (err) {
+				res.send('Query Error ' + err);
+			});
+        
+			query2.on('row', function (row) {
+				result2.push(row);
+			})
+			query2.on('end', function () {
+				client.end();
+				res.redirect('/postings.html');
+			});
+		});
+	});
 });
 
 function redirectApplySpace(result, res, req){
