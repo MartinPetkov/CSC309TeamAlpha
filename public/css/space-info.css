@@ -125,3 +125,10 @@ button {
     border-collapse: collapse;
     box-shadow: 0 0 10px 10px white;  
 }
+
+.center {
+    text-align: center;   
+    margin:0 auto;
+    width:20%;
+    text-align:left;
+}

@@ -59,7 +59,7 @@
             <span class="glyphicon glyphicon-picture" />
         </div>
         
-        <%=spaceInfo.SpaceId%>
+        <div class="center">
         <!-- Reputation of the Space -->
                 
          <% if(currentUser == true){%>
@@ -89,13 +89,14 @@
 		<form action = '/apply-space' method='POST'>
 			<input type="hidden" name="uid" value=<%=user%> >
 			<input type="hidden" name="spaceId" value=<%=spaceInfo.SpaceId%>>
-			<input type="text" name="fromDate" id="fromDate">
-			<input type="text" name="toDate" id="toDate">
+			<input type="text" name="fromDate" id="fromDate" placeholder="From Date">
+			<input type="text" name="toDate" id="toDate" placeholder="To Date">
 			<button type="submit" class="btn btn-success btn-lrg add-availability">
 				<span class="glyphicon glyphicon-plus"> <b> Apply </b></span>
 			</button>
 			
 		</form>	
+        </div>    
     </div>
 </div>
 
@@ -197,13 +198,14 @@
         });
     });
 </script>
+            
 <script>
-            $(function() {
-                $( "#fromDate" ).datepicker({ dateFormat: 'yy-mm-dd' });
-                $( "#fromDate" ).datepicker("show");
-                $( "#toDate" ).datepicker({ dateFormat: 'yy-mm-dd' });
-                $( "#toDate" ).datepicker("show");
-            });
-        </script>
+    $(function() {
+        $( "#fromDate" ).datepicker({ dateFormat: 'yy-mm-dd' });
+        $( "#fromDate" ).datepicker("show");
+        $( "#toDate" ).datepicker({ dateFormat: 'yy-mm-dd' });
+        $( "#toDate" ).datepicker("show");
+    });
+</script>
 </body>
 </html>
