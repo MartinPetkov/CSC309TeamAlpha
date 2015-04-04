@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Profile | SynergySpace</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="admin.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</head>
+    
+<body>
+    <div class="container">
+        <div class="bs-docs-grid">
+            <div class="row show-grid">
+                <h1>
+                    <div class="col-xs-9 col-md-9">
+                        <i>SynergySpace</i>
+                    </div>
+                    
+                    <div class="col-xs-1 col-md-1">
+                            <form action = '/logout' method='GET' >
+                                <button type="submit" class="btn btn-success btn-lrg">
+                                    <span class="glyphicon glyphicon-log-out"/>
+                                </button>
+                            </form>
+                    </div>
+                </h1>
+            </div>
+            <h2> Admin view
+            </h2>
+            <div class="actions">
+                <h4> Restrict space leasing type:
+                </h4>
+                <form class="form-group" id="leasing" action="/changeLeaseType" method="post">
+                    <label for="sel1">Select list:</label>
+                      <select class="form-control" id="sel1">
+                        <option>Studio</option>
+                        <option>Office</option>
+                        <option>Castle</option>
+                        <option>Underground cavern</option>
+                        <option>Manos' nomad outpost</option>
+                      </select>
+                    <input type="submit" id="submit-leasing" value="submit"/>
+                    
+                </form>
+            </div>
+            <div class="stats">
+                <h4> Number of teams formed: <span id="teams"></span>
+                </h4>
+                <h4> Number of spaces leased:
+                </h4>
+                <h4> Total number of members:
+                </h4>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $.ajax({
+            url: "/getTeams?",
+            success: function(data) {
+                results = JSON.parse(data).results[0];
+                $("#teams").html(results);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
+</script>
+    </body>
+</html>
+            
+            
+        
