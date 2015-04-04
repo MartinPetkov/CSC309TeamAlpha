@@ -8,7 +8,10 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <script src="num.js" type="text/javascript">
+
 </script>
+<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+<link href="//code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
 </head>
 <body>
 
@@ -86,9 +89,12 @@
 		<form action = '/apply-space' method='POST'>
 			<input type="hidden" name="uid" value=<%=user%> >
 			<input type="hidden" name="spaceId" value=<%=spaceInfo.SpaceId%>>
+			<input type="text" name="fromDate" id="fromDate">
+			<input type="text" name="toDate" id="toDate">
 			<button type="submit" class="btn btn-success btn-lrg add-availability">
 				<span class="glyphicon glyphicon-plus"> <b> Apply </b></span>
 			</button>
+			
 		</form>	
     </div>
 </div>
@@ -191,6 +197,13 @@
         });
     });
 </script>
-
+<script>
+            $(function() {
+                $( "#fromDate" ).datepicker({ dateFormat: 'yy-mm-dd' });
+                $( "#fromDate" ).datepicker("show");
+                $( "#toDate" ).datepicker({ dateFormat: 'yy-mm-dd' });
+                $( "#toDate" ).datepicker("show");
+            });
+        </script>
 </body>
 </html>

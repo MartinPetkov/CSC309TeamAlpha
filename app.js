@@ -555,10 +555,14 @@ function renderSpaceInfo(result, res, req) {
 app.post('/apply-space', function(req, res){
 	var user = req.session.uid;
 	var space = req.body.spaceId;
-	var values = [user, space];
-	
+	var values = [];
+	values.push(req.session.uid)
+    values.push(req.body.spaceId);
+    values.push(req.body.fromDate);
+    values.push(req.body.toDate);
+	console.log("from date = "+req.body.fromDate+" to date = "+req.body.toDate);
 	//console.log('applying to space with values = '+values)
-	var applicationQuery = 'INSERT INTO "Applications" VALUES($1,$2)';
+	var applicationQuery = 'INSERT INTO "Applications" VALUES ($1, $2, $3, $4)';
 	var applicationSuccessMessage = 'Successfully inserted application';
 	var applicationFailedMessage = 'Could not insert application';
 	executeQuery(res, req, applicationSuccessMessage, applicationFailedMessage, applicationQuery, values, redirectApplySpace);
