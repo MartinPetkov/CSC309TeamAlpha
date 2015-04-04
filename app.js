@@ -609,10 +609,26 @@ app.get('/space-info.html', function (req, res) {
 
 // Helper function: Renders for space-info.html GET
 function renderSpaceInfo(result, res, req) {
-    res.render('space-info.html', {spaceInfo: result.rows[0], currentUser: req.session.joined});
+    res.render('space-info.html', {spaceInfo: result.rows[0], currentUser: req.session.joined, user:req.session.uid});
     res.end();
-}
+};
 
+app.post('/apply-space', function(req, res){
+	var user = req.session.uid;
+	var space = req.body.spaceId;
+	var values = [user, space];
+	
+	//console.log('applying to space with values = '+values)
+	var applicationQuery = 'INSERT INTO "Applications" VALUES($1,$2)';
+	var applicationSuccessMessage = 'Successfully inserted application';
+	var applicationFailedMessage = 'Could not insert application';
+	executeQuery(res, req, applicationSuccessMessage, applicationFailedMessage, applicationQuery, values, redirectApplySpace);
+});
+
+function redirectApplySpace(result, res, req){
+	//console.log('redirecting from apply space');
+	res.redirect('/postings.html');
+};
 
 // Delete space
 app.post('/deleteSpace', function (req, res) {
@@ -1086,6 +1102,7 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, r
         }
 
         var query = client.query(dbQuery, values, function(err, result){});
+		//console.log('executing a query '+values);
 
         query.on('error', function (error) {
         	res.writeHead(500);
