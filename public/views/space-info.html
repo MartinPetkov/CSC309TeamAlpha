@@ -59,10 +59,9 @@
             <span class="glyphicon glyphicon-picture" />
         </div>
         
-        <div class="center">
+        <div style="text-align:center">
         <!-- Reputation of the Space -->
-                
-         <% if(currentUser == true){%>
+         <% if(currentUser == 'true'){%>
 
             Your rating:
              <form action = '/addUpdateRating' method='POST'>
@@ -84,8 +83,10 @@
                     
                 </button>
             </form>
-
+            
         <% } %>
+        </div>
+        <div class="center">
 		<form action = '/apply-space' method='POST'>
 			<input type="hidden" name="uid" value=<%=user%> >
 			<input type="hidden" name="spaceId" value=<%=spaceInfo.SpaceId%>>
@@ -99,7 +100,7 @@
         </div>    
     </div>
 </div>
-
+<br><br><br><br>
 
 <!-- Owner Bar -->
 <div class="members" id="owner" ownerId="<%=spaceInfo.OwnerId%>">
