@@ -643,15 +643,17 @@ app.post('/updateApplication', function(req, res){
 	console.log(req.body.fromDate);
 	console.log('Updating Application with values = '+values)
 	//res.render('test.html',{date:req.body.fromDate});
-	res.send('Updating Application with values = '+values);
+	//res.send('Updating Application with values = '+values);
 	
-/*
+
 	var client = new pg.Client(conString),
         result = [],
         result2 = [],
-        getQuery = 'SELECT * FROM "Applications" WHERE SpaceId=$1 AND UserId=$2';
-		
-    
+		result3 = [],
+		result4 = [],
+        getQuery = 'SELECT * FROM "Applications" WHERE "UserId"=$1 AND "SpaceId"=$2';
+	var toDate,fromDate;
+    var dateHack1, dateHack2;
 	
        // getQuery = 'INSERT INTO "Applications" ("UserId", "SpaceId", "FromDate", "ToDate") SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT "UserId","SpaceId" FROM "Applications" WHERE "UserId" = $5 AND "SpaceId"= $6) RETURNING "SpaceId"';
 
@@ -662,7 +664,7 @@ app.post('/updateApplication', function(req, res){
             console.log('Unable to connect to database');
         }
         //FIND DATES IN APPLICATIONS
-        var query = client.query(getQuery, [req.body.spaceId, req.body.tenant], function(err, result){});
+        var query = client.query(getQuery, [req.body.tenant,req.body.spaceId], function(err, result){});
         console.log("InsertQuery");
 
         // Unable to connect to database 
@@ -672,14 +674,21 @@ app.post('/updateApplication', function(req, res){
         
         query.on('row', function (row) {
             result.push(row);
+			toDate   = row.ToDate;
+			fromDate = row.FromDate;
+				
+						
         });
 
         // UPDATE LEASING TODO
         query.on('end', function () {
+			//client.end();
+			//res.send(toDate+fromDate);
+			var updateQuery = 'DELETE FROM "Applications" WHERE "UserId" = $1 AND "SpaceId" = $2';
+			var query2 = client.query(updateQuery, [req.body.tenant, req.body.spaceId], function(err, result){});
 			
-			var updateQuery = 'UPDATE "Applications" SET "UserId"=$1, "SpaceId"=$2, "FromDate"=$3, "ToDate"=$4 WHERE "UserId" = $1 AND "SpaceId" = $2 RETURNING "SpaceId"';
-			var query2 = client.query(updateQuery, [req.session.uid, req.body.spaceId, req.body.fromDate, req.body.toDate], function(err, result){});
-
+			console.log("DeleteQuery");
+			
 			query2.on('error', function (err) {
 				res.send('Query Error ' + err);
 			});
@@ -688,13 +697,58 @@ app.post('/updateApplication', function(req, res){
 				result2.push(row);
 			})
 			query2.on('end', function () {
-				client.end();
-				res.redirect('/postings.html');
+				console.log("response = "+req.body.response);
+				if (req.body.response=="accepted"){
+					var fromDate1 = new Date(fromDate);
+					var toDate1  = new Date(toDate);
+					//fromDate1.format('YYYY-MM-DD');
+					dateHack1 =''+(fromDate1.getYear()-100+2000)+'-'+fromDate1.getMonth()+'-'+fromDate1.getDate();
+					dateHack2 =''+(toDate1.getYear()-100+2000)+'-'+toDate1.getMonth()+'-'+toDate1.getDate();
+					//console.log(dateHack);
+					var insertQuery = 'INSERT INTO "Leasing" ("SpaceId", "FromDate", "TenantId", "ToDate", "NegotiatedPricePerDay") SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT "TenantId", "SpaceId" FROM "Leasing" WHERE "TenantId" = $3 AND "SpaceId"= $1)';
+					var query3 = client.query(insertQuery, [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price], function(err, result){});
+					
+					console.log('INSERTQUERY'+ [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price]);
+					
+					query3.on('error', function (err) {
+						res.send('Query Error ' + err);
+					});
+				
+					query3.on('row', function (row) {
+						result3.push(row);
+						console.log('insert push row');
+					})
+					query3.on('end', function(){
+						console.log(dateHack1+' '+dateHack2);
+						var updateQuery = 'UPDATE "Leasing" SET "SpaceId"=$1, "FromDate"=$2, "TenantId"=$3, "ToDate"=$4, "NegotiatedPricePerDay"=$5 WHERE "TenantId" = $3 AND "SpaceId" = $1';
+						var query4 = client.query(updateQuery, [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price], function(err, result){});
+						
+						console.log('UPDATEQUERY'+[req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price]);
+						
+						query4.on('error', function (err) {
+							res.send('Query Error ' + err);
+						});
+					
+						query4.on('row', function (row) {
+							result4.push(row);
+						})
+						query4.on('end', function(){
+							console.log('done!');
+							client.end();
+							res.redirect('/getApplications');
+						});
+					});
+				}else if(req.body.response=="rejected"){
+					client.end();
+					res.redirect('/getApplications');
+				}
+				
 			});
+			
 		});
 	});
 	
-	*/
+	
 });
 
 function redirectApplySpace(result, res, req){
