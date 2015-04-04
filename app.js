@@ -552,6 +552,8 @@ function renderSpaceInfo(result, res, req) {
     res.end();
 };
 
+
+//Post for space occupation application, enters request in the "Applications" Table 
 app.post('/apply-space', function(req, res){
 	var user = req.session.uid;
 	var space = req.body.spaceId;
@@ -560,13 +562,8 @@ app.post('/apply-space', function(req, res){
     values.push(req.body.spaceId);
     values.push(req.body.fromDate);
     values.push(req.body.toDate);
-	console.log("from date = "+req.body.fromDate+" to date = "+req.body.toDate);
-	//console.log('applying to space with values = '+values)
-	var applicationQuery = 'INSERT INTO "Applications" VALUES ($1, $2, $3, $4)';
-	var applicationSuccessMessage = 'Successfully inserted application';
-	var applicationFailedMessage = 'Could not insert application';
-	//executeQuery(res, req, applicationSuccessMessage, applicationFailedMessage, applicationQuery, values, redirectApplySpace);
-	
+	console.log('applying to space with values = '+values)
+
 	var client = new pg.Client(conString),
         result = [],
         result2 = [],
@@ -591,7 +588,7 @@ app.post('/apply-space', function(req, res){
             result.push(row);
         });
 
-        // Update ratings
+        // Update Applications
         query.on('end', function () {
 			
 			var updateQuery = 'UPDATE "Applications" SET "UserId"=$1, "SpaceId"=$2, "FromDate"=$3, "ToDate"=$4 WHERE "UserId" = $1 AND "SpaceId" = $2 RETURNING "SpaceId"';
@@ -610,6 +607,94 @@ app.post('/apply-space', function(req, res){
 			});
 		});
 	});
+});
+
+//View applications to spaces you own
+app.get('/getApplications',function(req, res){
+	 var values = [];
+	 values.push(req.session.uid);
+	 //("FromDate", "ToDate", "Location", "PricePerDay", "SpaceName", "FirstName", "LastName", "Reputation", "UserTotalRating")
+	var appQuery = 'SELECT * FROM "Applications" NATURAL JOIN "Space" NATURAL JOIN "User" WHERE "OwnerId"=$1';
+	var successMessage = 'Succesfully selected from Applications';
+	var failedMessage = 'Could not select from Applications';
+	
+	 executeQuery(res, req, successMessage, failedMessage, appQuery, values, renderApplications);	
+});
+
+function renderApplications (results, res, req){
+	//console.log(results.rows[0]);
+	
+	res.render('getApplications.html', {appInfo:results.rows});
+	
+};
+
+//TODO UPDATE QUERIES
+app.post('/updateApplication', function(req, res){
+	var user = req.session.uid;
+	var space = req.body.spaceId;
+	var values = [];
+	values.push(req.body.tenant)
+    values.push(req.body.spaceId);
+    values.push(req.body.fromDate);
+    values.push(req.body.toDate);
+	values.push(req.body.price);
+	values.push(req.body.response);
+	
+	console.log(req.body.fromDate);
+	console.log('Updating Application with values = '+values)
+	//res.render('test.html',{date:req.body.fromDate});
+	res.send('Updating Application with values = '+values);
+	
+/*
+	var client = new pg.Client(conString),
+        result = [],
+        result2 = [],
+        getQuery = 'SELECT * FROM "Applications" WHERE SpaceId=$1 AND UserId=$2';
+		
+    
+	
+       // getQuery = 'INSERT INTO "Applications" ("UserId", "SpaceId", "FromDate", "ToDate") SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT "UserId","SpaceId" FROM "Applications" WHERE "UserId" = $5 AND "SpaceId"= $6) RETURNING "SpaceId"';
+
+    client.connect(function (err, done) {
+        //Unable to connect to postgreSQL server 
+        if (err) {
+            res.writeHead(500);
+            console.log('Unable to connect to database');
+        }
+        //FIND DATES IN APPLICATIONS
+        var query = client.query(getQuery, [req.body.spaceId, req.body.tenant], function(err, result){});
+        console.log("InsertQuery");
+
+        // Unable to connect to database 
+        query.on('error', function (err) {
+            res.send('Query Error ' + err);
+        });
+        
+        query.on('row', function (row) {
+            result.push(row);
+        });
+
+        // UPDATE LEASING TODO
+        query.on('end', function () {
+			
+			var updateQuery = 'UPDATE "Applications" SET "UserId"=$1, "SpaceId"=$2, "FromDate"=$3, "ToDate"=$4 WHERE "UserId" = $1 AND "SpaceId" = $2 RETURNING "SpaceId"';
+			var query2 = client.query(updateQuery, [req.session.uid, req.body.spaceId, req.body.fromDate, req.body.toDate], function(err, result){});
+
+			query2.on('error', function (err) {
+				res.send('Query Error ' + err);
+			});
+        
+			query2.on('row', function (row) {
+				result2.push(row);
+			})
+			query2.on('end', function () {
+				client.end();
+				res.redirect('/postings.html');
+			});
+		});
+	});
+	
+	*/
 });
 
 function redirectApplySpace(result, res, req){
