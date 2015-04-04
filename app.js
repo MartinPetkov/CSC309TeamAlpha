@@ -32,6 +32,8 @@ app.set('view engine', 'html');
 
 var logout = require("./routes/logout")(app),
     login = require("./routes/login")(app);
+    admin = require("./routes/admin")(app);
+
 
 /* Home page */
 // Redirects user to log in page if they are signed in
@@ -48,6 +50,7 @@ app.get('/', function (req, res) {
 app.get('/signup.html', function (req, res) {
 	res.render('signup.html');
 });
+
 
 
 /* User Profile Viewing */
