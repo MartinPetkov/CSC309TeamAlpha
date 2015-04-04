@@ -59,7 +59,7 @@
         <%=spaceInfo.SpaceId%>
         <!-- Reputation of the Space -->
                 
-         <% if(currentUser == 'true'){%>
+         <% if(currentUser == true){%>
 
             Your rating:
              <form action = '/addUpdateRating' method='POST'>
@@ -83,6 +83,13 @@
             </form>
 
         <% } %>
+		<form action = '/apply-space' method='POST'>
+			<input type="hidden" name="uid" value=<%=user%> >
+			<input type="hidden" name="spaceId" value=<%=spaceInfo.SpaceId%>>
+			<button type="submit" class="btn btn-success btn-lrg add-availability">
+				<span class="glyphicon glyphicon-plus"> <b> Apply </b></span>
+			</button>
+		</form>	
     </div>
 </div>
 
