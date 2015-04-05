@@ -444,7 +444,7 @@ function get_userInfo(result, res, req){
 }
 
 
-
+//Get all user occupying this space AJAX
 app.get('/getAllSpaceUserInfo', function(req, res){
     console.log('here in getallspaceuserinfo');
 	var values = [];
@@ -460,6 +460,44 @@ app.get('/getAllSpaceUserInfo', function(req, res){
 	var getSuccessMessage = 'Successfully retrieved user info';
 	var getFailedMessage = 'Could not retrieve user info';
 	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+
+});
+
+//Get all teams associated to this space AJAX
+app.get('/getAllSpaceTeamInfo', function(req, res){
+    console.log('here in getallspaceteaminfo with id = '+req.query.spaceId);
+	var values = [];
+    if(typeof req.query.spaceId == 'undefined') {
+        res.end();
+    }
+	var id = req.query.spaceId;
+	//values.push(req.get('userId'));
+	values.push(id);
+	var getQuery = 'SELECT * FROM "Space" NATURAL JOIN "Teams" WHERE "SpaceId" = $1';
+
+    console.log(id);
+	var getSuccessMessage = 'Successfully retrieved Team info';
+	var getFailedMessage = 'Could not retrieve Team info';
+	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+
+});
+
+//Get all members associated to this team AJAX
+app.get('/getAllTeamMemberInfo', function(req, res){
+    console.log('here in get all team member info with team id = '+req.query.teamId);
+	var values = [];
+    if(typeof req.query.teamId == 'undefined') {
+        res.end();
+    }
+	var id = req.query.teamId;
+	//values.push(req.get('userId'));
+	values.push(id);
+	var getQuery = 'SELECT * FROM "TeamMembers" NATURAL JOIN "User" WHERE "TeamId" = $1';
+
+    console.log(id);
+	var getSuccessMessage = 'Successfully retrieved team member  info';
+	var getFailedMessage = 'Could not retrieve team member info';
+	executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
@@ -697,9 +735,43 @@ app.get('/getTeam:id?',function(req, res){
 	executeQuery(res, req, successMessage, failedMessage, selectQuery, values, renderTeam);
 });
 function renderTeam(teamResult, res, req){
-	res.render('team-info.html', {teamInfo:teamResult.rows[0]});
+	res.render('team-info.html', {teamInfo:teamResult.rows[0], user:req.session.uid});
 	
 };
+
+app.post('/apply-team', function(req, res){
+	//res.send("applying with user = "+req.body.user + " for space= "+req.body.teamId);
+	var client = new pg.Client(conString),
+        result = [],
+        dbQuery = 'INSERT INTO "TeamMembers" ("TeamId", "UserId") SELECT $1, $2 WHERE NOT EXISTS (SELECT "TeamId","UserId" FROM "TeamMembers" WHERE "TeamId" = $1 AND "UserId"= $2)';
+    
+    client.connect(function (err, done) {
+        /* Unable to connect to postgreSQL server */
+        if (err) {
+            res.writeHead(500);
+            console.log('Unable to connect to database');
+        }
+        
+        var query = client.query(dbQuery, [req.body.teamId, req.body.user], function(err, result){});
+        console.log("InsertQuery");
+
+        /* Unable to connect to database */
+        query.on('error', function (err) {
+            res.send('Query Error ' + err);
+        });
+        
+        query.on('row', function (row) {
+            result.push(row);
+        });
+
+        // Update Applications
+        query.on('end', function () {
+			client.end();
+			var link = '/getTeam'+req.body.teamId;
+			res.redirect(link);
+		});
+	});
+});
 //Post for space occupation application, enters request in the "Applications" Table 
 app.post('/apply-space', function(req, res){
 	var user = req.session.uid;

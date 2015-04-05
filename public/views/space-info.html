@@ -108,19 +108,42 @@
 </div>
 
 <!-- Team Bar -->
-<div class="team">
-    <h4>Teams:</h4>
+<h4>Teams:</h4>
+<div class="teams" id="teams">
+    
 		<% for(i = 0; i < teamsInfo.length; i++){%>
-			<%=teamsInfo[i].TeamName%>
+			<!--<%=teamsInfo[i].TeamName%>-->
 			
 		<%}%>
+		
+		<input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
+
+		<script>
+			$(document).ready(function() {
+				var spaceId = document.getElementById("spaceid").value;
+				var link = '/getAllSpaceTeamInfo/?spaceId=' + spaceId;
+				$.ajax({
+					url: link, //the URL to your node.js server that has data
+					dataType: 'json',
+				}).done(function(data){
+					var output = '';
+					//window.alert(JSON.stringify(data));
+
+					for (i = 0; i < data.results.length; i++) { 
+						output += '<a href="/getTeam' + data.results[i].TeamId +'"> Team Name: ' + data.results[i].TeamName + '<br> Team Description: ' + data.results[i].TeamDescription + ' </a><br><br>';  
+					}
+					document.getElementById('teams').innerHTML = output;
+				}); 
+			});
+		</script>
 </div>
 
 <%if(occupying){%> <!-- Only display members info if they are joined -->
+	 <h4>Members:</h4>
     <div id="people">
 
         <% if(currentUser == 'true'){%>
-            <h4>Members:</h4>
+         
             <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
             <script>
                 $(document).ready(function() {
