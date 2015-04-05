@@ -46,29 +46,45 @@
                 </form>
             </div>
             <div class="stats">
-                <h4> Number of teams formed: <span id="teams"></span>
+                <h4> Number of teams formed: 
                 </h4>
-                <h4> Number of spaces leased:
+                <h4> Number of spaces leased: <span id="spaces"></span>
                 </h4>
-                <h4> Total number of members:
+                <h4> Total number of members: <span id="members"></span>
                 </h4>
             </div>
         </div>
     </div>
     <script type="text/javascript">
-    $(document).ready(function() {
-        $.ajax({
-            url: "/getTeams?",
-            success: function(data) {
-                results = JSON.parse(data).results[0];
-                $("#teams").html(results);
-            },
-            error: function(error) {
-                console.log(error);
-            }
+        $(document).ready(function() {
+            $.ajax({
+                url: "/getSpaces?",
+                success: function(data) {
+                    var parsed = $.parseJSON(data);
+                    //alert(data);
+                    $("#spaces").html(parsed.results[0].spaceCount);
+                },
+                error: function(error) {
+                    alert(error);
+                }
+            });
         });
-    });
-</script>
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $.ajax({
+                url: "/getMembers?",
+                success: function(data) {
+                    var parsed = $.parseJSON(data);
+                    //alert(data);
+                    $("#members").html(parsed.results[0].emailCount);
+                },
+                error: function(error) {
+                    alert(error);
+                }
+            });
+        });
+    </script>
     </body>
 </html>
             
