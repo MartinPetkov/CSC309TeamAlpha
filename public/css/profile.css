@@ -10,6 +10,7 @@ body{
     width: 70%;
     float: right;
     height: 100%;
+	display:block-inline;
 }
 
 .spaces h3{
@@ -103,6 +104,22 @@ p{
 .glow {
     border-collapse: collapse;
     box-shadow: 0 0 10px 10px white;  
+}
+
+.teams{
+	/*margin:10px;
+	padding:10px;*/
+	width:70%;
+	float:right;
+	background-color: rgb(255,255,255);
+}
+
+.teams h3{
+    margin-top: 0px;
+    height: 40px;
+    padding: 7px;
+    background-color: rgb(127, 161, 141);
+    color: white;
 }
 
 button.like {

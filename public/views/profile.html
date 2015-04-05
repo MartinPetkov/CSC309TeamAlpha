@@ -130,9 +130,10 @@
                 </div>
 				 
 				 
-				 <% }%>
-				 </div>	
-            </div>
+				<% }%>
+				
+			</div>	
+        </div>
         <div class="profile-info">
             <div class="display">
                 <span class="user-profile glyphicon glyphicon-user" />
@@ -193,7 +194,36 @@
                 About:<textarea id="about"> <%=profile[0].About%></textarea>
             <% } %>
         </div>
+		<div class="teams">
+		<h3>Teams</h3>
+				<div  id="teams">
+					
+				
+				</div>
+				
+				<input type="hidden" id="user" value= <%=profile[0].UserId%>>
+				<script>
+					$(document).ready(function() {
+						var user = document.getElementById("user").value;
+						var link = '/getUserTeams/?user='+user;
+						$.ajax({
+							url: link, //the URL to your node.js server that has data
+							dataType: 'json',
+						}).done(function(data){
+							var output = '';
+							//window.alert(JSON.stringify(data));
+
+							for (i = 0; i < data.results.length; i++) { 
+								output += '<a href="/getTeam' + data.results[i].TeamId +'"> Team Name: ' + data.results[i].TeamName + '<br> Team Description: ' + data.results[i].TeamDescription + ' </a><br><br>';  
+							}
+							document.getElementById('teams').innerHTML = output;
+							
+						}); 
+					});
+				</script>
+		</div>
     </div>
+	
 </body>
 
     <script type="text/javascript">

@@ -553,6 +553,26 @@ app.get('/getUserTeamInfo', function(req, res){
 
 });
 
+//Get Team info about this
+app.get('/getUserTeams', function(req, res){
+    console.log('here in getUserTeams');
+	var values = [];
+	if(typeof req.query.user == 'undefined') {
+		console.log('no user');
+        res.end();
+    }
+	var user = req.query.user;
+	//values.push(req.get('userId'));
+	values.push(user);
+	var getQuery = 'SELECT * FROM "TeamMembers" JOIN "Teams" ON "Teams"."TeamId" = "TeamMembers"."TeamId" WHERE "TeamMembers"."UserId"=$1';
+
+    console.log('values for get user Teams '+user);
+	var getSuccessMessage = 'Successfully get teams info';
+	var getFailedMessage = 'Could not retrieve teams info';
+	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+
+});
+
 
 // Delete user
 app.post('/deleteUser', function (req, res) {
@@ -1705,7 +1725,7 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, r
         }
 
         var query = client.query(dbQuery, values, function(err, result){});
-		//console.log('executing a query '+values);
+		//console.log('executing '+dbQuery+' '+values);
 
         query.on('error', function (error) {
         	res.writeHead(500);
