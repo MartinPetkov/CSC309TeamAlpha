@@ -23,6 +23,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static(__dirname + '/public/css'));
+app.use(express.static(__dirname + '/public/js'));
+
 app.use(session({secret: '123', resave: 'false', saveUninitialized: 'false'}));
 app.use(morgan('dev'));
 
