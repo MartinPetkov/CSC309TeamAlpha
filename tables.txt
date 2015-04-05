@@ -43,3 +43,13 @@ SpaceId; type = serial, NOT NULL, REFERENCES Space.SpaceId
 Text; type = text
 DateTimePosted; type = timestamp without timezone, NOT NULL
 ProjectTag; type = text
+
+Applications:
+
+Teams:
+
+TeamMembers:
+
+SpaceRating:
+
+
