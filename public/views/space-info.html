@@ -141,24 +141,26 @@
          
             <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
             <script>
-                function ajaxCall(){
-                    $(document).ready(function() {
-                        var spaceId = document.getElementById("spaceid").value;
-                        var link = '/getAllSpaceUserInfo/?spaceId=' + spaceId;
-                        $.ajax({
-                            url: link, //the URL to your node.js server that has data
-                            dataType: 'json',
-                        }).done(function(data){
-                            var output = '';
-                            //window.alert(JSON.stringify(data));
+                ajaxCall();
+            </script>
+            <script>
+                $(document).ready(function() {
+                    var spaceId = document.getElementById("spaceid").value;
+                    var link = '/getAllSpaceUserInfo/?spaceId=' + spaceId;
+                    $.ajax({
+                        url: link, //the URL to your node.js server that has data
+                        dataType: 'json',
+                    }).done(function(data){
+                        var output = '';
+                        //window.alert(JSON.stringify(data));
 
-                            for (i = 0; i < data.results.length; i++) { 
-                                output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  
-                            }
-                            document.getElementById('people').innerHTML = output;
-                        }); 
-                    });
-                }
+                        for (i = 0; i < data.results.length; i++) { 
+                            output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  
+                        }
+                        document.getElementById('people').innerHTML = output;
+                    }); 
+                });
+
             </script>
 
         <%}%>
@@ -176,7 +178,25 @@
                 window.alert(JSON.stringify(data));
                 if (data.results[0].length != 0) {
                     window.alert(JSON.stringify(data));
-                    ajaxCall();
+                    
+                    
+                    
+                    $(document).ready(function() {
+                        var spaceId = document.getElementById("spaceid").value;
+                        var link = '/getAllSpaceUserInfo/?spaceId=' + spaceId;
+                        $.ajax({
+                            url: link, //the URL to your node.js server that has data
+                            dataType: 'json',
+                        }).done(function(data){
+                            var output = '';
+                            //window.alert(JSON.stringify(data));
+
+                            for (i = 0; i < data.results.length; i++) { 
+                                output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  
+                            }
+                            document.getElementById('people').innerHTML = output;
+                        }); 
+                    });
                 }
             }); 
         });
