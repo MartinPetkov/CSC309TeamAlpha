@@ -58,7 +58,7 @@
         </div>
         
         <!-- Reputation of the Space -->
-        <div style="text-align:center">
+        <div id="rating" style="text-align:center">
             <% if(currentUser == 'true'){%>
                 Your rating:
                 <form action = '/addUpdateRating' method='POST'>
@@ -79,6 +79,26 @@
                     </button>
                 </form>
             <% } %>
+			<input type="hidden" id="spaceId" value= <%=spaceInfo.SpaceId %>>
+			<input type="hidden" id="user" value= <%=user%>>
+			 <script>
+				$(document).ready(function() {
+					var spaceId = document.getElementById("spaceId").value;
+					var user = document.getElementById("user").value;
+					var link = '/getUserLeaseInfo/?spaceId=' + spaceId+'&user='+user;
+					$.ajax({
+						url: link, //the URL to your node.js server that has data
+						dataType: 'json',
+					}).done(function(data){
+						//window.alert(JSON.stringify(data));
+						var output = '';
+						if(data.results.length==0){
+							output += '';  
+							document.getElementById('rating').innerHTML = output;
+						}
+					}); 
+				});
+			</script>
         </div> <!-- End Reputation of the Space -->
                             
         <div class="center">
