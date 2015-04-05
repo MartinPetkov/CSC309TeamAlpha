@@ -177,12 +177,6 @@ input[type="text"] {
     float: right;
 }
 
-#title{
-    font-family: AdobeGothic;
-    color: white;
-    font-size: 45x;
-}
-
 #header{
     background-color: rgb(101, 188, 138);
 }
@@ -191,4 +185,9 @@ input[type="text"] {
     background-color: rgb(101, 188, 138);
     color: white;
 }
-    
+
+#title{
+    font-family: AdobeGothic;
+    color: white;
+    font-size: 45px;
+}
