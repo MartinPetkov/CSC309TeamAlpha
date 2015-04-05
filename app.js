@@ -17,6 +17,16 @@ var sanitizer = require('sanitizer');
 	cert: fs.readFileSync('cert.pem')
 };*/
 
+var SPACE_TYPES = [
+    'Office',
+    'Loft',
+    'Apartment',
+    'Studio',
+    'Dungeon',
+    'Asteroid',
+    'Manos\' Nomad Outpost'
+]
+
 var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
 
 app.use(bodyParser.json());
@@ -596,6 +606,7 @@ app.post('/addSpace', function (req, res) {
     values.push(req.body.location);
     values.push(req.body.description)
     values.push(req.body.spaceType);
+    console.log(req.body.spaceType);
     values.push(req.body.area);
     values.push(req.body.rooms);
     values.push(req.body.pricePerDay);
@@ -613,7 +624,7 @@ app.post('/addSpace', function (req, res) {
 });
 
 app.get('/getAddSpace', function (req, res) {
-    res.redirect('/addSpace.html');
+    res.render('addSpace.html', {spaceTypes: SPACE_TYPES});
 });
 
 
@@ -1199,8 +1210,6 @@ app.get('/getAvailabilities', function (req, res) {
     }
 
     getQuery += ';';
-    console.log(getQuery);
-    console.log(values);
 
     var getSuccessMessage = 'Successfully retrieved availabilities';
     var getFailedMessage = 'Could not retrieve availabilities';
@@ -1725,7 +1734,6 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, r
         }
 
         var query = client.query(dbQuery, values, function(err, result){});
-		//console.log('executing '+dbQuery+' '+values);
 
         query.on('error', function (error) {
         	res.writeHead(500);
