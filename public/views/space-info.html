@@ -132,9 +132,9 @@
         });
     </script>
 </div>
-
+ <h4>Members:</h4>
 <%if(occupying){%> <!-- Only display members info if they are joined -->
-	 <h4>Members:</h4>
+	
     <div id="people">
 
         <% if(currentUser == 'true'){%>
@@ -166,6 +166,7 @@
         <%}%>
     </div>            
  <%} else { %>
+	<div id="people">
      <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
      <script>
         $(document).ready(function() {
@@ -201,6 +202,7 @@
             }); 
         });
      </script>     
+	 </div>
 <% } %>
 
 <!-- Property Information -->
