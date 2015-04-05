@@ -11,11 +11,6 @@ var https = require('https');
 var fs = require('fs');
 var sanitizer = require('sanitizer');
 
-// Needed for HTTPS functionality
-/*var options = {
-	key: fs.readFileSync('key.pem'),
-	cert: fs.readFileSync('cert.pem')
-};*/
 
 var SPACE_TYPES = [
     'Office',
