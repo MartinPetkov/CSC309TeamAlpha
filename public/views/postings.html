@@ -51,8 +51,9 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-4">
+                        <a href="#" onClick="$('#search-options').toggle();">Show/hide search options</a>
                         <!-- Search bar -->
-                        <div class="search_keywords">
+                        <div class="search_keywords" id="search-options">
                             <form name="search_form" action="/getAvailabilities" method="GET">
                                 <input type="submit" value="Search" />
                                 
@@ -124,7 +125,7 @@
                     </div> <!-- Available Bar -->
 
                     <!-- Available Postings Content -->
-                     <div class="col-xs-8">
+                     <div class="col-xs-8" id="available-postings-content">
                         <div class="spaces">
                            <% for (var i=0; i < postings.length; i++) { %>
                                  <div class="col-xs-12 indiv-postings">
@@ -180,9 +181,9 @@
 
         $(function() {
             $("#datepicker-from").datepicker({ dateFormat: 'yy-mm-dd' });
-            //$("#datepicker-from").datepicker("show");
             $("#datepicker-to").datepicker({ dateFormat: 'yy-mm-dd' });
-            //$("#datepicker-to").datepicker("show");
         });
+
+        $('#search-options').hide();
     </script>
 </html>
