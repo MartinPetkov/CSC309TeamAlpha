@@ -72,4 +72,8 @@ UserId; type = serial, NOT NULL, REFERENCES User.UserId
 SpaceId; type = serial, NOT NULL, REFERENCES Space.SpaceId
 LikeDislike; type = integer, NOT NULL
 
-
+UserRating:
+PRIMARY KEY (UserId, FriendUserId)
+UserId; type = serial, NOT NULL, REFERENCES User.UserId
+FriendUserId; type = serial, NOT NULL, REFERENCES User.UserId
+LikeDislike; type = integer, NOT NULL
