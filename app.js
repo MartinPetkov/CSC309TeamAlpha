@@ -600,11 +600,25 @@ function renderSpaceInfo(spaceResult, res, req) {
 
         // Update Applications
         query.on('end', function () {
-            client.end();
-			console.log(result.rows);
-			client.end();
-			res.render('space-info.html', {spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
+			var selectQuery = 'Select * FROM "Leasing" WHERE "TenantId"=$1 AND "SpaceId"=$2';
+			var query2 = client.query(selectQuery, [req.session.uid,spaceId], function(err, result){});
+			var occupying=false;
+			query2.on('error', function (err) {
+				res.send('Query Error ' + err);
+			});
+			
+			query2.on('row', function (row) {
+				result.push(row);
+				occupying=true;
+			});
+
+			// Update Applications
+			query2.on('end', function () {
+				client.end();
+				console.log("occupying= "+occupying);
+				res.render('space-info.html', {occupying:occupying,spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
 			//res.end();
+			});
 		});
 		
 	});
@@ -613,7 +627,7 @@ function renderSpaceInfo(spaceResult, res, req) {
 
 app.get('/getTeam:id?',function(req, res){
 	var teamId = req.params.id;
-	var selectQuery = 'Select * FROM "Teams" where "TeamId"=$1';
+	var selectQuery = 'Select * FROM "Teams" NATURAL JOIN "User" where "TeamId"=$1';
 	values=[teamId];
 	
 	var successMessage = 'Succesfully Selected from Teams',
