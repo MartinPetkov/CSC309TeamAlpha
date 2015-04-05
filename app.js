@@ -591,9 +591,18 @@ function renderSpaceInfo(spaceResult, res, req) {
 
 app.get('/getTeam:id?',function(req, res){
 	var teamId = req.params.id;
+	var selectQuery = 'Select * FROM "Teams" where "TeamId"=$1';
+	values=[teamId];
 	
-});
+	var successMessage = 'Succesfully Selected from Teams',
+		failedMessage  = 'Could not select from teams;';
 
+	executeQuery(res, req, successMessage, failedMessage, selectQuery, values, renderTeam);
+});
+function renderTeam(teamResult, res, req){
+	res.render('team-info.html', {teamInfo:teamResult.rows[0]});
+	
+};
 //Post for space occupation application, enters request in the "Applications" Table 
 app.post('/apply-space', function(req, res){
 	var user = req.session.uid;
