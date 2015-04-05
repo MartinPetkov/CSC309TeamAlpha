@@ -59,8 +59,15 @@
             <input type="text" id="location" placeholder="Location" name="location"/> <br/>
             Description:<br/>
             <input type="text" id="description" placeholder="Description" name="description" size="80"/> <br/>
+            
             Space Type: <br/>
-            <input type="text" id="spaceType" placeholder="Space type" name="spaceType"/> <br/>
+            <select type="text" id="spaceType" placeholder="Space type" name="spaceType">
+                <% for (var i=0; i < spaceTypes.length; i++) { %>
+                <option value="<%=spaceTypes[i]%>"><%=spaceTypes[i]%></option>
+                <% } %>
+            </select><br/>
+
+            
             Area: <br/>
             <input type="text" id="area" placeholder="Area" name="area"/> <br/>
             Rooms: <br/>

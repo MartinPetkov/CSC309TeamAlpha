@@ -16,10 +16,6 @@ h1 {
     color: rgb(255, 255, 255);
 }
 
-input {
-    padding-left: 5px;
-}
-
 .login {
     background-color: white;
     height: 400px;
@@ -59,7 +55,7 @@ h2 {
     color: rgb(105, 124, 113);
 }
 
-input {
+input, select {
     display: block;
     margin-top: 10px;
     margin-left: 15px;
@@ -69,6 +65,7 @@ input {
     border-radius: 5px;
     background-color: rgb(241, 243, 242);
     color: rgb(105, 124, 113);
+    padding-left: 5px;
 }
 
 input[type=submit] {
