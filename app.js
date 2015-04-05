@@ -501,6 +501,7 @@ app.get('/getAllTeamMemberInfo', function(req, res){
 
 });
 
+//Get Lease info about specific User and Space
 app.get('/getUserLeaseInfo', function(req, res){
     console.log('here in getUserLeaseInfo');
 	var values = [];
@@ -518,6 +519,32 @@ app.get('/getUserLeaseInfo', function(req, res){
 	values.push(id);
 	values.push(user);
 	var getQuery = 'SELECT * FROM "Leasing" WHERE "SpaceId" = $1 AND "TenantId"=$2';
+
+    console.log('values for getUserLEaseInfo '+id + ' '+user);
+	var getSuccessMessage = 'Successfully retrieved user Lease info';
+	var getFailedMessage = 'Could not retrieve user Lease info';
+	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+
+});
+
+//Get Team info about specific User and Team
+app.get('/getUserTeamInfo', function(req, res){
+    console.log('here in getUserLeaseInfo');
+	var values = [];
+    if(typeof req.query.teamId == 'undefined') {
+		console.log('no teamId');
+        res.end();
+    }
+	if(typeof req.query.user == 'undefined') {
+		console.log('no user');
+        res.end();
+    }
+	var id = req.query.teamId;
+	var user = req.query.user;
+	//values.push(req.get('userId'));
+	values.push(id);
+	values.push(user);
+	var getQuery = 'SELECT * FROM "TeamMembers" WHERE "TeamId" = $1 AND "UserId"=$2';
 
     console.log('values for getUserLEaseInfo '+id + ' '+user);
 	var getSuccessMessage = 'Successfully retrieved user Lease info';
@@ -797,6 +824,23 @@ app.post('/apply-team', function(req, res){
 		});
 	});
 });
+
+//Post to leave team
+app.post('/leave-team', function(req, res){
+	var values = [];
+	values.push(req.body.user);
+	values.push(req.body.teamId);
+	var dbQuery = 'DELETE FROM "TeamMembers" WHERE "UserId"=$1 AND "TeamId"=$2';
+	
+	var successMessage = 'Successfully removed from TeamMembers',
+	failedMessage = 'Culd not remove from TeamMembers';
+	
+	executeQuery(res, req, successMessage, failedMessage, dbQuery, values, leaveTeam);
+});
+
+function leaveTeam (result, res, req){
+	res.redirect('/');
+};
 //Post for space occupation application, enters request in the "Applications" Table 
 app.post('/apply-space', function(req, res){
 	var user = req.session.uid;

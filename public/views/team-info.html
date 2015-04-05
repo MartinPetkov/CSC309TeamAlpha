@@ -57,8 +57,7 @@
 				Team Leader: <%=teamInfo.FirstName%> <%=teamInfo.LastName%><br/><br/>
 				Located At Space: <%=teamInfo.SpaceName%>
 				<%if(user){%>
-				<input type="hidden" id="spaceId" value= <%=teamInfo.SpaceId %>>
-				<input type="hidden" id="user" value= <%=user%>>
+				
 				<div id="apply">
 				<form action = '/apply-team' method='POST' >
 					<input type="hidden" name="user" id="user" value=<%=user%> >
@@ -69,6 +68,41 @@
 					</input>
 				</form>
 				</div>
+				<div id="delete">
+					<form action = '/leave-team' method='POST'>
+						<input type="hidden" name="user" id="user" value=<%=user%> >
+						<input type="hidden" name="teamId" id="teamId" value=<%=teamInfo.TeamId%>>
+						<button type="submit" class="btn btn-Danger btn-lrg">
+							<span class="glyphicon glyphicon-remove"> Leave This Team</span>
+						</button>
+					</input>
+				</form>
+				</div>
+				<input type="hidden" id="spaceId" value= <%=teamInfo.SpaceId %>>
+				<input type="hidden" id="teamId" value= <%=teamInfo.TeamId %>>
+				<input type="hidden" id="user" value= <%=user%>>
+				<script>
+					$(document).ready(function() {
+						var teamId = document.getElementById("teamId").value;
+						var user = document.getElementById("user").value;
+						var link = '/getUserTeamInfo/?teamId=' + teamId+'&user='+user;
+						$.ajax({
+							url: link, //the URL to your node.js server that has data
+							dataType: 'json',
+						}).done(function(data){
+							var output = '';
+							//window.alert(JSON.stringify(data));
+							//window.alert(data.results.length);
+							if(data.results.length==0){
+								document.getElementById('delete').innerHTML = output;
+
+							}else{
+								document.getElementById('apply').innerHTML = output;
+							}
+							
+						}); 
+					});
+				</script>
 				<script>
 					$(document).ready(function() {
 						var spaceId = document.getElementById("spaceId").value;
@@ -90,7 +124,6 @@
 						}); 
 					});
 				</script>
-				
 				
 			<%}%>
 			</div>
