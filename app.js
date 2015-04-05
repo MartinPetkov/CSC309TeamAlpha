@@ -1562,8 +1562,17 @@ function reloadSpacePage(result, res, req) {
 }
 
 
-
-
+app.get('/isOwner', function (req, res) {
+    var dbQuery = 'SELECT * FROM "Space" WHERE "OwnerId"= $1 AND "SpaceId"= $2';
+    var successMessage = 'Successfully checked whether the owner owns the space';
+    var failedMessage = 'Could not check whether the owner owns the space';
+    
+    if(typeof req.query.spaceId == 'undefined') {
+        res.end();
+    }
+    
+    executeQuery(res,req, successMessage, failedMessage, dbQuery, [req.session.uid, req.query.spaceId]);
+});
 
 
 /* Other */

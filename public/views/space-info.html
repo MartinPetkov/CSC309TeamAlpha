@@ -111,31 +111,26 @@
 <h4>Teams:</h4>
 <div class="teams" id="teams">
     
-		<% for(i = 0; i < teamsInfo.length; i++){%>
-			<!--<%=teamsInfo[i].TeamName%>-->
-			
-		<%}%>
-		
-		<input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
+    <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
 
-		<script>
-			$(document).ready(function() {
-				var spaceId = document.getElementById("spaceid").value;
-				var link = '/getAllSpaceTeamInfo/?spaceId=' + spaceId;
-				$.ajax({
-					url: link, //the URL to your node.js server that has data
-					dataType: 'json',
-				}).done(function(data){
-					var output = '';
-					//window.alert(JSON.stringify(data));
+    <script>
+        $(document).ready(function() {
+            var spaceId = document.getElementById("spaceid").value;
+            var link = '/getAllSpaceTeamInfo/?spaceId=' + spaceId;
+            $.ajax({
+                url: link, //the URL to your node.js server that has data
+                dataType: 'json',
+            }).done(function(data){
+                var output = '';
+                //window.alert(JSON.stringify(data));
 
-					for (i = 0; i < data.results.length; i++) { 
-						output += '<a href="/getTeam' + data.results[i].TeamId +'"> Team Name: ' + data.results[i].TeamName + '<br> Team Description: ' + data.results[i].TeamDescription + ' </a><br><br>';  
-					}
-					document.getElementById('teams').innerHTML = output;
-				}); 
-			});
-		</script>
+                for (i = 0; i < data.results.length; i++) { 
+                    output += '<a href="/getTeam' + data.results[i].TeamId +'"> Team Name: ' + data.results[i].TeamName + '<br> Team Description: ' + data.results[i].TeamDescription + ' </a><br><br>';  
+                }
+                document.getElementById('teams').innerHTML = output;
+            }); 
+        });
+    </script>
 </div>
 
 <%if(occupying){%> <!-- Only display members info if they are joined -->
@@ -146,27 +141,47 @@
          
             <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
             <script>
-                $(document).ready(function() {
-                    var spaceId = document.getElementById("spaceid").value;
-                    var link = '/getAllSpaceUserInfo/?spaceId=' + spaceId;
-                    $.ajax({
-                        url: link, //the URL to your node.js server that has data
-                        dataType: 'json',
-                    }).done(function(data){
-                        var output = '';
-                        //window.alert(JSON.stringify(data));
+                function ajaxCall(){
+                    $(document).ready(function() {
+                        var spaceId = document.getElementById("spaceid").value;
+                        var link = '/getAllSpaceUserInfo/?spaceId=' + spaceId;
+                        $.ajax({
+                            url: link, //the URL to your node.js server that has data
+                            dataType: 'json',
+                        }).done(function(data){
+                            var output = '';
+                            //window.alert(JSON.stringify(data));
 
-                        for (i = 0; i < data.results.length; i++) { 
-                            output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  
-                        }
-                        document.getElementById('people').innerHTML = output;
-                    }); 
-                });
+                            for (i = 0; i < data.results.length; i++) { 
+                                output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  
+                            }
+                            document.getElementById('people').innerHTML = output;
+                        }); 
+                    });
+                }
             </script>
 
         <%}%>
     </div>            
- <%}%>  
+ <%} else { %>
+     <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
+     <script>
+        $(document).ready(function() {
+            var spaceId = document.getElementById("spaceid").value;
+            var link = '/isOwner/?spaceId=' + spaceId;
+            $.ajax({
+                url: link, //the URL to your node.js server that has data
+                dataType: 'json',
+            }).done(function(data){
+                window.alert(JSON.stringify(data));
+                if (data.results[0].length != 0) {
+                    window.alert(JSON.stringify(data));
+                    ajaxCall();
+                }
+            }); 
+        });
+     </script>     
+<% } %>
 
 <!-- Property Information -->
 <div class="info">
