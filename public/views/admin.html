@@ -19,30 +19,20 @@
                     </div>
                     
                     <div class="col-xs-1 col-md-1">
-                            <form action = '/logout' method='GET' >
-                                <button type="submit" class="btn btn-success btn-lrg">
-                                    <span class="glyphicon glyphicon-log-out"/>
-                                </button>
-                            </form>
+                        <form action = '/logout' method='GET' >
+                            <button type="submit" class="btn btn-success btn-lrg">
+                                <span class="glyphicon glyphicon-log-out"/>
+                            </button>
+                        </form>
                     </div>
                 </h1>
             </div>
             <h2> Admin view
             </h2>
             <div class="actions">
-                <h4> Restrict space leasing type:
-                </h4>
+                <h4> Restrict space leasing type:</h4>
                 <form class="form-group" id="leasing" action="/changeLeaseType" method="post">
-                    <label for="sel1">Select list:</label>
-                      <select class="form-control" id="sel1">
-                        <option>Studio</option>
-                        <option>Office</option>
-                        <option>Castle</option>
-                        <option>Underground cavern</option>
-                        <option>Manos' nomad outpost</option>
-                      </select>
                     <input type="submit" id="submit-leasing" value="submit"/>
-                    
                 </form>
             </div>
             <div class="stats">
@@ -201,6 +191,21 @@
                 }
             });
         });
+
+    $.ajax({
+        url: "/getSpaceTypesGlobalVar",
+        success: function(data) {
+            var dataLen = data.length;
+            for(var j = 0; j < dataLen; j++) {
+                $("#leasing").prepend('<input type="checkbox" name="space-types" value="'+data[j]+'">' + data[j] + '<br/>');
+            }
+            $("#leasing").prepend(
+                '<label for="space-types">Select list:</label><br/>');
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
     </script>
     </body>
 </html>

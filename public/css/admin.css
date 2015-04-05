@@ -1,19 +1,19 @@
 @font-face { font-family: AdobeGothic; src: url("AdobeGothicStd-Bold.otf"); } 
 
-body{
+body {
     background-color: rgb(218, 243, 214);
     width: inherit;
     color: rgb(105, 124, 113);
 }
 
-.spaces{
+.spaces {
     background-color: white;
     width: 70%;
     float: right;
     height: 100%;
 }
 
-.spaces h3{
+.spaces h3 {
     margin-top: 0px;
     height: 40px;
     padding: 7px;
@@ -21,7 +21,7 @@ body{
     color: white;
 }
 
-.spaces div{
+.spaces div {
     margin-top: 0px;
     height: 100px;
     border-style: solid;
@@ -30,7 +30,7 @@ body{
 }
 
 
-h1{
+h1 {
     background-color: rgb(101, 188, 138);
     width: 100%;
     margin-top: 0px;
@@ -43,29 +43,20 @@ h1{
 }
 
 
-h2{
+h2 {
     margin-top: 0px;
     padding: 15px;
     font-family: helvetica;
 }
 
-h4{
+h4 {
     margin-top: 0px;
     padding: 15px;
     font-family: helvetica;
     
 }
 
-#leasing{
-    margin-top: 0px;
-    padding: 15px;
-    font-family: helvetica;
-    
-    
-}
-
-input{
-    display: block;
+input {
     margin-top: 10px;
     border-style: solid;
     border-width: 2px;
@@ -75,14 +66,25 @@ input{
     color: rgb(105, 124, 113);
 }
 
-
-input[type=submit]{
+input[type=submit] {
+    display: block;
     background-color: rgb(101, 188, 138);
     color: white;
 }
 
+input[type=checkbox] {
+    margin-right: 5px;
+}
 
-p{
+#leasing {
+    margin-top: 0px;
+    padding: 15px;
+    font-family: helvetica;
+    display: inline-block;   
+}
+
+
+p {
     color: rgb(105, 124, 113);
     margin-top: 20px;
     margin-left: 15px;
