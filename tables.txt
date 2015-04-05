@@ -43,3 +43,37 @@ SpaceId; type = serial, NOT NULL, REFERENCES Space.SpaceId
 Text; type = text
 DateTimePosted; type = timestamp without timezone, NOT NULL
 ProjectTag; type = text
+
+Applications:
+PRIMARY KEY (SpaceId, FromDate, ToDate)
+UserId; type = integer, NOT NULL, REFERENCES User.UserId
+SpaceId; type =  integer, NOT NULL, REFERENCES Space.SpaceId
+FromDate; type = date
+ToDate; type = date
+AppId; type = serial, NOT NULL
+
+Teams:
+PRIMARY KEY (TeamId)
+UserId; type = integer, REFERENCES User.UserId
+SpaceId; type = integer, REFERENCES Space SpaceId
+TeamName; type = text, NOT NULL
+TeamDescription = type = text, NOT NULL,
+TeamId; type = serial, NOT NULL,
+
+
+TeamMembers:
+PRIMARY KEY(TeamId, UserID)
+TeamId; type = integer, REFERENCES Teams.TeamId
+UserId; type = integer, REFERENCES User.UserId
+
+SpaceRating:
+PRIMARY KEY (UserId, SpaceId)
+UserId; type = serial, NOT NULL, REFERENCES User.UserId
+SpaceId; type = serial, NOT NULL, REFERENCES Space.SpaceId
+LikeDislike; type = integer, NOT NULL
+
+UserRating:
+PRIMARY KEY (UserId, FriendUserId)
+UserId; type = serial, NOT NULL, REFERENCES User.UserId
+FriendUserId; type = serial, NOT NULL, REFERENCES User.UserId
+LikeDislike; type = integer, NOT NULL

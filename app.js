@@ -304,10 +304,71 @@ function get_thisUserInfo(result, res, req){
 /* Helper function: Both callbacks for getting your user info and getting someones else user info converge
    here, this is where we actually render the page with all the relevant data
    This is also where we get info on spaces the user owns */
+
 function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
+	var ownerResult = [],
+        result = [];
+	var isOwner = false;
+	var client = new pg.Client(conString);
+    
+    var getRatingQuery = 'SELECT * FROM "UserRating" WHERE "UserId"= $1 AND "FriendUserId"= $2';
+    
+    
+    client.connect(function(err, done){
+        if (err){
+			res.send('sorry, there was an connection error', err);
+		}
+        
+		var query = client.query(getRatingQuery,[req.session.uid, user]);
+		query.on('error', function(err){
+			res.send('Query Error ' + err);
+		});
+        
+        query.on('row', function(row){
+			result.push(row);
+		});
+        query.on('end', function(){
+			client.end();
+    
+            var currentRating;
+            if (typeof result[0] == 'undefined') {
+                console.log('empty');
+                currentRating = null;
+            } else {
+                console.log(result.rows);
+                currentRating = result[0].LikeDislike;
+            }
+            console.log('Rating: ' + currentRating);
+            
+            var client2 = new pg.Client(conString);
+            client2.connect(function(err, done){
+                if (err){
+                    res.send('sorry, there was an connection error', err);
+                }
+                var ownerQuery = client2.query('Select * FROM "Space" WHERE "OwnerId"=$1',[user]);
+                ownerQuery.on('error', function(err){
+                    res.send('Query Error ' + err);
+                });
+                ownerQuery.on('row', function(row){
+                    ownerResult.push(row);
+                    isOwner = true;
+                });
+                ownerQuery.on('end', function(){
+                    client2.end();
+                    console.log('owner space likedislike: ' + ownerResult.likedislike);
+                    res.render('profile.html', {profile:profileResult, opt:opt, tennantSpace:tSpace, ownerSpace:ownerResult,Owner:isOwner, likedislike: currentRating});
+                    res.end();
+                });
+            });
+        });
+    });
+}
+/*function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
 	var ownerResult = [];
 	var isOwner = false;
 	var client = new pg.Client(conString);
+    
+    var getRatingQuery = 'SELECT * FROM "SpaceRating" WHERE "UserId"= $1 AND "SpaceId"= $2';
 	client.connect(function(err, done){
 		if (err){
 			res.send('sorry, there was an connection error', err);
@@ -326,7 +387,7 @@ function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
 			res.end();
 		});
 	});
-};
+};*/
 
 /* Helper function: Callback for viewing another user's info
    Gets info about the spaces they are leasing */
@@ -600,11 +661,25 @@ function renderSpaceInfo(spaceResult, res, req) {
 
         // Update Applications
         query.on('end', function () {
-            client.end();
-			console.log(result.rows);
-			client.end();
-			res.render('space-info.html', {spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
+			var selectQuery = 'Select * FROM "Leasing" WHERE "TenantId"=$1 AND "SpaceId"=$2';
+			var query2 = client.query(selectQuery, [req.session.uid,spaceId], function(err, result){});
+			var occupying=false;
+			query2.on('error', function (err) {
+				res.send('Query Error ' + err);
+			});
+			
+			query2.on('row', function (row) {
+				result.push(row);
+				occupying=true;
+			});
+
+			// Update Applications
+			query2.on('end', function () {
+				client.end();
+				console.log("occupying= "+occupying);
+				res.render('space-info.html', {occupying:occupying,spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
 			//res.end();
+			});
 		});
 		
 	});
@@ -613,7 +688,7 @@ function renderSpaceInfo(spaceResult, res, req) {
 
 app.get('/getTeam:id?',function(req, res){
 	var teamId = req.params.id;
-	var selectQuery = 'Select * FROM "Teams" where "TeamId"=$1';
+	var selectQuery = 'Select * FROM "Teams" NATURAL JOIN "User" where "TeamId"=$1';
 	values=[teamId];
 	
 	var successMessage = 'Succesfully Selected from Teams',
@@ -854,7 +929,7 @@ app.post('/addAvailability', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted availability';
     var insertFailedMessage = 'Failed to insert availability';
-    executeQuery(res, req, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+    executeQuery(res, req, insertSuccessMessage, insertFailedMessage, insertQuery, values, redirectCreateTeam);
 });
 
 
@@ -1272,6 +1347,112 @@ function updateTotalLikesDislikes (res, req, rating, spaceId) {
     
     executeQuery(res, req, successMessage, failedMessage, updateAllLikesQuery, [spaceId], reloadSpacePage);
 }
+
+
+
+/* User like/dislike system */
+app.post('/addUpdateRatingUser', function (req, res) {
+    console.log('In addUpdateRatingUser' + req.body.rating);
+
+    var client = new pg.Client(conString),
+        result = [],
+        result2 = [],
+        dbQuery = 'INSERT INTO "UserRating" ("UserId", "FriendUserId", "LikeDislike") SELECT $1, $2, $3 WHERE NOT EXISTS (SELECT "UserId","FriendUserId" FROM "UserRating" WHERE "UserId" = $4 AND "FriendUserId"= $5) RETURNING "FriendUserId"';
+    
+    client.connect(function (err, done) {
+        /* Unable to connect to postgreSQL server */
+        if (err) {
+            res.writeHead(500);
+            console.log('Unable to connect to database');
+        }
+        
+        var query = client.query(dbQuery, [req.session.uid, req.body.friendId, req.body.rating, req.session.uid, req.body.friendId], function(err, result){});
+        console.log([req.session.uid, req.body.friendId, req.body.rating, req.session.uid, req.body.friendId]);
+        /* Unable to connect to database */
+        query.on('error', function (err) {
+            res.send('Query Error ' + err);
+        });
+        
+        query.on('row', function (row) {
+            result.push(row);
+        });
+
+        // Update ratings
+        query.on('end', function () {
+            client.end();
+            
+            /* No new likes/dislikes were added -- user already previously selected a choice */
+            if (result.length == 0) {
+                console.log('The like/dislikes were updated not added');
+                
+
+                /* Update the user's choice of either like or dislike for this particular idea */
+                var values2 = [];
+                values2.push(req.body.rating);
+                values2.push(req.session.uid);
+                values2.push(req.body.friendId);
+
+                var updateQuery = 'UPDATE "UserRating" SET "LikeDislike" = $1 WHERE "UserId"=$2 AND "FriendUserId"=$3  RETURNING "FriendUserId"';
+                
+                var client2 = new pg.Client(conString);
+                client2.connect(function (err, done) {
+                    /* Unable to connect to postgreSQL server */
+                    if (err) {
+                        res.writeHead(500);
+                        console.log('Unable to connect to database');
+                    }
+
+                    var query2 = client2.query(updateQuery, values2, function(err, result2){});
+
+                    /* Unable to connect to database */
+                    query2.on('error', function (err) {
+                        res.send('Query Error ' + err);
+                    });
+
+                    query2.on('row', function (row) {
+                        result2.push(row);
+                    });
+
+                    query2.on('end', function () {
+                        client2.end();
+                        updateTotalLikesDislikesUser(res, req, req.body.rating, req.body.friendId);
+                    });
+                });
+            } else {
+                console.log('It is a new like/dislike');
+                updateTotalLikesDislikesUser(res, req, req.body.rating, req.body.friendId);
+            }            
+        });
+    });    
+});
+
+/* Update the aggregated likes/dislikes assuming they cannot choose the same choice as previously  */
+function updateTotalLikesDislikesUser (res, req, rating, friendId) {
+    var updateAllLikesQuery;
+    console.log('In updateTotalLikesDislikes. Rating: ' + rating + ' ' + friendId); 
+    if (rating == 0) {
+        console.log('Decrement user rating');
+        // Decrement total likes   
+        var updateAllLikesQuery = 'UPDATE "User" SET "UserTotalRating" = "UserTotalRating" - 1 WHERE "UserId"=$1 RETURNING "UserId"';
+    } else {
+        // Increment total likes 
+        var updateAllLikesQuery = 'UPDATE "User" SET "UserTotalRating" = "UserTotalRating" + 1 WHERE "UserId"=$1 RETURNING "UserId"';
+        
+    }
+    
+    var successMessage = 'Successfully updated aggregated user rating';
+    var failedMessage = 'Could not update aggregated user rating';
+    
+    executeQuery(res, req, successMessage, failedMessage, updateAllLikesQuery, [friendId], reloadUserPage);
+}
+
+
+function reloadUserPage(result, res, req) {
+    res.redirect('/getUserInfo' + result.rows[0].UserId);
+    res.end();
+}
+
+
 
 function reloadSpacePage(result, res, req) {
     

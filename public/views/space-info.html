@@ -116,33 +116,35 @@
 		<%}%>
 </div>
 
-<div id="people">
-    
-    <% if(currentUser == 'true'){%>
-        <h4>Members:</h4>
-        <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
-        <script>
-            $(document).ready(function() {
-                var spaceId = document.getElementById("spaceid").value;
-                var link = '/getAllSpaceUserInfo/?spaceId=' + spaceId;
-                $.ajax({
-                    url: link, //the URL to your node.js server that has data
-                    dataType: 'json',
-                }).done(function(data){
-                    var output = '';
-                    window.alert(JSON.stringify(data));
-                    
-                    for (i = 0; i < data.results.length; i++) { 
-                        output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  
-                    }
-                    document.getElementById('people').innerHTML = output;
-                }); 
-            });
-        </script>
-        
-    <%}%>
-</div>            
-                
+<%if(occupying){%> <!-- Only display members info if they are joined -->
+    <div id="people">
+
+        <% if(currentUser == 'true'){%>
+            <h4>Members:</h4>
+            <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
+            <script>
+                $(document).ready(function() {
+                    var spaceId = document.getElementById("spaceid").value;
+                    var link = '/getAllSpaceUserInfo/?spaceId=' + spaceId;
+                    $.ajax({
+                        url: link, //the URL to your node.js server that has data
+                        dataType: 'json',
+                    }).done(function(data){
+                        var output = '';
+                        //window.alert(JSON.stringify(data));
+
+                        for (i = 0; i < data.results.length; i++) { 
+                            output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  
+                        }
+                        document.getElementById('people').innerHTML = output;
+                    }); 
+                });
+            </script>
+
+        <%}%>
+    </div>            
+ <%}%>  
+
 <!-- Property Information -->
 <div class="info">
     <div class="bs-docs-grid">
