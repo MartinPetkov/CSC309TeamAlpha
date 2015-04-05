@@ -382,6 +382,27 @@ function get_userInfo(result, res, req){
 	//res.end();
 }
 
+
+
+app.get('/getAllSpaceUserInfo', function(req, res){
+    console.log('here in getallspaceuserinfo');
+	var values = [];
+    if(typeof req.query.spaceId == 'undefined') {
+        res.end();
+    }
+	var id = req.query.spaceId;
+	//values.push(req.get('userId'));
+	values.push(id);
+	var getQuery = 'SELECT * FROM "Leasing" JOIN "User" ON "Leasing"."TenantId" = "User"."UserId" WHERE "SpaceId" = $1';
+
+    console.log(req.query.id);
+	var getSuccessMessage = 'Successfully retrieved user info';
+	var getFailedMessage = 'Could not retrieve user info';
+	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+
+});
+
+
 // Delete user
 app.post('/deleteUser', function (req, res) {
     var values = [];
@@ -579,6 +600,7 @@ function renderSpaceInfo(spaceResult, res, req) {
 
         // Update Applications
         query.on('end', function () {
+            client.end();
 			console.log(result.rows);
 			res.render('space-info.html', {spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
 			//res.end();
@@ -1284,6 +1306,7 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, r
         query.on('end', function (result){
             client.end();
             console.log(successMessage);
+            
             if(!(typeof results_handler == 'undefined')) {
                 results_handler(result, res, req);
 
@@ -1292,6 +1315,7 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, r
 
                 var jsonShit = {};
                 jsonShit.results = result.rows;
+                console.log(jsonShit.results);
                 res.write(JSON.stringify(jsonShit, 0, 4));
                 res.end();
             }
