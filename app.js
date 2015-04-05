@@ -873,8 +873,6 @@ app.get('/getAvailabilities', function (req, res) {
         'sort-by': req.query['sort-by']
 	};
 
-    console.log(valuesObj);
-
     var updateColumns = [];
     var values = [];
     var i = 1;
@@ -886,12 +884,12 @@ app.get('/getAvailabilities', function (req, res) {
 		i++;
 	}
 	if(typeof valuesObj['FromDate'] != 'undefined') {
-		updateColumns.push('"Date" >= $' + i);
+		updateColumns.push('"FromDate" >= $' + i);
 		values.push(valuesObj['FromDate']);
 		i++;
 	}
 	if(typeof valuesObj['ToDate'] != 'undefined') {
-		updateColumns.push('"Date" <= $' + i);
+		updateColumns.push('"ToDate" <= $' + i);
 		values.push(valuesObj['ToDate']);
 		i++;
 	}
@@ -905,11 +903,11 @@ app.get('/getAvailabilities', function (req, res) {
         var keywordColumns = '(';
         var kwLength = keywordsList.length;
         for(var k = 0; k < kwLength; k++) {
-            var keyword = keywordsList[i];
+            var keyword = keywordsList[i-1];
 
             var likeVal = '';
             if(k > 0) likeVal = ' OR ';
-            likeVal += '("Description" LIKE $' + i + ') OR ("SpaceName" LIKE $' + i + ")";
+            likeVal += '"Description" LIKE $' + i + ' OR "SpaceName" LIKE $' + i;
 
             keywordColumns += likeVal;
             values.push('%' + keyword + '%');
@@ -918,7 +916,6 @@ app.get('/getAvailabilities', function (req, res) {
         keywordColumns += ')';
 
         updateColumns.push(keywordColumns);
-        i++;
     }
     if(valuesObj['price-range']) {
         if(valuesObj['price-range'][0]) {
@@ -937,11 +934,11 @@ app.get('/getAvailabilities', function (req, res) {
         values.push('%' + valuesObj['space-type'] + '%');
         i++;
     }if(valuesObj['fromDate']) {
-        updateColumns.push('"Date" >= $' + i);
+        updateColumns.push('"FromDate" >= $' + i);
         values.push(valuesObj['fromDate']);
         i++;
     }if(valuesObj['toDate']) {
-        updateColumns.push('"Date" <= $' + i);
+        updateColumns.push('"ToDate" <= $' + i);
         values.push(valuesObj['toDate']);
         i++;
     }
@@ -951,8 +948,23 @@ app.get('/getAvailabilities', function (req, res) {
     if(updateColumns.length > 0) {
     	getQuery += ' WHERE ' + updateColumns.join(' AND ');
     }
+
+    if(valuesObj['sort-by']) {
+        getQuery += ' ORDER BY ';
+        if(valuesObj['sort-by'] == 'PLH') {
+            getQuery += '"PricePerDay" ASC';
+        }
+        if(valuesObj['sort-by'] == 'PHL') {
+            getQuery += '"PricePerDay" DESC';
+        }
+        if(valuesObj['sort-by'] == 'MRD') {
+            getQuery += '"FromDate" DESC';
+        }
+    }
+
     getQuery += ';';
     console.log(getQuery);
+    console.log(values);
 
     var getSuccessMessage = 'Successfully retrieved availabilities';
     var getFailedMessage = 'Could not retrieve availabilities';
