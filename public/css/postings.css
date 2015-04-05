@@ -176,3 +176,18 @@ input[type="text"] {
 #available-postings-content {
     float: right;
 }
+
+#title{
+    font-family: AdobeGothic;
+    color: white;
+}
+
+#header{
+    background-color: rgb(101, 188, 138);
+}
+
+.btn.btn-default.navbar-btn{
+    background-color: rgb(101, 188, 138);
+    color: white;
+}
+    
