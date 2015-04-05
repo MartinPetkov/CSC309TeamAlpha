@@ -14,63 +14,64 @@
         <div class="container">
             <div class="bs-docs-grid">
                 <nav class="navbar navbar-default">
-  <div class="container-fluid" id="header">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" id="title">SynergySpace</a>
-    </div>
+                  <div class="container-fluid" id="header">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <!-- strange -->
+                    <div class="navbar-header">
+                      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                      </button>
+                        <a class="navbar-brand" id="title"><i>SynergySpace</i></a>
+                    </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" >
-      <ul class="nav navbar-nav">
-        <form class="navbar-form navbar-left"  action = '/getOwnerSpace' method='GET'>
-            <button class="btn btn-default navbar-btn" type="submit">
-                <span class="glyphicon glyphicon-plus"> <b>Availability</b></span>
-            </button>
-        </form>
-          <form class="navbar-form navbar-left" action = '/getAddSpace' method='GET'>
-            <button type="submit" class="btn btn-default navbar-btn">
-                <span class="glyphicon glyphicon-plus"> <b>Space</b></span>
-            </button>
-        </form>
-        <form class="navbar-form navbar-left" action = '/create-team' method='GET'>
-            <button type="submit" class="btn btn-default navbar-btn">
-                <span class="glyphicon glyphicon-plus"> <b>Team</b></span>
-            </button>
-        </form>
-        <form class="navbar-form navbar-left" action = '/getApplications' method='GET'>
-            <button type="submit" class="btn btn-default navbar-btn">
-                <b> View Applications </b>
-            </button>
-        </form>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-          <form class="navbar-form navbar-right" action = '/' method='GET' >
-            <button type="submit" class="btn btn-success btn-lrg">
-                <span class="glyphicon glyphicon-home"/>
-            </button>
-          </form>
-          <form class="navbar-form navbar-right" action = '/getUserInfo' method='GET' >
-            <button type="submit" class="btn btn-success btn-lrg">
-                <span class="glyphicon glyphicon-user"/>
-            </button>
-          </form>
-          <form class="navbar-form navbar-right" action = '/logout' method='GET' >
-            <button type="submit" class="btn btn-success btn-lrg">
-                <span class="glyphicon glyphicon-log-out"/>
-            </button>
-          </form>
-        
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" >
+                      <ul class="nav navbar-nav">
+                        <form class="navbar-form navbar-left"  action = '/getOwnerSpace' method='GET'>
+                            <button class="btn btn-default navbar-btn" type="submit">
+                                <span class="glyphicon glyphicon-plus"> <b>Availability</b></span>
+                            </button>
+                        </form>
+                          <form class="navbar-form navbar-left" action = '/getAddSpace' method='GET'>
+                            <button type="submit" class="btn btn-default navbar-btn">
+                                <span class="glyphicon glyphicon-plus"> <b>Space</b></span>
+                            </button>
+                        </form>
+                        <form class="navbar-form navbar-left" action = '/create-team' method='GET'>
+                            <button type="submit" class="btn btn-default navbar-btn">
+                                <span class="glyphicon glyphicon-plus"> <b>Team</b></span>
+                            </button>
+                        </form>
+                        <form class="navbar-form navbar-left" action = '/getApplications' method='GET'>
+                            <button type="submit" class="btn btn-default navbar-btn">
+                            View Applications
+                            </button>
+                        </form>
+                      </ul>
+                      <ul class="nav navbar-nav navbar-right">
+                          <form class="navbar-form navbar-right" action = '/' method='GET' >
+                            <button type="submit" class="btn btn-success btn-default navbar-btn">
+                                <span class="glyphicon glyphicon-home"/>
+                            </button>
+                          </form>
+                          <form class="navbar-form navbar-right" action = '/getUserInfo' method='GET' >
+                            <button type="submit" class="btn btn-success btn-default navbar-btn">
+                                <span class="glyphicon glyphicon-user"/>
+                            </button>
+                          </form>
+                          <form class="navbar-form navbar-right" action = '/logout' method='GET' >
+                            <button type="submit" class="btn btn-success btn-default navbar-btn">
+                                <span class="glyphicon glyphicon-log-out"/>
+                            </button>
+                          </form>
+
+                      </ul>
+                    </div><!-- /.navbar-collapse -->
+                  </div><!-- /.container-fluid -->
+                </nav>
                 
                 <div class="row">
                     <div class="col-xs-4">
@@ -183,7 +184,6 @@
                 };
             } ($(btn).attr("spaceId"));
         }
-
         $(function() {
             $("#datepicker-from").datepicker({ dateFormat: 'yy-mm-dd' });
             $("#datepicker-to").datepicker({ dateFormat: 'yy-mm-dd' });

@@ -37,6 +37,54 @@ module.exports = function (app) {
         executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
     });
         
+    app.get('/getTeams?', function (req, res){
+        successMessage = "retrieved teams count";
+        failedMessage = "failed to retrieve teams count";
+        dbQuery = 'SELECT count("TeamName") as "teamCount" FROM "Teams"';
+        executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
+    });
+    
+    app.get('/getAvgTeam?', function (req, res){
+        successMessage = "retrieved avg team";
+        failedMessage = "failed to retrieve avg team";
+        dbQuery = 'SELECT round(avg(count), 2) as "maxTeam" FROM (SELECT count("UserId") as count FROM "TeamMembers" GROUP BY "TeamId") as counts';
+        executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
+    });
+    
+    app.get('/getMaxTeam?', function (req, res){
+        successMessage = "retrieved largest team";
+        failedMessage = "failed to retrieve largest team";
+        dbQuery = 'SELECT round(max(count), 2) as "maxTeam" FROM (SELECT count("UserId") as count FROM "TeamMembers" GROUP BY "TeamId") as counts';
+        executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
+    });
+    
+    app.get('/getAvgMem?', function (req, res){
+        successMessage = "retrieved avg occupancy";
+        failedMessage = "failed to retrieve avg occupancy";
+        dbQuery = 'SELECT round(avg(count), 2) as "avgMem" FROM (SELECT count("TenantId") as count FROM "Leasing" GROUP BY "SpaceId") as counts';
+        executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
+    });
+    
+    app.get('/getMaxMem?', function (req, res){
+        successMessage = "retrieved highest occupancy";
+        failedMessage = "failed to retrieve highest occupancy";
+        dbQuery = 'SELECT round(max(count), 2) as "maxMem" FROM (SELECT count("TenantId") as count FROM "Leasing" GROUP BY "SpaceId") as counts';
+        executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
+    });
+    
+    app.get('/getAvgCrtn?', function (req, res){
+        successMessage = "retrieved avg # of spaces created";
+        failedMessage = "failed to retrieve avg # of spaces created";
+        dbQuery = 'SELECT round(avg(count), 2) as "avgCrtn" FROM (SELECT count("SpaceId") as count FROM "Space" GROUP BY "OwnerId") as counts';
+        executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
+    });
+    
+    app.get('/getMaxCrtn?', function (req, res){
+        successMessage = "retrieved max # of spaces created";
+        failedMessage = "failed to retrieve max # of spaces created";
+        dbQuery = 'SELECT round(max(count), 2) as "maxCrtn" FROM (SELECT count("SpaceId") as count FROM "Space" GROUP BY "OwnerId") as counts';
+        executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
+    });
     
     function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, results_handler) {
         var client = new pg.Client(conString);
