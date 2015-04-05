@@ -602,6 +602,7 @@ function renderSpaceInfo(spaceResult, res, req) {
         query.on('end', function () {
             client.end();
 			console.log(result.rows);
+			client.end();
 			res.render('space-info.html', {spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
 			//res.end();
 		});
