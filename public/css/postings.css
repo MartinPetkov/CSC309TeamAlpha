@@ -131,10 +131,43 @@ span.display{
 
 .available-spaces-background {
     background-color: rgb(168, 206, 160);
-    
+    padding-right: 0px;
+    margin-right: 0px;
+    padding-bottom: 10px;
 }
 .add-availability{
     width:100%;
     min-width: 100px;
     position: relative;
+    white-space: normal;
+    text-align: left;
+}
+
+.filter-textbox {
+    margin-left: 0px;
+    font-size: 15px;
+    width: 100%;
+}
+
+hr {
+    border-color: green;
+}
+
+input[name="price-range"] {
+    width: 70px;
+    display: inline-block;
+    padding: 0px;
+    padding-left: 5px;
+}
+
+#from-price {
+    margin-right: 5px;
+}
+
+#to-price {
+    margin-left: 5px;
+}
+
+input[type="text"] {
+    width: 100%
 }
