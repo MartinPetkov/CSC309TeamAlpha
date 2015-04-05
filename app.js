@@ -12,7 +12,7 @@ var fs = require('fs');
 var sanitizer = require('sanitizer');
 
 
-var SPACE_TYPES = [
+SPACE_TYPES = [
     'Office',
     'Loft',
     'Apartment',
@@ -20,7 +20,7 @@ var SPACE_TYPES = [
     'Dungeon',
     'Asteroid',
     'Manos\' Nomad Outpost'
-]
+];
 
 var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
 
@@ -372,31 +372,6 @@ function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
         });
     });
 }
-/*function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
-	var ownerResult = [];
-	var isOwner = false;
-	var client = new pg.Client(conString);
-    
-    var getRatingQuery = 'SELECT * FROM "SpaceRating" WHERE "UserId"= $1 AND "SpaceId"= $2';
-	client.connect(function(err, done){
-		if (err){
-			res.send('sorry, there was an connection error', err);
-		}
-		var ownerQuery = client.query('Select * FROM "Space" WHERE "OwnerId"=$1',[user]);
-		ownerQuery.on('error', function(err){
-			res.send('Query Error ' + err);
-		});
-		ownerQuery.on('row', function(row){
-			ownerResult.push(row);
-			isOwner = true;
-		});
-		ownerQuery.on('end', function(){
-			client.end();
-			res.render('profile.html', {profile:profileResult, opt:opt, tennantSpace:tSpace, ownerSpace:ownerResult,Owner:isOwner});
-			res.end();
-		});
-	});
-};*/
 
 /* Helper function: Callback for viewing another user's info
    Gets info about the spaces they are leasing */
@@ -1151,7 +1126,7 @@ app.get('/getAvailabilities', function (req, res) {
     if(valuesObj['keywords']) {
         // Trip spaces
         var keywordsList = valuesObj['keywords'].replace(/^\s+|\s+$/g, '');
-        keywordsList = keywordsList.replace(/ +/g, ',').split(',');
+        keywordsList = keywordsList.replace(/( *, *)|( +)/g, ',').split(',');
         console.log(keywordsList);
 
         var keywordColumns = '(';

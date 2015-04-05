@@ -76,7 +76,14 @@ input[type=checkbox] {
     margin-right: 5px;
 }
 
+#add-space-types {
+    width: 100%;
+    padding-left: 5px;
+    margin-top: 0px;
+}
+
 #leasing {
+    width: 100%;
     margin-top: 0px;
     padding: 15px;
     font-family: helvetica;
