@@ -1212,11 +1212,11 @@ app.get('/getAvailabilities', function (req, res) {
         getQuery += ' ORDER BY ';
         if(valuesObj['sort-by'] == 'PLH') {
             getQuery += '"PricePerDay" ASC';
-        }
-        if(valuesObj['sort-by'] == 'PHL') {
+        } else if(valuesObj['sort-by'] == 'PHL') {
             getQuery += '"PricePerDay" DESC';
-        }
-        if(valuesObj['sort-by'] == 'MRD') {
+        } else if(valuesObj['sort-by'] == 'FDA') {
+            getQuery += '"FromDate" ASC';
+        } else if(valuesObj['sort-by'] == 'FDD') {
             getQuery += '"FromDate" DESC';
         }
     }
