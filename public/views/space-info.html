@@ -61,7 +61,7 @@
         
         <div style="text-align:center">
         <!-- Reputation of the Space -->
-         <% if(currentUser == 'true'){%>
+         <% if(currentUser == true){%>
 
             Your rating:
              <form action = '/addUpdateRating' method='POST'>
@@ -110,6 +110,10 @@
 <!-- Team Bar -->
 <div class="team">
     <h4>Teams:</h4>
+		<% for(i = 0; i < teamsInfo.length; i++){%>
+			<%=teamsInfo[i].TeamName%>
+			
+		<%}%>
 </div>
 
 <!-- Property Information -->

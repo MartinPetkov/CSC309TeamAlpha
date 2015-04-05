@@ -550,11 +550,46 @@ app.get('/space-info.html', function (req, res) {
 
 
 // Helper function: Renders for space-info.html GET
-function renderSpaceInfo(result, res, req) {
-    res.render('space-info.html', {spaceInfo: result.rows[0], currentUser: req.session.joined, user:req.session.uid});
-    res.end();
+function renderSpaceInfo(spaceResult, res, req) {
+	var client = new pg.Client(conString),
+        result = [],
+        dbQuery = 'SELECT * FROM "Space" NATURAL JOIN "Teams" WHERE "SpaceId"=$1';
+	var spaceId = spaceResult.rows[0].SpaceId;
+    
+    client.connect(function (err, done) {
+        /* Unable to connect to postgreSQL server */
+        if (err) {
+            res.writeHead(500);
+            console.log('Unable to connect to database');
+        }
+        
+        var query = client.query(dbQuery, [spaceId], function(err, result){});
+        console.log("InsertQuery");
+
+        /* Unable to connect to database */
+        query.on('error', function (err) {
+            res.send('Query Error ' + err);
+        });
+        
+        query.on('row', function (row) {
+            result.push(row);
+        });
+
+        // Update Applications
+        query.on('end', function () {
+			console.log(result.rows);
+			res.render('space-info.html', {spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
+			//res.end();
+		});
+		
+	});
+  
 };
 
+app.get('/getTeam:id?'function(req, res){
+	var teamId = req.params.id;
+	
+});
 
 //Post for space occupation application, enters request in the "Applications" Table 
 app.post('/apply-space', function(req, res){
