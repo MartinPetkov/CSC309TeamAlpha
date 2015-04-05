@@ -923,7 +923,7 @@ app.get('/getAvailabilities', function (req, res) {
     if(valuesObj['keywords']) {
         // Trip spaces
         var keywordsList = valuesObj['keywords'].replace(/^\s+|\s+$/g, '');
-        keywordsList = keywordsList.replace(/ +/g, ',').split(',');
+        keywordsList = keywordsList.replace(/( *, *)|( +)/g, ',').split(',');
         console.log(keywordsList);
 
         var keywordColumns = '(';
