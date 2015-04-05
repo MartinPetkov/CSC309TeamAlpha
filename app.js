@@ -832,8 +832,17 @@ app.get('/getAvailabilities', function (req, res) {
     var valuesObj = {
 		'SpaceId': req.get('spaceId'),
     	'FromDate': req.get('fromDate'),
-    	'ToDate': req.get('toDate')
+    	'ToDate': req.get('toDate'),
+
+        'keywords': req.query['keywords'],
+        'price-range': req.query['price-range'],
+        'space-type': req.query['space-type'],
+        'fromDate': req.query['fromDate'],
+        'toDate': req.query['toDate'],
+        'sort-by': req.query['sort-by']
 	};
+
+    console.log(valuesObj);
 
     var updateColumns = [];
     var values = [];
@@ -855,11 +864,64 @@ app.get('/getAvailabilities', function (req, res) {
 		values.push(valuesObj['ToDate']);
 		i++;
 	}
+
+    if(valuesObj['keywords']) {
+        // Trip spaces
+        var keywordsList = valuesObj['keywords'].replace(/^\s+|\s+$/g, '');
+        keywordsList = keywordsList.replace(/ +/g, ',').split(',');
+        console.log(keywordsList);
+
+        var keywordColumns = '(';
+        var kwLength = keywordsList.length;
+        for(var k = 0; k < kwLength; k++) {
+            var keyword = keywordsList[i];
+
+            var likeVal = '';
+            if(k > 0) likeVal = ' OR ';
+            likeVal += '("Description" LIKE $' + i + ') OR ("SpaceName" LIKE $' + i + ")";
+
+            keywordColumns += likeVal;
+            values.push('%' + keyword + '%');
+            i++;
+        }
+        keywordColumns += ')';
+
+        updateColumns.push(keywordColumns);
+        i++;
+    }
+    if(valuesObj['price-range']) {
+        if(valuesObj['price-range'][0]) {
+            updateColumns.push('"PricePerDay" >= $' + i);
+            values.push(valuesObj['price-range'][0]);
+            i++;
+        }
+        if(valuesObj['price-range'][1]) {
+            updateColumns.push('"PricePerDay" <= $' + i);
+            values.push(valuesObj['price-range'][1]);
+            i++;
+        }
+    }
+    if(valuesObj['space-type']) {
+        updateColumns.push('"SpaceType" LIKE $' + i);
+        values.push('%' + valuesObj['space-type'] + '%');
+        i++;
+    }if(valuesObj['fromDate']) {
+        updateColumns.push('"Date" >= $' + i);
+        values.push(valuesObj['fromDate']);
+        i++;
+    }if(valuesObj['toDate']) {
+        updateColumns.push('"Date" <= $' + i);
+        values.push(valuesObj['toDate']);
+        i++;
+    }
     //var getQuery = 'SELECT * FROM "Availability";
+
     var getQuery = 'SELECT * FROM "Availability" NATURAL JOIN "Space"';
     if(updateColumns.length > 0) {
     	getQuery += ' WHERE ' + updateColumns.join(' AND ');
     }
+    getQuery += ';';
+    console.log(getQuery);
 
     var getSuccessMessage = 'Successfully retrieved availabilities';
     var getFailedMessage = 'Could not retrieve availabilities';
