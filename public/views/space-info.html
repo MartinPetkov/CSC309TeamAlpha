@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Space Information | SynergySpace</title>
-  <meta charset="utf-8">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <title>Space Information | SynergySpace</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="space-info.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script src="num.js" type="text/javascript">
-
-</script>
-<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
-<link href="//code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="num.js" type="text/javascript"></script>
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <link href="//code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
 </head>
+    
 <body>
-
 <div class="container">
     <div class="bs-docs-grid">
         <div class="row show-grid">
@@ -59,47 +57,64 @@
             <span class="glyphicon glyphicon-picture" />
         </div>
         
-        <div style="text-align:center">
         <!-- Reputation of the Space -->
-         <% if(currentUser == 'true'){%>
-
-            Your rating:
-             <form action = '/addUpdateRating' method='POST'>
-                <input type="hidden" name="spaceId" value=<%=spaceInfo.SpaceId%> >
-                <button onclick="window.location.reload()" name="rating" value=1>
-                    <%if (spaceInfo.likedislike == 1) { %>
-                        <span class="glyphicon glyphicon-thumbs-up glow" />     
-                    <% } else { %>
-                        <span class="glyphicon glyphicon-thumbs-up" />
-                    <% } %>
-                    
-                </button>
-                <button onclick="window.location.reload()" name="rating" value=0>
-                    <%if (spaceInfo.likedislike == 0) { %>
-                        <span class="glyphicon glyphicon-thumbs-down glow" />   
-                    <% } else { %>
-                        <span class="glyphicon glyphicon-thumbs-down" />
-                    <% } %>
-                    
-                </button>
-            </form>
-            
-        <% } %>
-        </div>
+        <div id="rating" style="text-align:center">
+            <% if(currentUser == 'true'){%>
+                Your rating:
+                <form action = '/addUpdateRating' method='POST'>
+                    <input type="hidden" name="spaceId" value=<%=spaceInfo.SpaceId%> >
+                    <button onclick="window.location.reload()" name="rating" value=1>
+                        <%if (spaceInfo.likedislike == 1) { %>
+                            <span class="glyphicon glyphicon-thumbs-up glow" />     
+                        <% } else { %>
+                            <span class="glyphicon glyphicon-thumbs-up" />
+                        <% } %>
+                    </button>
+                    <button onclick="window.location.reload()" name="rating" value=0>
+                        <%if (spaceInfo.likedislike == 0) { %>
+                            <span class="glyphicon glyphicon-thumbs-down glow" />   
+                        <% } else { %>
+                            <span class="glyphicon glyphicon-thumbs-down" />
+                        <% } %>
+                    </button>
+                </form>
+            <% } %>
+			<input type="hidden" id="spaceId" value= <%=spaceInfo.SpaceId %>>
+			<input type="hidden" id="user" value= <%=user%>>
+			 <script>
+				$(document).ready(function() {
+					var spaceId = document.getElementById("spaceId").value;
+					var user = document.getElementById("user").value;
+					var link = '/getUserLeaseInfo/?spaceId=' + spaceId+'&user='+user;
+					$.ajax({
+						url: link, //the URL to your node.js server that has data
+						dataType: 'json',
+					}).done(function(data){
+						//window.alert(JSON.stringify(data));
+						var output = '';
+						if(data.results.length==0){
+							output += '';  
+							document.getElementById('rating').innerHTML = output;
+						}
+					}); 
+				});
+			</script>
+        </div> <!-- End Reputation of the Space -->
+                            
         <div class="center">
-		<form action = '/apply-space' method='POST'>
-			<input type="hidden" name="uid" value=<%=user%> >
-			<input type="hidden" name="spaceId" value=<%=spaceInfo.SpaceId%>>
-			<input type="text" name="fromDate" id="fromDate" placeholder="From Date">
-			<input type="text" name="toDate" id="toDate" placeholder="To Date">
-			<button type="submit" class="btn btn-success btn-lrg add-availability">
-				<span class="glyphicon glyphicon-plus"> <b> Apply </b></span>
-			</button>
-			
-		</form>	
+            <form action = '/apply-space' method='POST'>
+                <input type="hidden" name="uid" value=<%=user%> >
+                <input type="hidden" name="spaceId" value=<%=spaceInfo.SpaceId%>>
+                <input type="text" name="fromDate" id="fromDate" placeholder="From Date">
+                <input type="text" name="toDate" id="toDate" placeholder="To Date">
+                <button type="submit" class="btn btn-success btn-lrg add-availability">
+                    <span class="glyphicon glyphicon-plus"> <b> Apply </b></span>
+                </button>
+            </form>	
         </div>    
     </div>
 </div>
+                            
 <br><br><br><br>
 
 <!-- Owner Bar -->
@@ -132,17 +147,14 @@
         });
     </script>
 </div>
- <h4>Members:</h4>
+
+<!-- Members Bar -->
+<h4>Members:</h4>
 <%if(occupying){%> <!-- Only display members info if they are joined -->
 	
     <div id="people">
-
         <% if(currentUser == 'true'){%>
-         
             <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
-            <script>
-                ajaxCall();
-            </script>
             <script>
                 $(document).ready(function() {
                     var spaceId = document.getElementById("spaceid").value;
@@ -152,56 +164,46 @@
                         dataType: 'json',
                     }).done(function(data){
                         var output = '';
-                        //window.alert(JSON.stringify(data));
-
                         for (i = 0; i < data.results.length; i++) { 
                             output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  
                         }
                         document.getElementById('people').innerHTML = output;
                     }); 
                 });
-
             </script>
-
         <%}%>
-    </div>            
+    </div>
+            
  <%} else { %>
-	<div id="people">
-     <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
-     <script>
-        $(document).ready(function() {
-            var spaceId = document.getElementById("spaceid").value;
-            var link = '/isOwner/?spaceId=' + spaceId;
-            $.ajax({
-                url: link, //the URL to your node.js server that has data
-                dataType: 'json',
-            }).done(function(data){
-                window.alert(JSON.stringify(data));
-                if (data.results[0].length != 0) {
-                    window.alert(JSON.stringify(data));
-                    
-                    
-                    
-                    $(document).ready(function() {
-                        var spaceId = document.getElementById("spaceid").value;
-                        var link = '/getAllSpaceUserInfo/?spaceId=' + spaceId;
-                        $.ajax({
-                            url: link, //the URL to your node.js server that has data
-                            dataType: 'json',
-                        }).done(function(data){
-                            var output = '';
-                            //window.alert(JSON.stringify(data));
-
-                            for (i = 0; i < data.results.length; i++) { 
-                                output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  
-                            }
-                            document.getElementById('people').innerHTML = output;
-                        }); 
-                    });
-                }
-            }); 
-        });
-     </script>     
+     <div id="people">
+         <input type="hidden" id="spaceid" value= <%=spaceInfo.SpaceId %>>
+         <script>
+            $(document).ready(function() {
+                var spaceId = document.getElementById("spaceid").value;
+                var link = '/isOwner/?spaceId=' + spaceId;
+                $.ajax({
+                    url: link, //the URL to your node.js server that has data
+                    dataType: 'json',
+                }).done(function(data){
+                    if (data.results[0].length != 0) {
+                        $(document).ready(function() {
+                            var spaceId = document.getElementById("spaceid").value;
+                            var link = '/getAllSpaceUserInfo/?spaceId=' + spaceId;
+                            $.ajax({
+                                url: link, //the URL to your node.js server that has data
+                                dataType: 'json',
+                            }).done(function(data){
+                                var output = '';
+                                for (i = 0; i < data.results.length; i++) { 
+                                    output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  
+                                }
+                                document.getElementById('people').innerHTML = output;
+                            }); 
+                        });
+                    }
+                }); 
+            });
+         </script>     
 	 </div>
 <% } %>
 
