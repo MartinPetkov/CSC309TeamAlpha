@@ -12,7 +12,7 @@ var fs = require('fs');
 var sanitizer = require('sanitizer');
 
 
-SPACE_TYPES = [
+var SPACE_TYPES = [
     'Office',
     'Loft',
     'Apartment',
@@ -20,7 +20,7 @@ SPACE_TYPES = [
     'Dungeon',
     'Asteroid',
     'Manos\' Nomad Outpost'
-];
+]
 
 var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
 
@@ -38,16 +38,18 @@ app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
 var logout = require("./routes/logout")(app),
-    login = require("./routes/login")(app);
-    admin = require("./routes/admin")(app);
+    login = require("./routes/login")(app),
+    admin = require("./routes/admin")(app),
+    likedislike = require("./routes/likedislike")(app),
+    profile = require("./routes/profile")(app);
 
 
 /* Home page */
 // Redirects user to log in page if they are signed in
 app.get('/', function (req, res) {
-	if (req.session.user) {
+    if (req.session.user) {
         res.redirect('/postings.html');
-	} else {
+    } else {
         res.sendFile('./public/views/intro.html', {root:__dirname});
     }
 });
@@ -59,24 +61,24 @@ app.get('/getSpaceTypesGlobalVar', function (req, res) {
 
 /* Sign up page */
 app.get('/signup.html', function (req, res) {
-	res.render('signup.html');
+    res.render('signup.html');
 });
 
 
 
 /* User Profile Viewing */
 app.get('/user:id?', function (req, res) {
-	var id = req.params.id;
-	var dbQuery = 'SELECT ("Email", "HomeLocation", "Reputation", "About", "ProjectInterests", "FirstName", "LastName") FROM "User" WHERE "UserId"=$1';
-	var successMessage = 'User Succesfully Retreived';
-	var failedMessage = 'User Not Retreived';
-	res.send(id);
+    var id = req.params.id;
+    var dbQuery = 'SELECT ("Email", "HomeLocation", "Reputation", "About", "ProjectInterests", "FirstName", "LastName") FROM "User" WHERE "UserId"=$1';
+    var successMessage = 'User Succesfully Retreived';
+    var failedMessage = 'User Not Retreived';
+    res.send(id);
 
 });
 
 /* Main Menu - List of all postings */
 app.get('/postings.html', function (req, res) {
-	// Postings is actually handled by get_availability function
+    // Postings is actually handled by get_availability function
 
     if (req.session.user) {
         res.redirect('/getAvailabilities');
@@ -97,7 +99,6 @@ app.get('/getOwnerSpace', function (req, res) {
         var getQuery = 'SELECT * FROM "Space" WHERE "OwnerId" = $1';
         var getSuccessMessage = 'Successfully retrieved all owner spaceIDs';
         var getFailedMessage = 'Could not retrieve owner space info';
-        //console.log('In owner space');
         executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, renderOwnerSpace);
     } else {
         res.redirect('/');
@@ -123,9 +124,9 @@ app.post('/addUser', function (req, res) {
     values.push(sha1(req.body.password));
     values.push(req.body.homeLocation);
 
-	// Place holder Reputation
+    // Place holder Reputation
     values.push(0);
-	// Place holder for about and project Interests
+    // Place holder for about and project Interests
     values.push(" ");
     values.push(" ");
 
@@ -138,9 +139,9 @@ app.post('/addUser', function (req, res) {
     var insertFailedMessage = 'Failed to insert user';
     executeQuery(res,req, insertSuccessMessage, insertFailedMessage, insertQuery, values, redirectToPostings);
 
-	// Log the User's email in the session
-	// We log their UserId in execute-query (admittedly not the prettiest)
-	req.session.user = req.body.email;
+    // Log the User's email in the session
+    // We log their UserId in execute-query (admittedly not the prettiest)
+    req.session.user = req.body.email;
 });
 
 function redirectToPostings(result, res, req) {
@@ -152,35 +153,35 @@ function redirectToPostings(result, res, req) {
 
 // Update user info
 app.post('/updateUserInfo', function (req, res) {
-	//Get necessary values from form and session
-	var userEmail = req.session.user;
-	var valuesObj = {
-    	'FirstName': req.body.firstName,
-    	'LastName': req.body.lastName,
+    //Get necessary values from form and session
+    var userEmail = req.session.user;
+    var valuesObj = {
+        'FirstName': req.body.firstName,
+        'LastName': req.body.lastName,
 
         /* TBC IN PHASE 4 */
-    	/* 'Email': userEmail,
-    	   'Password': sha1(req.body.password),
-		   'Password': req.body.password, */
-    	'HomeLocation': req.body.homeLocation,
-    	'Reputation': req.body.reputation,
-    	'About': req.body.about,
-    	'ProjectInterests': req.body.projectInterests
-	};
+        /* 'Email': userEmail,
+           'Password': sha1(req.body.password),
+           'Password': req.body.password, */
+        'HomeLocation': req.body.homeLocation,
+        'Reputation': req.body.reputation,
+        'About': req.body.about,
+        'ProjectInterests': req.body.projectInterests
+    };
     // No photo yet, don't wanna deal with that
 
     var updateColumns = [];
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-		//console.log('looking at property '+property + ' value = '+valuesObj[property]);
-    	if((valuesObj.hasOwnProperty(property))
-    		&& (typeof valuesObj[property] != 'undefined')) {
+        //console.log('looking at property '+property + ' value = '+valuesObj[property]);
+        if((valuesObj.hasOwnProperty(property))
+            && (typeof valuesObj[property] != 'undefined')) {
 
-    		updateColumns.push('"' + property + '" = $' + i);
-    		values.push(valuesObj[property]);
-    		i++;
-    	}
+            updateColumns.push('"' + property + '" = $' + i);
+            values.push(valuesObj[property]);
+            i++;
+        }
     }
     values.push(userEmail);
     var updateQuery = 'UPDATE "User" SET ' + updateColumns.join(', ') + ' WHERE "Email"=$' + (updateColumns.length + 1);
@@ -193,8 +194,8 @@ app.post('/updateUserInfo', function (req, res) {
 
 // Helper function: Callback for updateUserInfo post, just redirects to userProfile
 function update_userInfo(result, res, req){
-	res.redirect('/getUserInfo');
-	res.end();
+    res.redirect('/getUserInfo');
+    res.end();
 }
 
 // Get all users
@@ -207,28 +208,7 @@ app.get('/getAllUsers', function (req, res) {
 });
 
 
-/* Get user info
-   This one has the specific function of being for viewing only YOUR info (including spaces)
-   And allowing the user to change their information
-   If no ID is provided, the app assumes you are trying to view/change your info */
-app.get('/getUserInfo', function (req, res) {
-    var values = [];
 
-	// Check if user is logged in
-	 if (req.session.user) {
-		// User is logged in, do queries
-        values.push(req.session.user);
-		var getQuery = 'SELECT * FROM "User" WHERE "Email" = $1';
-
-		var getSuccessMessage = 'Successfully retrieved user info';
-		var getFailedMessage = 'Could not retrieve user info';
-		executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, get_thisUserInfo);
-
-	// If not redirect to home page
-    } else {
-        res.redirect('/');
-    }
-});
 
 // Pls don't modify this function, we need some way to get simple data rather than a web page as the result
 app.get('/getUserInfoPlain:id?', function(req, res){
@@ -244,316 +224,136 @@ app.get('/getUserInfoPlain:id?', function(req, res){
 
 });
 
-/* This getUserInfo is for when a user wants to view another user's info
-   Just displays their basic user info and spaces
-   So user's cant edit other user's info */
-app.get('/getUserInfo:id?', function(req, res){
-	var values = [];
-	var id = req.params.id;
-	//values.push(req.get('userId'));
-	values.push(id);
-	var getQuery = 'SELECT * FROM "User" WHERE "UserId" = $1';
-
-	var getSuccessMessage = 'Successfully retrieved user info';
-	var getFailedMessage = 'Could not retrieve user info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, get_userInfo);
-
-});
-
-/* Helper function: Callback for getting/changing your own user info
-   There is another callback for viewing another users info and they both
-   converge on getting the info about spaces the user owns
-   Gets info about the spaces they are leasing */
-function get_thisUserInfo(result, res, req){
-	var spaceResult =[];
-	var currUser = req.session.uid;
-	var client = new pg.Client(conString);
-	var currSpace = '';
-	client.connect(function (err, done) {
-		if (err) {
-			return console.error('could not connect to postgres', err);
-			res.send('sorry, there was an error', err);
-		}
-
-		//Find the info on spaces the user is currently leasing
-	    var query = client.query('SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId"=$1', [currUser]);
-		query.on('error', function (err) {
-            res.send('Query Error ' + err);
-        });
-
-		var spaceFound = false;
-        query.on('row', function (row) {
-            spaceFound = true;
-			currSpace = row.SpaceId;
-			spaceResult.push(row);
-		});
-
-        query.on('end', function () {
-			//If the user is occupying a space
-			if (spaceFound){
-				client.end();
-				var opt = {currUser:true,spaceFound:true};
-
-				//Pass info on spaces user is currently leasing to convergent get_userOwnerInfo
-				get_userOwnerInfo(res, req, result.rows, spaceResult, opt, currUser);
-
-			}else{
-				//The user is not occupying a space
-				client.end();
-				var opt = {currUser:true,spaceFound:false};
-
-				//Pass info on spaces user is currently leasing to convergent get_userOwnerInfo
-				get_userOwnerInfo(res, req, result.rows, [], opt, currUser);
-
-			}
-		});
-	});
-}
-
-/* Helper function: Both callbacks for getting your user info and getting someones else user info converge
-   here, this is where we actually render the page with all the relevant data
-   This is also where we get info on spaces the user owns */
-
-function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
-	var ownerResult = [],
-        result = [];
-	var isOwner = false;
-	var client = new pg.Client(conString);
-    
-    var getRatingQuery = 'SELECT * FROM "UserRating" WHERE "UserId"= $1 AND "FriendUserId"= $2';
-    
-    
-    client.connect(function(err, done){
-        if (err){
-			res.send('sorry, there was an connection error', err);
-		}
-        
-		var query = client.query(getRatingQuery,[req.session.uid, user]);
-		query.on('error', function(err){
-			res.send('Query Error ' + err);
-		});
-        
-        query.on('row', function(row){
-			result.push(row);
-		});
-        query.on('end', function(){
-			client.end();
-    
-            var currentRating;
-            if (typeof result[0] == 'undefined') {
-                console.log('empty');
-                currentRating = null;
-            } else {
-                console.log(result.rows);
-                currentRating = result[0].LikeDislike;
-            }
-            console.log('Rating: ' + currentRating);
-            
-            var client2 = new pg.Client(conString);
-            client2.connect(function(err, done){
-                if (err){
-                    res.send('sorry, there was an connection error', err);
-                }
-                var ownerQuery = client2.query('Select * FROM "Space" WHERE "OwnerId"=$1',[user]);
-                ownerQuery.on('error', function(err){
-                    res.send('Query Error ' + err);
-                });
-                ownerQuery.on('row', function(row){
-                    ownerResult.push(row);
-                    isOwner = true;
-                });
-                ownerQuery.on('end', function(){
-                    client2.end();
-                    console.log('owner space likedislike: ' + ownerResult.likedislike);
-                    res.render('profile.html', {profile:profileResult, opt:opt, tennantSpace:tSpace, ownerSpace:ownerResult,Owner:isOwner, likedislike: currentRating});
-                    res.end();
-                });
-            });
-        });
-    });
-}
-
-/* Helper function: Callback for viewing another user's info
-   Gets info about the spaces they are leasing */
-function get_userInfo(result, res, req){
-	//var currEmail = req.session.email;
-	var viewUser = result.rows[0].UserId;
-	//console.log('get user info func');
-	//var opt = {currUser:false};
-	var spaceResult = [];
-	var client = new pg.Client(conString);
-	var currSpace = '';
-	client.connect(function (err, done) {
-		if (err) {
-			return console.error('could not connect to postgres', err);
-			res.send('sorry, there was an error', err);
-		}
-	    var query = client.query('SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId"=$1', [viewUser]);
-		query.on('error', function (err) {
-            res.send('Query Error ' + err);
-        });
-
-		var spaceFound = false;
-        query.on('row', function (row) {
-            spaceFound = true;
-			currSpace = row.SpaceId;
-			spaceResult.push(row);
-			//console.log('row push ' + row.SpaceId);
-			//console.log(row);
-			//console.log('space result immediately post push ' + spaceResult);
-		});
-		query.on('end', function(){
-			if (spaceFound){
-				var opt = {currUser:false,spaceFound:true};
-				//console.log('result.rows '+ result.rows);
-				//console.log('space result.rows ' + spaceResult);
-				client.end();
-				get_userOwnerInfo(res, req, result.rows,spaceResult,opt, viewUser);
 
 
-			}else{
-				//The user is not occupying a space
-				client.end();
-				var opt = {currUser:false,spaceFound:false};
-				//console.log('No Space found');
-				get_userOwnerInfo(res, req, result.rows,[],opt, viewUser);
-				//res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
-				//res.end();
-			}
-		});
-    });
-	//console.log('looking at user with id '+ result.rows[0].UserId);
-	//res.render('profile.html', {profile:result.rows, opt:opt});
-	//res.end();
-}
 
 
 //Get all user occupying this space AJAX
 app.get('/getAllSpaceUserInfo', function(req, res){
     console.log('here in getallspaceuserinfo');
-	var values = [];
+    var values = [];
     if(typeof req.query.spaceId == 'undefined') {
         res.end();
     }
-	var id = req.query.spaceId;
-	//values.push(req.get('userId'));
-	values.push(id);
-	var getQuery = 'SELECT * FROM "Leasing" JOIN "User" ON "Leasing"."TenantId" = "User"."UserId" WHERE "SpaceId" = $1';
+    var id = req.query.spaceId;
+    //values.push(req.get('userId'));
+    values.push(id);
+    var getQuery = 'SELECT * FROM "Leasing" JOIN "User" ON "Leasing"."TenantId" = "User"."UserId" WHERE "SpaceId" = $1';
 
     console.log(req.query.id);
-	var getSuccessMessage = 'Successfully retrieved user info';
-	var getFailedMessage = 'Could not retrieve user info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully retrieved user info';
+    var getFailedMessage = 'Could not retrieve user info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
 //Get all teams associated to this space AJAX
 app.get('/getAllSpaceTeamInfo', function(req, res){
     console.log('here in getallspaceteaminfo with id = '+req.query.spaceId);
-	var values = [];
+    var values = [];
     if(typeof req.query.spaceId == 'undefined') {
         res.end();
     }
-	var id = req.query.spaceId;
-	//values.push(req.get('userId'));
-	values.push(id);
-	var getQuery = 'SELECT * FROM "Space" NATURAL JOIN "Teams" WHERE "SpaceId" = $1';
+    var id = req.query.spaceId;
+    //values.push(req.get('userId'));
+    values.push(id);
+    var getQuery = 'SELECT * FROM "Space" NATURAL JOIN "Teams" WHERE "SpaceId" = $1';
 
     console.log(id);
-	var getSuccessMessage = 'Successfully retrieved Team info';
-	var getFailedMessage = 'Could not retrieve Team info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully retrieved Team info';
+    var getFailedMessage = 'Could not retrieve Team info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
 //Get all members associated to this team AJAX
 app.get('/getAllTeamMemberInfo', function(req, res){
     console.log('here in get all team member info with team id = '+req.query.teamId);
-	var values = [];
+    var values = [];
     if(typeof req.query.teamId == 'undefined') {
         res.end();
     }
-	var id = req.query.teamId;
-	//values.push(req.get('userId'));
-	values.push(id);
-	var getQuery = 'SELECT * FROM "TeamMembers" NATURAL JOIN "User" WHERE "TeamId" = $1';
+    var id = req.query.teamId;
+    //values.push(req.get('userId'));
+    values.push(id);
+    var getQuery = 'SELECT * FROM "TeamMembers" NATURAL JOIN "User" WHERE "TeamId" = $1';
 
     console.log(id);
-	var getSuccessMessage = 'Successfully retrieved team member  info';
-	var getFailedMessage = 'Could not retrieve team member info';
-	executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully retrieved team member  info';
+    var getFailedMessage = 'Could not retrieve team member info';
+    executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
 //Get Lease info about specific User and Space
 app.get('/getUserLeaseInfo', function(req, res){
     console.log('here in getUserLeaseInfo');
-	var values = [];
+    var values = [];
     if(typeof req.query.spaceId == 'undefined') {
-		console.log('no spaceId');
+        console.log('no spaceId');
         res.end();
     }
-	if(typeof req.query.user == 'undefined') {
-		console.log('no user');
+    if(typeof req.query.user == 'undefined') {
+        console.log('no user');
         res.end();
     }
-	var id = req.query.spaceId;
-	var user = req.query.user;
-	//values.push(req.get('userId'));
-	values.push(id);
-	values.push(user);
-	var getQuery = 'SELECT * FROM "Leasing" WHERE "SpaceId" = $1 AND "TenantId"=$2';
+    var id = req.query.spaceId;
+    var user = req.query.user;
+    //values.push(req.get('userId'));
+    values.push(id);
+    values.push(user);
+    var getQuery = 'SELECT * FROM "Leasing" WHERE "SpaceId" = $1 AND "TenantId"=$2';
 
     console.log('values for getUserLEaseInfo '+id + ' '+user);
-	var getSuccessMessage = 'Successfully retrieved user Lease info';
-	var getFailedMessage = 'Could not retrieve user Lease info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully retrieved user Lease info';
+    var getFailedMessage = 'Could not retrieve user Lease info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
 //Get Team info about specific User and Team
 app.get('/getUserTeamInfo', function(req, res){
     console.log('here in getUserLeaseInfo');
-	var values = [];
+    var values = [];
     if(typeof req.query.teamId == 'undefined') {
-		console.log('no teamId');
+        console.log('no teamId');
         res.end();
     }
-	if(typeof req.query.user == 'undefined') {
-		console.log('no user');
+    if(typeof req.query.user == 'undefined') {
+        console.log('no user');
         res.end();
     }
-	var id = req.query.teamId;
-	var user = req.query.user;
-	//values.push(req.get('userId'));
-	values.push(id);
-	values.push(user);
-	var getQuery = 'SELECT * FROM "TeamMembers" WHERE "TeamId" = $1 AND "UserId"=$2';
+    var id = req.query.teamId;
+    var user = req.query.user;
+    //values.push(req.get('userId'));
+    values.push(id);
+    values.push(user);
+    var getQuery = 'SELECT * FROM "TeamMembers" WHERE "TeamId" = $1 AND "UserId"=$2';
 
     console.log('values for getUserLEaseInfo '+id + ' '+user);
-	var getSuccessMessage = 'Successfully retrieved user Lease info';
-	var getFailedMessage = 'Could not retrieve user Lease info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully retrieved user Lease info';
+    var getFailedMessage = 'Could not retrieve user Lease info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
 //Get Team info about this
 app.get('/getUserTeams', function(req, res){
     console.log('here in getUserTeams');
-	var values = [];
-	if(typeof req.query.user == 'undefined') {
-		console.log('no user');
+    var values = [];
+    if(typeof req.query.user == 'undefined') {
+        console.log('no user');
         res.end();
     }
-	var user = req.query.user;
-	//values.push(req.get('userId'));
-	values.push(user);
-	var getQuery = 'SELECT * FROM "TeamMembers" JOIN "Teams" ON "Teams"."TeamId" = "TeamMembers"."TeamId" WHERE "TeamMembers"."UserId"=$1';
+    var user = req.query.user;
+    //values.push(req.get('userId'));
+    values.push(user);
+    var getQuery = 'SELECT * FROM "TeamMembers" JOIN "Teams" ON "Teams"."TeamId" = "TeamMembers"."TeamId" WHERE "TeamMembers"."UserId"=$1';
 
     console.log('values for get user Teams '+user);
-	var getSuccessMessage = 'Successfully get teams info';
-	var getFailedMessage = 'Could not retrieve teams info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully get teams info';
+    var getFailedMessage = 'Could not retrieve teams info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
@@ -612,29 +412,29 @@ app.get('/addSpace.html', function (req, res) {
 
 // Update space
 app.post('/updateSpaceInfo', function (req, res) {
-	var spaceId = req.body.spaceId;
-	var valuesObj = {
-    	'OwnerId': req.body.ownerId,
-    	'Location': req.body.location,
-    	'Description': req.body.description,
-    	'SpaceType': req.body.spaceType,
-    	'Area': req.body.area,
-    	'Rooms': req.body.rooms,
-    	'PricePerDay': req.body.pricePerDay,
-    	'VacancyAmount': req.body.vacancyAmount
-	};
+    var spaceId = req.body.spaceId;
+    var valuesObj = {
+        'OwnerId': req.body.ownerId,
+        'Location': req.body.location,
+        'Description': req.body.description,
+        'SpaceType': req.body.spaceType,
+        'Area': req.body.area,
+        'Rooms': req.body.rooms,
+        'PricePerDay': req.body.pricePerDay,
+        'VacancyAmount': req.body.vacancyAmount
+    };
 
     var updateColumns = [];
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-    	if((valuesObj.hasOwnProperty(property))
-    		&& (typeof valuesObj[property] != 'undefined')) {
+        if((valuesObj.hasOwnProperty(property))
+            && (typeof valuesObj[property] != 'undefined')) {
 
-    		updateColumns.push('"' + property + '" = $' + i);
-    		values.push(valuesObj[property]);
-    		i++;
-    	}
+            updateColumns.push('"' + property + '" = $' + i);
+            values.push(valuesObj[property]);
+            i++;
+        }
     }
     values.push(spaceId);
 
@@ -687,17 +487,17 @@ app.get('/space-info.html', function (req, res) {
     
     var getRatingQuery = 'SELECT * FROM "SpaceRating" WHERE "UserId"= $1 AND "SpaceId"= $2';
     var client = new pg.Client(conString);
-	var result = [];
+    var result = [];
 
-	client.connect(function (err, done) {
+    client.connect(function (err, done) {
         
         /* Unable to connect to postgreSQL server */
         if (err) {
             res.writeHead(500);
             console.log('Unable to connect to database');
         }
-		
-		// Query to check if the user exists
+        
+        // Query to check if the user exists
         var query = client.query(getRatingQuery, [req.session.uid, req.query.spaceId], function(err, result){});
         
         /* Unable to execute query */
@@ -706,7 +506,7 @@ app.get('/space-info.html', function (req, res) {
         });
         
         query.on('row', function (row) {
-			result.push(row);
+            result.push(row);
         });
         
         query.on('end', function () {
@@ -732,16 +532,16 @@ app.get('/space-info.html', function (req, res) {
             executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, renderSpaceInfo);
 
         });
-	});
+    });
 });
 
 
 // Helper function: Renders for space-info.html GET
 function renderSpaceInfo(spaceResult, res, req) {
-	var client = new pg.Client(conString),
+    var client = new pg.Client(conString),
         result = [],
         dbQuery = 'SELECT * FROM "Space" NATURAL JOIN "Teams" WHERE "SpaceId"=$1';
-	var spaceId = spaceResult.rows[0].SpaceId;
+    var spaceId = spaceResult.rows[0].SpaceId;
     
     client.connect(function (err, done) {
         /* Unable to connect to postgreSQL server */
@@ -764,49 +564,49 @@ function renderSpaceInfo(spaceResult, res, req) {
 
         // Update Applications
         query.on('end', function () {
-			var selectQuery = 'Select * FROM "Leasing" WHERE "TenantId"=$1 AND "SpaceId"=$2';
-			var query2 = client.query(selectQuery, [req.session.uid,spaceId], function(err, result){});
-			var occupying=false;
-			query2.on('error', function (err) {
-				res.send('Query Error ' + err);
-			});
-			
-			query2.on('row', function (row) {
-				result.push(row);
-				occupying=true;
-			});
+            var selectQuery = 'Select * FROM "Leasing" WHERE "TenantId"=$1 AND "SpaceId"=$2';
+            var query2 = client.query(selectQuery, [req.session.uid,spaceId], function(err, result){});
+            var occupying=false;
+            query2.on('error', function (err) {
+                res.send('Query Error ' + err);
+            });
+            
+            query2.on('row', function (row) {
+                result.push(row);
+                occupying=true;
+            });
 
-			// Update Applications
-			query2.on('end', function () {
-				client.end();
-				console.log("occupying= "+occupying);
-				res.render('space-info.html', {occupying:occupying,spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
-			//res.end();
-			});
-		});
-		
-	});
+            // Update Applications
+            query2.on('end', function () {
+                client.end();
+                console.log("occupying= "+occupying);
+                res.render('space-info.html', {occupying:occupying,spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
+            //res.end();
+            });
+        });
+        
+    });
   
 };
 
 app.get('/getTeam:id?',function(req, res){
-	var teamId = req.params.id;
-	var selectQuery = 'Select * FROM "Teams" NATURAL JOIN "User" NATURAL JOIN "Space" where "TeamId"=$1';
-	values=[teamId];
-	
-	var successMessage = 'Succesfully Selected from Teams',
-		failedMessage  = 'Could not select from teams;';
+    var teamId = req.params.id;
+    var selectQuery = 'Select * FROM "Teams" NATURAL JOIN "User" NATURAL JOIN "Space" where "TeamId"=$1';
+    values=[teamId];
+    
+    var successMessage = 'Succesfully Selected from Teams',
+        failedMessage  = 'Could not select from teams;';
 
-	executeQuery(res, req, successMessage, failedMessage, selectQuery, values, renderTeam);
+    executeQuery(res, req, successMessage, failedMessage, selectQuery, values, renderTeam);
 });
 function renderTeam(teamResult, res, req){
-	res.render('team-info.html', {teamInfo:teamResult.rows[0], user:req.session.uid});
-	
+    res.render('team-info.html', {teamInfo:teamResult.rows[0], user:req.session.uid});
+    
 };
 
 app.post('/apply-team', function(req, res){
-	//res.send("applying with user = "+req.body.user + " for space= "+req.body.teamId);
-	var client = new pg.Client(conString),
+    //res.send("applying with user = "+req.body.user + " for space= "+req.body.teamId);
+    var client = new pg.Client(conString),
         result = [],
         dbQuery = 'INSERT INTO "TeamMembers" ("TeamId", "UserId") SELECT $1, $2 WHERE NOT EXISTS (SELECT "TeamId","UserId" FROM "TeamMembers" WHERE "TeamId" = $1 AND "UserId"= $2)';
     
@@ -831,41 +631,41 @@ app.post('/apply-team', function(req, res){
 
         // Update Applications
         query.on('end', function () {
-			client.end();
-			var link = '/getTeam'+req.body.teamId;
-			res.redirect(link);
-		});
-	});
+            client.end();
+            var link = '/getTeam'+req.body.teamId;
+            res.redirect(link);
+        });
+    });
 });
 
 //Post to leave team
 app.post('/leave-team', function(req, res){
-	var values = [];
-	values.push(req.body.user);
-	values.push(req.body.teamId);
-	var dbQuery = 'DELETE FROM "TeamMembers" WHERE "UserId"=$1 AND "TeamId"=$2';
-	
-	var successMessage = 'Successfully removed from TeamMembers',
-	failedMessage = 'Culd not remove from TeamMembers';
-	
-	executeQuery(res, req, successMessage, failedMessage, dbQuery, values, leaveTeam);
+    var values = [];
+    values.push(req.body.user);
+    values.push(req.body.teamId);
+    var dbQuery = 'DELETE FROM "TeamMembers" WHERE "UserId"=$1 AND "TeamId"=$2';
+    
+    var successMessage = 'Successfully removed from TeamMembers',
+    failedMessage = 'Culd not remove from TeamMembers';
+    
+    executeQuery(res, req, successMessage, failedMessage, dbQuery, values, leaveTeam);
 });
 
 function leaveTeam (result, res, req){
-	res.redirect('/');
+    res.redirect('/');
 };
 //Post for space occupation application, enters request in the "Applications" Table 
 app.post('/apply-space', function(req, res){
-	var user = req.session.uid;
-	var space = req.body.spaceId;
-	var values = [];
-	values.push(req.session.uid)
+    var user = req.session.uid;
+    var space = req.body.spaceId;
+    var values = [];
+    values.push(req.session.uid)
     values.push(req.body.spaceId);
     values.push(req.body.fromDate);
     values.push(req.body.toDate);
-	console.log('applying to space with values = '+values)
+    console.log('applying to space with values = '+values)
 
-	var client = new pg.Client(conString),
+    var client = new pg.Client(conString),
         result = [],
         result2 = [],
         dbQuery = 'INSERT INTO "Applications" ("UserId", "SpaceId", "FromDate", "ToDate") SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT "UserId","SpaceId" FROM "Applications" WHERE "UserId" = $5 AND "SpaceId"= $6) RETURNING "SpaceId"';
@@ -891,71 +691,68 @@ app.post('/apply-space', function(req, res){
 
         // Update Applications
         query.on('end', function () {
-			
-			var updateQuery = 'UPDATE "Applications" SET "UserId"=$1, "SpaceId"=$2, "FromDate"=$3, "ToDate"=$4 WHERE "UserId" = $1 AND "SpaceId" = $2 RETURNING "SpaceId"';
-			var query2 = client.query(updateQuery, [req.session.uid, req.body.spaceId, req.body.fromDate, req.body.toDate], function(err, result){});
+            
+            var updateQuery = 'UPDATE "Applications" SET "UserId"=$1, "SpaceId"=$2, "FromDate"=$3, "ToDate"=$4 WHERE "UserId" = $1 AND "SpaceId" = $2 RETURNING "SpaceId"';
+            var query2 = client.query(updateQuery, [req.session.uid, req.body.spaceId, req.body.fromDate, req.body.toDate], function(err, result){});
 
-			query2.on('error', function (err) {
-				res.send('Query Error ' + err);
-			});
+            query2.on('error', function (err) {
+                res.send('Query Error ' + err);
+            });
         
-			query2.on('row', function (row) {
-				result2.push(row);
-			})
-			query2.on('end', function () {
-				client.end();
-				res.redirect('/postings.html');
-			});
-		});
-	});
+            query2.on('row', function (row) {
+                result2.push(row);
+            })
+            query2.on('end', function () {
+                client.end();
+                res.redirect('/postings.html');
+            });
+        });
+    });
 });
 
 //View applications to spaces you own
 app.get('/getApplications',function(req, res){
-	 var values = [];
-	 values.push(req.session.uid);
-	 //("FromDate", "ToDate", "Location", "PricePerDay", "SpaceName", "FirstName", "LastName", "Reputation", "UserTotalRating")
-	var appQuery = 'SELECT * FROM "Applications" NATURAL JOIN "Space" NATURAL JOIN "User" WHERE "OwnerId"=$1';
-	var successMessage = 'Succesfully selected from Applications';
-	var failedMessage = 'Could not select from Applications';
-	
-	 executeQuery(res, req, successMessage, failedMessage, appQuery, values, renderApplications);	
+     var values = [];
+     values.push(req.session.uid);
+     //("FromDate", "ToDate", "Location", "PricePerDay", "SpaceName", "FirstName", "LastName", "Reputation", "UserTotalRating")
+    var appQuery = 'SELECT * FROM "Applications" NATURAL JOIN "Space" NATURAL JOIN "User" WHERE "OwnerId"=$1';
+    var successMessage = 'Succesfully selected from Applications';
+    var failedMessage = 'Could not select from Applications';
+    
+     executeQuery(res, req, successMessage, failedMessage, appQuery, values, renderApplications);   
 });
 
 function renderApplications (results, res, req){
-	//console.log(results.rows[0]);
-	
-	res.render('getApplications.html', {appInfo:results.rows});
-	
+    //console.log(results.rows[0]);
+    
+    res.render('getApplications.html', {appInfo:results.rows});
+    
 };
 
 //TODO UPDATE QUERIES
 app.post('/updateApplication', function(req, res){
-	var user = req.session.uid;
-	var space = req.body.spaceId;
-	var values = [];
-	values.push(req.body.tenant)
+    var user = req.session.uid;
+    var space = req.body.spaceId;
+    var values = [];
+    values.push(req.body.tenant)
     values.push(req.body.spaceId);
     values.push(req.body.fromDate);
     values.push(req.body.toDate);
-	values.push(req.body.price);
-	values.push(req.body.response);
-	
-	console.log(req.body.fromDate);
-	console.log('Updating Application with values = '+values)
-	//res.render('test.html',{date:req.body.fromDate});
-	//res.send('Updating Application with values = '+values);
-	
+    values.push(req.body.price);
+    values.push(req.body.response);
+    
+    console.log(req.body.fromDate);
+    console.log('Updating Application with values = '+values)
 
-	var client = new pg.Client(conString),
+    var client = new pg.Client(conString),
         result = [],
         result2 = [],
-		result3 = [],
-		result4 = [],
+        result3 = [],
+        result4 = [],
         getQuery = 'SELECT * FROM "Applications" WHERE "UserId"=$1 AND "SpaceId"=$2';
-	var toDate,fromDate;
+    var toDate,fromDate;
     var dateHack1, dateHack2;
-	
+    
        // getQuery = 'INSERT INTO "Applications" ("UserId", "SpaceId", "FromDate", "ToDate") SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT "UserId","SpaceId" FROM "Applications" WHERE "UserId" = $5 AND "SpaceId"= $6) RETURNING "SpaceId"';
 
     client.connect(function (err, done) {
@@ -975,86 +772,86 @@ app.post('/updateApplication', function(req, res){
         
         query.on('row', function (row) {
             result.push(row);
-			toDate   = row.ToDate;
-			fromDate = row.FromDate;
-				
-						
+            toDate   = row.ToDate;
+            fromDate = row.FromDate;
+                
+                        
         });
 
         // UPDATE LEASING TODO
         query.on('end', function () {
-			//client.end();
-			//res.send(toDate+fromDate);
-			var updateQuery = 'DELETE FROM "Applications" WHERE "UserId" = $1 AND "SpaceId" = $2';
-			var query2 = client.query(updateQuery, [req.body.tenant, req.body.spaceId], function(err, result){});
-			
-			console.log("DeleteQuery");
-			
-			query2.on('error', function (err) {
-				res.send('Query Error ' + err);
-			});
+            //client.end();
+            //res.send(toDate+fromDate);
+            var updateQuery = 'DELETE FROM "Applications" WHERE "UserId" = $1 AND "SpaceId" = $2';
+            var query2 = client.query(updateQuery, [req.body.tenant, req.body.spaceId], function(err, result){});
+            
+            console.log("DeleteQuery");
+            
+            query2.on('error', function (err) {
+                res.send('Query Error ' + err);
+            });
         
-			query2.on('row', function (row) {
-				result2.push(row);
-			})
-			query2.on('end', function () {
-				console.log("response = "+req.body.response);
-				if (req.body.response=="accepted"){
-					var fromDate1 = new Date(fromDate);
-					var toDate1  = new Date(toDate);
-					//fromDate1.format('YYYY-MM-DD');
-					dateHack1 =''+(fromDate1.getYear()-100+2000)+'-'+(fromDate1.getMonth()+1)+'-'+fromDate1.getDate();
-					dateHack2 =''+(toDate1.getYear()-100+2000)+'-'+(toDate1.getMonth()+1)+'-'+toDate1.getDate();
-					//console.log(dateHack);
-					var insertQuery = 'INSERT INTO "Leasing" ("SpaceId", "FromDate", "TenantId", "ToDate", "NegotiatedPricePerDay") SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT "TenantId", "SpaceId" FROM "Leasing" WHERE "TenantId" = $3 AND "SpaceId"= $1)';
-					var query3 = client.query(insertQuery, [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price], function(err, result){});
-					
-					console.log('INSERTQUERY'+ [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price]);
-					
-					query3.on('error', function (err) {
-						res.send('Query Error ' + err);
-					});
-				
-					query3.on('row', function (row) {
-						result3.push(row);
-						console.log('insert push row');
-					})
-					query3.on('end', function(){
-						console.log(dateHack1+' '+dateHack2);
-						var updateQuery = 'UPDATE "Leasing" SET "SpaceId"=$1, "FromDate"=$2, "TenantId"=$3, "ToDate"=$4, "NegotiatedPricePerDay"=$5 WHERE "TenantId" = $3 AND "SpaceId" = $1';
-						var query4 = client.query(updateQuery, [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price], function(err, result){});
-						
-						console.log('UPDATEQUERY'+[req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price]);
-						
-						query4.on('error', function (err) {
-							res.send('Query Error ' + err);
-						});
-					
-						query4.on('row', function (row) {
-							result4.push(row);
-						})
-						query4.on('end', function(){
-							console.log('done!');
-							client.end();
-							res.redirect('/getApplications');
-						});
-					});
-				}else if(req.body.response=="rejected"){
-					client.end();
-					res.redirect('/getApplications');
-				}
-				
-			});
-			
-		});
-	});
-	
-	
+            query2.on('row', function (row) {
+                result2.push(row);
+            })
+            query2.on('end', function () {
+                console.log("response = "+req.body.response);
+                if (req.body.response=="accepted"){
+                    var fromDate1 = new Date(fromDate);
+                    var toDate1  = new Date(toDate);
+                    //fromDate1.format('YYYY-MM-DD');
+                    dateHack1 =''+(fromDate1.getYear()-100+2000)+'-'+(fromDate1.getMonth()+1)+'-'+fromDate1.getDate();
+                    dateHack2 =''+(toDate1.getYear()-100+2000)+'-'+(toDate1.getMonth()+1)+'-'+toDate1.getDate();
+                    //console.log(dateHack);
+                    var insertQuery = 'INSERT INTO "Leasing" ("SpaceId", "FromDate", "TenantId", "ToDate", "NegotiatedPricePerDay") SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT "TenantId", "SpaceId" FROM "Leasing" WHERE "TenantId" = $3 AND "SpaceId"= $1)';
+                    var query3 = client.query(insertQuery, [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price], function(err, result){});
+                    
+                    console.log('INSERTQUERY'+ [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price]);
+                    
+                    query3.on('error', function (err) {
+                        res.send('Query Error ' + err);
+                    });
+                
+                    query3.on('row', function (row) {
+                        result3.push(row);
+                        console.log('insert push row');
+                    })
+                    query3.on('end', function(){
+                        console.log(dateHack1+' '+dateHack2);
+                        var updateQuery = 'UPDATE "Leasing" SET "SpaceId"=$1, "FromDate"=$2, "TenantId"=$3, "ToDate"=$4, "NegotiatedPricePerDay"=$5 WHERE "TenantId" = $3 AND "SpaceId" = $1';
+                        var query4 = client.query(updateQuery, [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price], function(err, result){});
+                        
+                        console.log('UPDATEQUERY'+[req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price]);
+                        
+                        query4.on('error', function (err) {
+                            res.send('Query Error ' + err);
+                        });
+                    
+                        query4.on('row', function (row) {
+                            result4.push(row);
+                        })
+                        query4.on('end', function(){
+                            console.log('done!');
+                            client.end();
+                            res.redirect('/getApplications');
+                        });
+                    });
+                }else if(req.body.response=="rejected"){
+                    client.end();
+                    res.redirect('/getApplications');
+                }
+                
+            });
+            
+        });
+    });
+    
+    
 });
 
 function redirectApplySpace(result, res, req){
-	//console.log('redirecting from apply space');
-	res.redirect('/postings.html');
+    //console.log('redirecting from apply space');
+    res.redirect('/postings.html');
 };
 
 // Delete space
@@ -1090,9 +887,9 @@ app.post('/addAvailability', function (req, res) {
 // Get availabilities (can be filtered)
 app.get('/getAvailabilities', function (req, res) {
     var valuesObj = {
-		'SpaceId': req.get('spaceId'),
-    	'FromDate': req.get('fromDate'),
-    	'ToDate': req.get('toDate'),
+        'SpaceId': req.get('spaceId'),
+        'FromDate': req.get('fromDate'),
+        'ToDate': req.get('toDate'),
 
         'keywords': req.query['keywords'],
         'price-range': req.query['price-range'],
@@ -1100,33 +897,33 @@ app.get('/getAvailabilities', function (req, res) {
         'fromDate': req.query['fromDate'],
         'toDate': req.query['toDate'],
         'sort-by': req.query['sort-by']
-	};
+    };
 
     var updateColumns = [];
     var values = [];
     var i = 1;
 
-	//Check if values make sense
+    //Check if values make sense
     if(typeof valuesObj['SpaceId'] != 'undefined') {
-		updateColumns.push('"SpaceId" = $' + i);
-		values.push(valuesObj['SpaceId']);
-		i++;
-	}
-	if(typeof valuesObj['FromDate'] != 'undefined') {
-		updateColumns.push('"FromDate" >= $' + i);
-		values.push(valuesObj['FromDate']);
-		i++;
-	}
-	if(typeof valuesObj['ToDate'] != 'undefined') {
-		updateColumns.push('"ToDate" <= $' + i);
-		values.push(valuesObj['ToDate']);
-		i++;
-	}
+        updateColumns.push('"SpaceId" = $' + i);
+        values.push(valuesObj['SpaceId']);
+        i++;
+    }
+    if(typeof valuesObj['FromDate'] != 'undefined') {
+        updateColumns.push('"FromDate" >= $' + i);
+        values.push(valuesObj['FromDate']);
+        i++;
+    }
+    if(typeof valuesObj['ToDate'] != 'undefined') {
+        updateColumns.push('"ToDate" <= $' + i);
+        values.push(valuesObj['ToDate']);
+        i++;
+    }
 
     if(valuesObj['keywords']) {
         // Trip spaces
         var keywordsList = valuesObj['keywords'].replace(/^\s+|\s+$/g, '');
-        keywordsList = keywordsList.replace(/( *, *)|( +)/g, ',').split(',');
+        keywordsList = keywordsList.replace(/ +/g, ',').split(',');
         console.log(keywordsList);
 
         var keywordColumns = '(';
@@ -1171,11 +968,9 @@ app.get('/getAvailabilities', function (req, res) {
         values.push(valuesObj['toDate']);
         i++;
     }
-    //var getQuery = 'SELECT * FROM "Availability";
-
     var getQuery = 'SELECT * FROM "Availability" NATURAL JOIN "Space"';
     if(updateColumns.length > 0) {
-    	getQuery += ' WHERE ' + updateColumns.join(' AND ');
+        getQuery += ' WHERE ' + updateColumns.join(' AND ');
     }
 
     if(valuesObj['sort-by']) {
@@ -1241,25 +1036,25 @@ app.post('/addLeasing', function (req, res) {
 
 // Update leasing
 app.post('/updateLeasingInfo', function (req, res) {
-	var spaceId = req.body.spaceId;
-	var tenantId = req.body.tenantId;
-	var valuesObj = {
-    	'FromDate': req.body.fromDate,
-    	'ToDate': req.body.toDate,
-    	'NegotiatedPricePerDay': req.body.negotiatedPricePerDay
-	};
+    var spaceId = req.body.spaceId;
+    var tenantId = req.body.tenantId;
+    var valuesObj = {
+        'FromDate': req.body.fromDate,
+        'ToDate': req.body.toDate,
+        'NegotiatedPricePerDay': req.body.negotiatedPricePerDay
+    };
 
     var updateColumns = [];
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-    	if((valuesObj.hasOwnProperty(property))
-    		&& (typeof valuesObj[property] != 'undefined')) {
+        if((valuesObj.hasOwnProperty(property))
+            && (typeof valuesObj[property] != 'undefined')) {
 
-    		updateColumns.push('"' + property + '" = $' + i);
-    		values.push(valuesObj[property]);
-    		i++;
-    	}
+            updateColumns.push('"' + property + '" = $' + i);
+            values.push(valuesObj[property]);
+            i++;
+        }
     }
     values.push(spaceId);
     values.push(tenantId);
@@ -1274,30 +1069,30 @@ app.post('/updateLeasingInfo', function (req, res) {
 
 // Get leasing info
 app.get('/getLeasingInfo', function (req, res) {
-	var valuesObj = {
-		'SpaceId': req.get('spaceId'),
-		'TenantId': req.get('tenantId'),
-    	'FromDate': req.get('fromDate'),
-    	'ToDate': req.get('toDate'),
-    	'NegotiatedPricePerDay': req.get('negotiatedPricePerDay')
-	};
+    var valuesObj = {
+        'SpaceId': req.get('spaceId'),
+        'TenantId': req.get('tenantId'),
+        'FromDate': req.get('fromDate'),
+        'ToDate': req.get('toDate'),
+        'NegotiatedPricePerDay': req.get('negotiatedPricePerDay')
+    };
 
     var updateColumns = [];
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-    	if((valuesObj.hasOwnProperty(property))
-    		&& (typeof valuesObj[property] != 'undefined')) {
+        if((valuesObj.hasOwnProperty(property))
+            && (typeof valuesObj[property] != 'undefined')) {
 
-    		updateColumns.push('"' + property + '" = $' + i);
-    		values.push(valuesObj[property]);
-    		i++;
-    	}
+            updateColumns.push('"' + property + '" = $' + i);
+            values.push(valuesObj[property]);
+            i++;
+        }
     }
 
     var getQuery = 'SELECT * FROM "Leasing"';
     if(updateColumns.length > 0) {
-    	getQuery += ' WHERE ' + updateColumns.join(' AND ');
+        getQuery += ' WHERE ' + updateColumns.join(' AND ');
     }
 
     var getSuccessMessage = 'Successfully retrieved leasing info';
@@ -1313,7 +1108,6 @@ app.post('/deleteLeasing', function (req, res) {
     values.push(req.body.tenantId);
 
     var deleteQuery = 'DELETE FROM "Leasing" WHERE "SpaceId" = $1 AND "TenantId" = $2';
-
     var deleteSuccessMessage = 'Successfully deleted leasing';
     var deleteFailedMessage = 'Could not delete leasing';
     executeQuery(res, req, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
@@ -1333,7 +1127,6 @@ app.post('/addForumPost', function (req, res) {
 
     var params = createParams(values.length);
     var insertQuery = 'INSERT INTO "ForumPost"("UserId", "SpaceId", "Text", "DateTimePosted", "ProjectTag") VALUES(' + params + ') RETURNING "ForumPostId"';
-
     var insertSuccessMessage = 'Successfully inserted forum post';
     var insertFailedMessage = 'Failed to insert forum post';
     executeQuery(res, req, insertSuccessMessage, insertFailedMessage, insertQuery, values);
@@ -1346,7 +1139,6 @@ app.get('/getForumPostsForSpace', function (req, res) {
     values.push(req.get('spaceId'));
 
     var getQuery = 'SELECT * FROM "ForumPost" WHERE "SpaceId" = $1';
-
     var getSuccessMessage = 'Successfully retrieved forum posts for space';
     var getFailedMessage = 'Could not retrieve forum posts for space';
     executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values);
@@ -1361,7 +1153,6 @@ app.get('/create-team', function(req, res){
         var getQuery = 'SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId" = $1';
         var getSuccessMessage = 'Successfully retrieved all tenant spaceIDs';
         var getFailedMessage = 'Could not retrieve tenant space info';
-        //console.log('In owner space');
         executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, renderCreateTeams);
     } else {
         res.redirect('/');
@@ -1369,26 +1160,26 @@ app.get('/create-team', function(req, res){
 });
 
 function renderCreateTeams(result, res, req){
-	res.render('create-team.html', {space:result.rows, currUser:req.session.uid});
-	res.end();
+    res.render('create-team.html', {space:result.rows, currUser:req.session.uid});
+    res.end();
 };
 
 app.post('/create-team', function(req, res){
-	var values = [];
-	values.push(req.body.userId);
+    var values = [];
+    values.push(req.body.userId);
     values.push(req.body.spaceId);
     values.push(req.body.teamName);
     values.push(req.body.teamDescription);
-	
-	var createTeamQuery = 'INSERT INTO "Teams" VALUES($1,$2,$3,$4)'
-	
-	var createSuccessMessage = 'Successfully created a Team';
-	var createFailedMessage = 'Could not create a team';
-	executeQuery(res,req, createSuccessMessage, createFailedMessage, createTeamQuery,values, redirectCreateTeam);
+    
+    var createTeamQuery = 'INSERT INTO "Teams" VALUES($1,$2,$3,$4)'
+    
+    var createSuccessMessage = 'Successfully created a Team';
+    var createFailedMessage = 'Could not create a team';
+    executeQuery(res,req, createSuccessMessage, createFailedMessage, createTeamQuery,values, redirectCreateTeam);
 });
 
 function redirectCreateTeam(req, res){
-	res.redirect('/postings.html');
+    res.redirect('/postings.html');
 };
 
 // Delete forum post
@@ -1402,219 +1193,6 @@ app.post('/deleteForumPost', function (req, res) {
     var deleteFailedMessage = 'Could not delete forum post';
     executeQuery(res, req, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
 });
-
-
-/* TASK 7: User can express preference in favour or against an idea (like or dislike function) */
-app.post('/addUpdateRating', function (req, res) {
-    console.log('In addUpdateRating' + req.body.rating);
-
-    var client = new pg.Client(conString),
-        result = [],
-        result2 = [],
-        dbQuery = 'INSERT INTO "SpaceRating" ("UserId", "SpaceId", "LikeDislike") SELECT $1, $2, $3 WHERE NOT EXISTS (SELECT "UserId","SpaceId" FROM "SpaceRating" WHERE "UserId" = $4 AND "SpaceId"= $5) RETURNING "SpaceId"';
-    
-    client.connect(function (err, done) {
-        /* Unable to connect to postgreSQL server */
-        if (err) {
-            res.writeHead(500);
-            console.log('Unable to connect to database');
-        }
-        
-        var query = client.query(dbQuery, [req.session.uid, req.body.spaceId, req.body.rating, req.session.uid, req.body.spaceId], function(err, result){});
-        
-        /* Unable to connect to database */
-        query.on('error', function (err) {
-            res.send('Query Error ' + err);
-        });
-        
-        query.on('row', function (row) {
-            result.push(row);
-        });
-
-        // Update ratings
-        query.on('end', function () {
-            client.end();
-            
-            /* No new likes/dislikes were added -- user already previously selected a choice */
-            if (result.length == 0) {
-                console.log('The like/dislikes were updated not added');
-                
-
-                /* Update the user's choice of either like or dislike for this particular idea */
-                var values2 = [];
-                values2.push(req.body.rating);
-                values2.push(req.session.uid);
-                values2.push(req.body.spaceId);
-
-                var updateQuery = 'UPDATE "SpaceRating" SET "LikeDislike" = $1 WHERE "UserId"=$2 AND "SpaceId"=$3  RETURNING "SpaceId"';
-                
-                var client2 = new pg.Client(conString);
-                client2.connect(function (err, done) {
-                    /* Unable to connect to postgreSQL server */
-                    if (err) {
-                        res.writeHead(500);
-                        console.log('Unable to connect to database');
-                    }
-
-                    var query2 = client2.query(updateQuery, values2, function(err, result2){});
-
-                    /* Unable to connect to database */
-                    query2.on('error', function (err) {
-                        res.send('Query Error ' + err);
-                    });
-
-                    query2.on('row', function (row) {
-                        result2.push(row);
-                    });
-
-                    query2.on('end', function () {
-                        client2.end();
-                        updateTotalLikesDislikes(res, req, req.body.rating, req.body.spaceId);
-                    });
-                });
-            } else {
-                console.log('It is a new like/dislike');
-                updateTotalLikesDislikes(res, req, req.body.rating, req.body.spaceId);
-            }            
-        });
-    });    
-});
-
-/* Update the aggregated likes/dislikes assuming they cannot choose the same choice as previously  */
-function updateTotalLikesDislikes (res, req, rating, spaceId) {
-    var updateAllLikesQuery;
-    console.log('In updateTotalLikesDislikes. Rating: ' + rating + ' ' + spaceId); 
-    if (rating == 0) {
-        console.log('Decrement space rating');
-        // Decrement total likes   
-        var updateAllLikesQuery = 'UPDATE "Space" SET "SpaceTotalRating" = "SpaceTotalRating" - 1 WHERE "SpaceId"=$1 RETURNING "SpaceId"';
-    } else {
-        // Increment total likes 
-        var updateAllLikesQuery = 'UPDATE "Space" SET "SpaceTotalRating" = "SpaceTotalRating" + 1 WHERE "SpaceId"=$1 RETURNING "SpaceId"';
-        
-    }
-    
-    var successMessage = 'Successfully updated aggregated space rating';
-    var failedMessage = 'Could not update aggregated space rating';
-    
-    executeQuery(res, req, successMessage, failedMessage, updateAllLikesQuery, [spaceId], reloadSpacePage);
-}
-
-
-
-/* User like/dislike system */
-app.post('/addUpdateRatingUser', function (req, res) {
-    console.log('In addUpdateRatingUser' + req.body.rating);
-
-    var client = new pg.Client(conString),
-        result = [],
-        result2 = [],
-        dbQuery = 'INSERT INTO "UserRating" ("UserId", "FriendUserId", "LikeDislike") SELECT $1, $2, $3 WHERE NOT EXISTS (SELECT "UserId","FriendUserId" FROM "UserRating" WHERE "UserId" = $4 AND "FriendUserId"= $5) RETURNING "FriendUserId"';
-    
-    client.connect(function (err, done) {
-        /* Unable to connect to postgreSQL server */
-        if (err) {
-            res.writeHead(500);
-            console.log('Unable to connect to database');
-        }
-        
-        var query = client.query(dbQuery, [req.session.uid, req.body.friendId, req.body.rating, req.session.uid, req.body.friendId], function(err, result){});
-        console.log([req.session.uid, req.body.friendId, req.body.rating, req.session.uid, req.body.friendId]);
-        /* Unable to connect to database */
-        query.on('error', function (err) {
-            res.send('Query Error ' + err);
-        });
-        
-        query.on('row', function (row) {
-            result.push(row);
-        });
-
-        // Update ratings
-        query.on('end', function () {
-            client.end();
-            
-            /* No new likes/dislikes were added -- user already previously selected a choice */
-            if (result.length == 0) {
-                console.log('The like/dislikes were updated not added');
-                
-
-                /* Update the user's choice of either like or dislike for this particular idea */
-                var values2 = [];
-                values2.push(req.body.rating);
-                values2.push(req.session.uid);
-                values2.push(req.body.friendId);
-
-                var updateQuery = 'UPDATE "UserRating" SET "LikeDislike" = $1 WHERE "UserId"=$2 AND "FriendUserId"=$3  RETURNING "FriendUserId"';
-                
-                var client2 = new pg.Client(conString);
-                client2.connect(function (err, done) {
-                    /* Unable to connect to postgreSQL server */
-                    if (err) {
-                        res.writeHead(500);
-                        console.log('Unable to connect to database');
-                    }
-
-                    var query2 = client2.query(updateQuery, values2, function(err, result2){});
-
-                    /* Unable to connect to database */
-                    query2.on('error', function (err) {
-                        res.send('Query Error ' + err);
-                    });
-
-                    query2.on('row', function (row) {
-                        result2.push(row);
-                    });
-
-                    query2.on('end', function () {
-                        client2.end();
-                        updateTotalLikesDislikesUser(res, req, req.body.rating, req.body.friendId);
-                    });
-                });
-            } else {
-                console.log('It is a new like/dislike');
-                updateTotalLikesDislikesUser(res, req, req.body.rating, req.body.friendId);
-            }            
-        });
-    });    
-});
-
-/* Update the aggregated likes/dislikes assuming they cannot choose the same choice as previously  */
-function updateTotalLikesDislikesUser (res, req, rating, friendId) {
-    var updateAllLikesQuery;
-    console.log('In updateTotalLikesDislikes. Rating: ' + rating + ' ' + friendId); 
-    if (rating == 0) {
-        console.log('Decrement user rating');
-        // Decrement total likes   
-        var updateAllLikesQuery = 'UPDATE "User" SET "UserTotalRating" = "UserTotalRating" - 1 WHERE "UserId"=$1 RETURNING "UserId"';
-    } else {
-        // Increment total likes 
-        var updateAllLikesQuery = 'UPDATE "User" SET "UserTotalRating" = "UserTotalRating" + 1 WHERE "UserId"=$1 RETURNING "UserId"';
-        
-    }
-    
-    var successMessage = 'Successfully updated aggregated user rating';
-    var failedMessage = 'Could not update aggregated user rating';
-    
-    executeQuery(res, req, successMessage, failedMessage, updateAllLikesQuery, [friendId], reloadUserPage);
-}
-
-
-function reloadUserPage(result, res, req) {
-    res.redirect('/getUserInfo' + result.rows[0].UserId);
-    res.end();
-}
-
-
-
-function reloadSpacePage(result, res, req) {
-    
-    console.log('In reloadIdeaPage: ' + result);
-    console.log(result.rows[0].SpaceId);
-
-    res.redirect('/space-info.html?spaceId=' + result.rows[0].SpaceId + '&joined=true');
-    res.end();
-    
-}
 
 
 app.get('/isOwner', function (req, res) {
@@ -1657,9 +1235,9 @@ app.get('/validateCredentials', function (req, res) {
         var query = client.query(getPassQuery, [email]);
 
         query.on('error', function (error) {
-        	res.writeHead(500);
-        	console.log(error);
-			res.end();
+            res.writeHead(500);
+            console.log(error);
+            res.end();
         });
 
         query.on('row', function (row){
@@ -1672,10 +1250,10 @@ app.get('/validateCredentials', function (req, res) {
 
             var validity = 'invalid';
             if(result.length > 0) {
-            	var true_password = result[0].Password;
-            	if(given_password == true_password) {
-            		validity = 'valid';
-            	}
+                var true_password = result[0].Password;
+                if(given_password == true_password) {
+                    validity = 'valid';
+                }
             }
 
             res.write(validity);
@@ -1710,18 +1288,18 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, r
 
         // Prevent XSS
         for(var i = 0; i < values.length; i++) {
-        	if(typeof values[i] == 'string') {
-        		values[i] = sanitizer.escape(values[i]);
-        	}
+            if(typeof values[i] == 'string') {
+                values[i] = sanitizer.escape(values[i]);
+            }
         }
 
         var query = client.query(dbQuery, values, function(err, result){});
 
         query.on('error', function (error) {
-        	res.writeHead(500);
-        	console.log(failedMessage);
-        	console.log(error);
-			res.end();
+            res.writeHead(500);
+            console.log(failedMessage);
+            console.log(error);
+            res.end();
         });
 
         query.on('row', function (row){
