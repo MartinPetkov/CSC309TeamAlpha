@@ -21,29 +21,72 @@ module.exports = function (app) {
         console.log("admin logged in");  
         res.render('admin.html');
     });
-}
-    /*
-    app.get('/getTeams', function (req, res){
+    
+    app.get('/getSpaces?', function (req, res){
+        successMessage = "retrieved teams count";
+        failedMessage = "failed to retrieve teams count";
+        dbQuery = 'SELECT count("SpaceName") as "spaceCount" FROM "Space"';
+        executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
+        
+    });
+    
+    app.get('/getMembers?', function (req, res){
+        successMessage = "retrieved members count";
+        failedMessage = "failed to retrieve members count";
+        dbQuery = 'SELECT count("Email") as "emailCount" FROM "User"';
+        executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
+    });
+        
+    
+    function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, results_handler) {
         var client = new pg.Client(conString);
+        var result = [];
+        var result_rows = [];
         client.connect(function (err, done) {
-            if (err) {
-                return console.error('could not connect to postgres', err);
-                res.send('sorry, there was an error', err);
+            if(err) {
+                console.error('Could not connect to the database', err);
+                res.writeHead(500);
+                res.end('A server error occurred' + err);
             }
-            var query = client.query('SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId"=$1', [viewUser]);
-            query.on('error', function (err) {
-                res.send('Query Error ' + err);
+
+            // Prevent XSS
+            for(var i = 0; i < values.length; i++) {
+                if(typeof values[i] == 'string') {
+                    values[i] = sanitizer.escape(values[i]);
+                }
+            }
+
+            var query = client.query(dbQuery, values, function(err, result){});
+            //console.log('executing a query '+values);
+
+            query.on('error', function (error) {
+                res.writeHead(500);
+                console.log(failedMessage);
+                console.log(error);
+                res.end();
             });
-            
-            query.on('row', function (row) {
-                spaceFound = true;
-                currSpace = row.SpaceId;
-                spaceResult.push(row);
-                //console.log('row push ' + row.SpaceId);
-                //console.log(row);
-                //console.log('space result immediately post push ' + spaceResult);
-                });
-            query.on('end', function(){
-    
-    
-};*/
+
+            query.on('row', function (row){
+                result.push(row);
+            });
+
+            query.on('end', function (result){
+                client.end();
+                console.log(successMessage);
+                if(!(typeof results_handler == 'undefined')) {
+                    results_handler(result, res, req);
+
+                } else {
+                    res.writeHead(200, {'Content-Type': 'text/plain'});
+
+                    var jsonShit = {};
+                    jsonShit.results = result.rows;
+                    console.log(jsonShit.results[0]);
+                    res.write(JSON.stringify(jsonShit, 0, 4));
+                    res.end();
+                }
+            });
+        });
+    }
+
+};
