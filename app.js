@@ -586,7 +586,7 @@ function renderSpaceInfo(spaceResult, res, req) {
   
 };
 
-app.get('/getTeam:id?'function(req, res){
+app.get('/getTeam:id?',function(req, res){
 	var teamId = req.params.id;
 	
 });
