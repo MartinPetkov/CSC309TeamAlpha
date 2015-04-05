@@ -501,6 +501,31 @@ app.get('/getAllTeamMemberInfo', function(req, res){
 
 });
 
+app.get('/getUserLeaseInfo', function(req, res){
+    console.log('here in getUserLeaseInfo');
+	var values = [];
+    if(typeof req.query.spaceId == 'undefined') {
+		console.log('no spaceId');
+        res.end();
+    }
+	if(typeof req.query.user == 'undefined') {
+		console.log('no user');
+        res.end();
+    }
+	var id = req.query.spaceId;
+	var user = req.query.user;
+	//values.push(req.get('userId'));
+	values.push(id);
+	values.push(user);
+	var getQuery = 'SELECT * FROM "Leasing" WHERE "SpaceId" = $1 AND "TenantId"=$2';
+
+    console.log('values for getUserLEaseInfo '+id + ' '+user);
+	var getSuccessMessage = 'Successfully retrieved user Lease info';
+	var getFailedMessage = 'Could not retrieve user Lease info';
+	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+
+});
+
 
 // Delete user
 app.post('/deleteUser', function (req, res) {
@@ -726,7 +751,7 @@ function renderSpaceInfo(spaceResult, res, req) {
 
 app.get('/getTeam:id?',function(req, res){
 	var teamId = req.params.id;
-	var selectQuery = 'Select * FROM "Teams" NATURAL JOIN "User" where "TeamId"=$1';
+	var selectQuery = 'Select * FROM "Teams" NATURAL JOIN "User" NATURAL JOIN "Space" where "TeamId"=$1';
 	values=[teamId];
 	
 	var successMessage = 'Succesfully Selected from Teams',

@@ -54,7 +54,12 @@
 				<h4> Team Info</h4>
 				Team Name: <%=teamInfo.TeamName%><br/>
 				Team Description: <%=teamInfo.TeamDescription%><br/>
-				Team Leader: <%=teamInfo.FirstName%> <%=teamInfo.LastName%>
+				Team Leader: <%=teamInfo.FirstName%> <%=teamInfo.LastName%><br/><br/>
+				Located At Space: <%=teamInfo.SpaceName%>
+				<%if(user){%>
+				<input type="hidden" id="spaceId" value= <%=teamInfo.SpaceId %>>
+				<input type="hidden" id="user" value= <%=user%>>
+				<div id="apply">
 				<form action = '/apply-team' method='POST' >
 					<input type="hidden" name="user" id="user" value=<%=user%> >
 					<input type="hidden" name="teamId" id="teamId" value=<%=teamInfo.TeamId%>>
@@ -63,7 +68,31 @@
 					</button>
 					</input>
 				</form>
+				</div>
+				<script>
+					$(document).ready(function() {
+						var spaceId = document.getElementById("spaceId").value;
+						var user = document.getElementById("user").value;
+						var link = '/getUserLeaseInfo/?spaceId=' + spaceId+'&user='+user;
+						$.ajax({
+							url: link, //the URL to your node.js server that has data
+							dataType: 'json',
+						}).done(function(data){
+							var output = '';
+							//window.alert(JSON.stringify(data));
+							//window.alert(data.results.length);
+							if(data.results.length==0){
+								output += '';  
+								document.getElementById('apply').innerHTML = output;
+
+							}
+							
+						}); 
+					});
+				</script>
 				
+				
+			<%}%>
 			</div>
 			<h4>Members</h4>
 			<div class="members" id="members">
