@@ -580,6 +580,7 @@ function renderSpaceInfo(spaceResult, res, req) {
         // Update Applications
         query.on('end', function () {
 			console.log(result.rows);
+			client.end();
 			res.render('space-info.html', {spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
 			//res.end();
 		});
