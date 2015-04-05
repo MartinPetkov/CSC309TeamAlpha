@@ -130,7 +130,7 @@
                     dataType: 'json',
                 }).done(function(data){
                     var output = '';
-                    window.alert(JSON.stringify(data));
+                    //window.alert(JSON.stringify(data));
                     
                     for (i = 0; i < data.results.length; i++) { 
                         output += '<a href="/getUserInfo' + data.results[i].UserId +'"> First Name: ' + data.results[i].FirstName + '<br> Last Name: ' + data.results[i].LastName + ' </a><br><br>';  

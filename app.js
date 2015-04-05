@@ -854,7 +854,7 @@ app.post('/addAvailability', function (req, res) {
 
     var insertSuccessMessage = 'Successfully inserted availability';
     var insertFailedMessage = 'Failed to insert availability';
-    executeQuery(res, req, insertSuccessMessage, insertFailedMessage, insertQuery, values);
+    executeQuery(res, req, insertSuccessMessage, insertFailedMessage, insertQuery, values, redirectCreateTeam);
 });
 
 
