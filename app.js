@@ -57,6 +57,10 @@ app.get('/', function (req, res) {
     }
 });
 
+app.get('/getSpaceTypesGlobalVar', function (req, res) {
+    res.send(SPACE_TYPES);
+});
+
 
 /* Sign up page */
 app.get('/signup.html', function (req, res) {
@@ -624,7 +628,15 @@ app.post('/addSpace', function (req, res) {
 });
 
 app.get('/getAddSpace', function (req, res) {
-    res.render('addSpace.html', {spaceTypes: SPACE_TYPES});
+    res.redirect('/addSpace.html');
+});
+
+app.get('/addSpace.html', function (req, res) {
+    if (req.session.user) {
+        res.render('addSpace.html');
+    } else {
+        res.redirect('/');
+    }
 });
 
 
