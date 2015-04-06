@@ -11,26 +11,25 @@ var sanitizer = require('sanitizer');
 
 var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21-102-69.compute-1.amazonaws.com:5432/d4edc2620msf51?ssl=true";
 
-/* User can express preference in favour or against a space (like or dislike function) */
 module.exports = function (app) {
 
 	
-	//Get space info, requires a space Id to be passed in
+	/*
+		Get to view space info, gets both space info and rating info
+		And then send the results to renderSpace
+	*/
 	app.get('/space-info.html', function (req, res) {
     if(typeof req.query.spaceId == 'undefined' || typeof req.query.joined == 'undefined') {
         res.end();
     }
-    console.log(req.query.joined);
     req.session.joined = req.query.joined;
-    console.log(req.session.joined);
-    //var values = [];
-    //values.push(req.query.spaceId);
 
     var getQuery = 'SELECT *, $1::integer AS LikeDislike FROM "Space" WHERE "SpaceId" = $2';
 
     var getSuccessMessage = 'Successfully retrieved space info';
     var getFailedMessage = 'Could not retrieve space info';
     
+	//Rating Query
     var getRatingQuery = 'SELECT * FROM "SpaceRating" WHERE "UserId"= $1 AND "SpaceId"= $2';
     var client = new pg.Client(conString);
 	var result = [];
@@ -57,24 +56,17 @@ module.exports = function (app) {
         
         query.on('end', function () {
             client.end();
-            console.log(result);
-            console.log(result[0]);
             var currentRating;
             if (typeof result[0] == 'undefined') {
-                console.log('empty');
                 currentRating = null;
             } else {
-                console.log(result.rows);
                 currentRating = result[0].LikeDislike;
             }
-            console.log('Rating: ' + currentRating);
             
             var values = [];
             values.push(currentRating);
             values.push(req.query.spaceId);
-            console.log(values)
 
-            console.log(getQuery);
             executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, renderSpaceInfo);
 
         });
@@ -83,6 +75,7 @@ module.exports = function (app) {
 
 
 // Helper function: Renders for space-info.html GET
+// Does some queries before rendering data
 function renderSpaceInfo(spaceResult, res, req) {
 	var client = new pg.Client(conString),
         result = [],
@@ -97,7 +90,6 @@ function renderSpaceInfo(spaceResult, res, req) {
         }
         
         var query = client.query(dbQuery, [spaceId], function(err, result){});
-        console.log("InsertQuery");
 
         /* Unable to connect to database */
         query.on('error', function (err) {
@@ -108,7 +100,7 @@ function renderSpaceInfo(spaceResult, res, req) {
             result.push(row);
         });
 
-        // Update Applications
+		//Get leasing info
         query.on('end', function () {
 			var selectQuery = 'Select * FROM "Leasing" WHERE "TenantId"=$1 AND "SpaceId"=$2';
 			var query2 = client.query(selectQuery, [req.session.uid,spaceId], function(err, result){});
@@ -125,7 +117,6 @@ function renderSpaceInfo(spaceResult, res, req) {
 			// Update Applications
 			query2.on('end', function () {
 				client.end();
-				console.log("occupying= "+occupying);
 				res.render('space-info.html', {occupying:occupying,spaceInfo: spaceResult.rows[0], teamsInfo : result, currentUser: req.session.joined, user:req.session.uid});
 			//res.end();
 			});
@@ -134,7 +125,6 @@ function renderSpaceInfo(spaceResult, res, req) {
 	});
   
 	};
-	
 	
     // Execute a query and return the results
 	// The argument 'values' can be omitted if the query takes no parameters
@@ -171,7 +161,6 @@ function renderSpaceInfo(spaceResult, res, req) {
 
         query.on('end', function (result){
             client.end();
-            console.log(successMessage);
             
             if(!(typeof results_handler == 'undefined')) {
                 results_handler(result, res, req);
@@ -179,10 +168,10 @@ function renderSpaceInfo(spaceResult, res, req) {
             } else {
                 res.writeHead(200, {'Content-Type': 'text/plain'});
 
-                var jsonShit = {};
-                jsonShit.results = result.rows;
-                console.log(jsonShit.results);
-                res.write(JSON.stringify(jsonShit, 0, 4));
+                var jsonStuff = {};
+                jsonStuff.results = result.rows;
+                console.log(jsonStuff.results);
+                res.write(JSON.stringify(jsonStuff, 0, 4));
                 res.end();
             }
         });
