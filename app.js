@@ -98,7 +98,6 @@ app.get('/getOwnerSpace', function (req, res) {
         var getQuery = 'SELECT * FROM "Space" WHERE "OwnerId" = $1';
         var getSuccessMessage = 'Successfully retrieved all owner spaceIDs';
         var getFailedMessage = 'Could not retrieve owner space info';
-        //console.log('In owner space');
         executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, renderOwnerSpace);
     } else {
         res.redirect('/');
@@ -373,31 +372,7 @@ function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
         });
     });
 }
-/*function get_userOwnerInfo(res, req, profileResult, tSpace, opt, user){
-	var ownerResult = [];
-	var isOwner = false;
-	var client = new pg.Client(conString);
-    
-    var getRatingQuery = 'SELECT * FROM "SpaceRating" WHERE "UserId"= $1 AND "SpaceId"= $2';
-	client.connect(function(err, done){
-		if (err){
-			res.send('sorry, there was an connection error', err);
-		}
-		var ownerQuery = client.query('Select * FROM "Space" WHERE "OwnerId"=$1',[user]);
-		ownerQuery.on('error', function(err){
-			res.send('Query Error ' + err);
-		});
-		ownerQuery.on('row', function(row){
-			ownerResult.push(row);
-			isOwner = true;
-		});
-		ownerQuery.on('end', function(){
-			client.end();
-			res.render('profile.html', {profile:profileResult, opt:opt, tennantSpace:tSpace, ownerSpace:ownerResult,Owner:isOwner});
-			res.end();
-		});
-	});
-};*/
+
 
 /* Helper function: Callback for viewing another user's info
    Gets info about the spaces they are leasing */
@@ -424,15 +399,10 @@ function get_userInfo(result, res, req){
             spaceFound = true;
 			currSpace = row.SpaceId;
 			spaceResult.push(row);
-			//console.log('row push ' + row.SpaceId);
-			//console.log(row);
-			//console.log('space result immediately post push ' + spaceResult);
 		});
 		query.on('end', function(){
 			if (spaceFound){
 				var opt = {currUser:false,spaceFound:true};
-				//console.log('result.rows '+ result.rows);
-				//console.log('space result.rows ' + spaceResult);
 				client.end();
 				get_userOwnerInfo(res, req, result.rows,spaceResult,opt, viewUser);
 
@@ -441,16 +411,11 @@ function get_userInfo(result, res, req){
 				//The user is not occupying a space
 				client.end();
 				var opt = {currUser:false,spaceFound:false};
-				//console.log('No Space found');
 				get_userOwnerInfo(res, req, result.rows,[],opt, viewUser);
-				//res.render('profile.html', {profile:result.rows, opt:opt, Space:[]});
-				//res.end();
+
 			}
 		});
     });
-	//console.log('looking at user with id '+ result.rows[0].UserId);
-	//res.render('profile.html', {profile:result.rows, opt:opt});
-	//res.end();
 }
 
 
@@ -969,9 +934,6 @@ app.post('/updateApplication', function(req, res){
 	
 	console.log(req.body.fromDate);
 	console.log('Updating Application with values = '+values)
-	//res.render('test.html',{date:req.body.fromDate});
-	//res.send('Updating Application with values = '+values);
-	
 
 	var client = new pg.Client(conString),
         result = [],
@@ -1197,8 +1159,6 @@ app.get('/getAvailabilities', function (req, res) {
         values.push(valuesObj['toDate']);
         i++;
     }
-    //var getQuery = 'SELECT * FROM "Availability";
-
     var getQuery = 'SELECT * FROM "Availability" NATURAL JOIN "Space"';
     if(updateColumns.length > 0) {
     	getQuery += ' WHERE ' + updateColumns.join(' AND ');
@@ -1339,7 +1299,6 @@ app.post('/deleteLeasing', function (req, res) {
     values.push(req.body.tenantId);
 
     var deleteQuery = 'DELETE FROM "Leasing" WHERE "SpaceId" = $1 AND "TenantId" = $2';
-
     var deleteSuccessMessage = 'Successfully deleted leasing';
     var deleteFailedMessage = 'Could not delete leasing';
     executeQuery(res, req, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
@@ -1359,7 +1318,6 @@ app.post('/addForumPost', function (req, res) {
 
     var params = createParams(values.length);
     var insertQuery = 'INSERT INTO "ForumPost"("UserId", "SpaceId", "Text", "DateTimePosted", "ProjectTag") VALUES(' + params + ') RETURNING "ForumPostId"';
-
     var insertSuccessMessage = 'Successfully inserted forum post';
     var insertFailedMessage = 'Failed to insert forum post';
     executeQuery(res, req, insertSuccessMessage, insertFailedMessage, insertQuery, values);
@@ -1372,7 +1330,6 @@ app.get('/getForumPostsForSpace', function (req, res) {
     values.push(req.get('spaceId'));
 
     var getQuery = 'SELECT * FROM "ForumPost" WHERE "SpaceId" = $1';
-
     var getSuccessMessage = 'Successfully retrieved forum posts for space';
     var getFailedMessage = 'Could not retrieve forum posts for space';
     executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values);
@@ -1387,7 +1344,6 @@ app.get('/create-team', function(req, res){
         var getQuery = 'SELECT * FROM "Leasing" NATURAL JOIN "Space" WHERE "TenantId" = $1';
         var getSuccessMessage = 'Successfully retrieved all tenant spaceIDs';
         var getFailedMessage = 'Could not retrieve tenant space info';
-        //console.log('In owner space');
         executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values, renderCreateTeams);
     } else {
         res.redirect('/');
