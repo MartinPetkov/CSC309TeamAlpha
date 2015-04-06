@@ -187,10 +187,10 @@ module.exports = function (app) {
             } else {
                 res.writeHead(200, {'Content-Type': 'text/plain'});
 
-                var jsonShit = {};
-                jsonShit.results = result.rows;
-                console.log(jsonShit.results);
-                res.write(JSON.stringify(jsonShit, 0, 4));
+                var jsonStuff = {};
+                jsonStuff.results = result.rows;
+                console.log(jsonStuff.results);
+                res.write(JSON.stringify(jsonStuff, 0, 4));
                 res.end();
             }
         });
