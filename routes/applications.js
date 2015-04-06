@@ -81,12 +81,9 @@ module.exports = function (app) {
 	});
 
 	function renderApplications (results, res, req){
-		
 		res.render('getApplications.html', {appInfo:results.rows});
-		
 	};
-
-	//TODO UPDATE QUERIES
+	
 	app.post('/updateApplication', function(req, res){
 		var user = req.session.uid;
 		var space = req.body.spaceId;
@@ -98,7 +95,6 @@ module.exports = function (app) {
 		values.push(req.body.price);
 		values.push(req.body.response);
 		
-
 		var client = new pg.Client(conString),
 			result = [],
 			result2 = [],
@@ -108,8 +104,6 @@ module.exports = function (app) {
 		var toDate,fromDate;
 		var dateHack1, dateHack2;
 		
-		   // getQuery = 'INSERT INTO "Applications" ("UserId", "SpaceId", "FromDate", "ToDate") SELECT $1, $2, $3, $4 WHERE NOT EXISTS (SELECT "UserId","SpaceId" FROM "Applications" WHERE "UserId" = $5 AND "SpaceId"= $6) RETURNING "SpaceId"';
-
 		client.connect(function (err, done) {
 			//Unable to connect to postgreSQL server 
 			if (err) {
@@ -128,11 +122,10 @@ module.exports = function (app) {
 				result.push(row);
 				toDate   = row.ToDate;
 				fromDate = row.FromDate;
-					
 							
 			});
 
-			// UPDATE LEASING TODO
+			//Delete From Leasing
 			query.on('end', function () {
 				//client.end();
 				//res.send(toDate+fromDate);
@@ -148,14 +141,17 @@ module.exports = function (app) {
 					result2.push(row);
 				})
 				query2.on('end', function () {
+				
+					//If the application was accepted
 					if (req.body.response=="accepted"){
 						var fromDate1 = new Date(fromDate);
 						var toDate1  = new Date(toDate);
 						dateHack1 =''+(fromDate1.getYear()-100+2000)+'-'+(fromDate1.getMonth()+1)+'-'+fromDate1.getDate();
 						dateHack2 =''+(toDate1.getYear()-100+2000)+'-'+(toDate1.getMonth()+1)+'-'+toDate1.getDate();
-						var insertQuery = 'INSERT INTO "Leasing" ("SpaceId", "FromDate", "TenantId", "ToDate", "NegotiatedPricePerDay") SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT "TenantId", "SpaceId" FROM "Leasing" WHERE "TenantId" = $3 AND "SpaceId"= $1)';
-						var query3 = client.query(insertQuery, [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price], function(err, result){});
 						
+						//Insert into leasing if it doesn;t exist
+						var insertQuery = 'INSERT INTO "Leasing" ("SpaceId", "FromDate", "TenantId", "ToDate", "NegotiatedPricePerDay") SELECT $1, $2, $3, $4, $5 WHERE NOT EXISTS (SELECT "TenantId", "SpaceId" FROM "Leasing" WHERE "TenantId" = $3 AND "SpaceId"= $1)';
+						var query3 = client.query(insertQuery, [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price], function(err, result){});			
 						
 						query3.on('error', function (err) {
 							res.send('Query Error ' + err);
@@ -165,6 +161,7 @@ module.exports = function (app) {
 							result3.push(row);
 						})
 						query3.on('end', function(){
+							//Update in leasing
 							var updateQuery = 'UPDATE "Leasing" SET "SpaceId"=$1, "FromDate"=$2, "TenantId"=$3, "ToDate"=$4, "NegotiatedPricePerDay"=$5 WHERE "TenantId" = $3 AND "SpaceId" = $1';
 							var query4 = client.query(updateQuery, [req.body.spaceId, dateHack1, req.body.tenant, dateHack2, req.body.price], function(err, result){});
 							
@@ -185,13 +182,9 @@ module.exports = function (app) {
 						client.end();
 						res.redirect('/getApplications');
 					}
-					
-				});
-				
+				});			
 			});
-		});
-		
-		
+		});		
 	});
 
 	function redirectApplySpace(result, res, req){
