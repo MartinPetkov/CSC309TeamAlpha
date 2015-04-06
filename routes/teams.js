@@ -14,7 +14,9 @@ var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21
 /* User can express preference in favour or against a space (like or dislike function) */
 module.exports = function (app) {
 	
-	
+	/*
+		Get a team with the given ID, and pass the results into renderTeam helper function
+	*/
 	app.get('/getTeam:id?',function(req, res){
 		var teamId = req.params.id;
 		var selectQuery = 'Select * FROM "Teams" NATURAL JOIN "User" NATURAL JOIN "Space" where "TeamId"=$1';
@@ -25,13 +27,18 @@ module.exports = function (app) {
 
 		executeQuery(res, req, successMessage, failedMessage, selectQuery, values, renderTeam);
 	});
+	
+	//Render Team Info
 	function renderTeam(teamResult, res, req){
 		res.render('team-info.html', {teamInfo:teamResult.rows[0], user:req.session.uid});
 		
 	};
-
+	/*
+		Post to Apply to a team, redirects to the team the user applied to
+	*/
 	app.post('/apply-team', function(req, res){
-		//res.send("applying with user = "+req.body.user + " for space= "+req.body.teamId);
+	
+		//Insert into TeamMembers if this user isn't already part of the team
 		var client = new pg.Client(conString),
 			result = [],
 			dbQuery = 'INSERT INTO "TeamMembers" ("TeamId", "UserId") SELECT $1, $2 WHERE NOT EXISTS (SELECT "TeamId","UserId" FROM "TeamMembers" WHERE "TeamId" = $1 AND "UserId"= $2)';
@@ -44,7 +51,6 @@ module.exports = function (app) {
 			}
 			
 			var query = client.query(dbQuery, [req.body.teamId, req.body.user], function(err, result){});
-			console.log("InsertQuery");
 
 			/* Unable to connect to database */
 			query.on('error', function (err) {
@@ -58,13 +64,17 @@ module.exports = function (app) {
 			// Update Applications
 			query.on('end', function () {
 				client.end();
+				
+				//Create the link using the teamId from the application link
 				var link = '/getTeam'+req.body.teamId;
 				res.redirect(link);
 			});
 		});
 	});
 
-	//Post to leave team
+	/*
+		Post to leave a team, delete the user from the "TeamMembers" table in the DB
+	*/
 	app.post('/leave-team', function(req, res){
 		var values = [];
 		values.push(req.body.user);
@@ -76,13 +86,18 @@ module.exports = function (app) {
 		
 		executeQuery(res, req, successMessage, failedMessage, dbQuery, values, leaveTeam);
 	});
-
+	
+	/*
+		Callback to handle leave team, redirect to postings.html
+	*/
 	function leaveTeam (result, res, req){
 		res.redirect('/');
 	};
 	
-	
-	//Create a Team
+	/*
+		Initial get to create a team
+		Gets info from Leasing Join Space and sends the result to renderCreateTeams
+	*/
 	app.get('/create-team', function(req, res){
 	 var values = [];
 		if (req.session.user) {
@@ -96,12 +111,19 @@ module.exports = function (app) {
 			res.redirect('/');
 		}
 	});
-
+	
+	/*
+		Callback to render results from create-team get (displays about teams user is leasing
+	*/
 	function renderCreateTeams(result, res, req){
 		res.render('create-team.html', {space:result.rows, currUser:req.session.uid});
 		res.end();
 	};
-
+	
+	/*
+		Post to create a team
+		inserts the team into the table "Teams" in the db
+	*/
 	app.post('/create-team', function(req, res){
 		var values = [];
 		values.push(req.body.userId);
@@ -116,6 +138,9 @@ module.exports = function (app) {
 		executeQuery(res,req, createSuccessMessage, createFailedMessage, createTeamQuery,values, redirectCreateTeam);
 	});
 
+	/*
+		Redirect after creating a team, to postings
+	*/
 	function redirectCreateTeam(req, res){
 		res.redirect('/postings.html');
 	};
@@ -155,7 +180,6 @@ module.exports = function (app) {
 
         query.on('end', function (result){
             client.end();
-            console.log(successMessage);
             
             if(!(typeof results_handler == 'undefined')) {
                 results_handler(result, res, req);

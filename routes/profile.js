@@ -20,7 +20,7 @@ module.exports = function (app) {
    If no ID is provided, the app assumes you are trying to view/change your info */
 	app.get('/getUserInfo', function (req, res) {
 		var values = [];
-
+		
 		// Check if user is logged in
 		 if (req.session.user) {
 			// User is logged in, do queries
@@ -49,10 +49,9 @@ module.exports = function (app) {
 
 		var getSuccessMessage = 'Successfully retrieved user info';
 		var getFailedMessage = 'Could not retrieve user info';
+		
 		executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values, get_userInfo);
-
 	});
-	
 	
 	/* Helper function: Callback for getting/changing your own user info
 	   There is another callback for viewing another users info and they both
@@ -75,6 +74,7 @@ module.exports = function (app) {
 				res.send('Query Error ' + err);
 			});
 
+			//Var to check if a space was found
 			var spaceFound = false;
 			query.on('row', function (row) {
 				spaceFound = true;
@@ -114,6 +114,8 @@ module.exports = function (app) {
 		var isOwner = false;
 		var client = new pg.Client(conString);
 		
+		
+		//Query to get rating for user
 		var getRatingQuery = 'SELECT * FROM "UserRating" WHERE "UserId"= $1 AND "FriendUserId"= $2';
 		
 		
@@ -133,21 +135,22 @@ module.exports = function (app) {
 			query.on('end', function(){
 				client.end();
 		
+				//Store the Current Rating
 				var currentRating;
 				if (typeof result[0] == 'undefined') {
-					console.log('empty');
 					currentRating = null;
 				} else {
-					console.log(result.rows);
 					currentRating = result[0].LikeDislike;
 				}
-				console.log('Rating: ' + currentRating);
 				
 				var client2 = new pg.Client(conString);
 				client2.connect(function(err, done){
 					if (err){
 						res.send('sorry, there was an connection error', err);
 					}
+					
+					
+					//Query to get information about the space
 					var ownerQuery = client2.query('Select * FROM "Space" WHERE "OwnerId"=$1',[user]);
 					ownerQuery.on('error', function(err){
 						res.send('Query Error ' + err);
@@ -158,7 +161,6 @@ module.exports = function (app) {
 					});
 					ownerQuery.on('end', function(){
 						client2.end();
-						console.log('owner space likedislike: ' + ownerResult.likedislike);
 						res.render('profile.html', {profile:profileResult, opt:opt, tennantSpace:tSpace, ownerSpace:ownerResult,Owner:isOwner, likedislike: currentRating});
 						res.end();
 					});
@@ -171,10 +173,7 @@ module.exports = function (app) {
 	/* Helper function: Callback for viewing another user's info
 	   Gets info about the spaces they are leasing */
 	function get_userInfo(result, res, req){
-		//var currEmail = req.session.email;
 		var viewUser = result.rows[0].UserId;
-		//console.log('get user info func');
-		//var opt = {currUser:false};
 		var spaceResult = [];
 		var client = new pg.Client(conString);
 		var currSpace = '';
@@ -196,6 +195,7 @@ module.exports = function (app) {
 			});
 			query.on('end', function(){
 				if (spaceFound){
+					//User is occupying a space
 					var opt = {currUser:false,spaceFound:true};
 					client.end();
 					get_userOwnerInfo(res, req, result.rows,spaceResult,opt, viewUser);
@@ -246,7 +246,6 @@ module.exports = function (app) {
 
         query.on('end', function (result){
             client.end();
-            console.log(successMessage);
             
             if(!(typeof results_handler == 'undefined')) {
                 results_handler(result, res, req);
