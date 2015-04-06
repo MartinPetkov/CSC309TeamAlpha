@@ -41,18 +41,21 @@ var logout = require("./routes/logout")(app),
     login = require("./routes/login")(app),
     admin = require("./routes/admin")(app),
     likedislike = require("./routes/likedislike")(app),
+
 	profile = require("./routes/profile")(app),
 	space = require("./routes/space")(app),
 	team = require("./routes/teams")(app),
 	application = require("./routes/applications")(app);
+    profile = require("./routes/profile")(app);
+
 
 
 /* Home page */
 // Redirects user to log in page if they are signed in
 app.get('/', function (req, res) {
-	if (req.session.user) {
+    if (req.session.user) {
         res.redirect('/postings.html');
-	} else {
+    } else {
         res.sendFile('./public/views/intro.html', {root:__dirname});
     }
 });
@@ -64,24 +67,24 @@ app.get('/getSpaceTypesGlobalVar', function (req, res) {
 
 /* Sign up page */
 app.get('/signup.html', function (req, res) {
-	res.render('signup.html');
+    res.render('signup.html');
 });
 
 
 
 /* User Profile Viewing */
 app.get('/user:id?', function (req, res) {
-	var id = req.params.id;
-	var dbQuery = 'SELECT ("Email", "HomeLocation", "Reputation", "About", "ProjectInterests", "FirstName", "LastName") FROM "User" WHERE "UserId"=$1';
-	var successMessage = 'User Succesfully Retreived';
-	var failedMessage = 'User Not Retreived';
-	res.send(id);
+    var id = req.params.id;
+    var dbQuery = 'SELECT ("Email", "HomeLocation", "Reputation", "About", "ProjectInterests", "FirstName", "LastName") FROM "User" WHERE "UserId"=$1';
+    var successMessage = 'User Succesfully Retreived';
+    var failedMessage = 'User Not Retreived';
+    res.send(id);
 
 });
 
 /* Main Menu - List of all postings */
 app.get('/postings.html', function (req, res) {
-	// Postings is actually handled by get_availability function
+    // Postings is actually handled by get_availability function
 
     if (req.session.user) {
         res.redirect('/getAvailabilities');
@@ -127,9 +130,9 @@ app.post('/addUser', function (req, res) {
     values.push(sha1(req.body.password));
     values.push(req.body.homeLocation);
 
-	// Place holder Reputation
+    // Place holder Reputation
     values.push(0);
-	// Place holder for about and project Interests
+    // Place holder for about and project Interests
     values.push(" ");
     values.push(" ");
 
@@ -142,9 +145,9 @@ app.post('/addUser', function (req, res) {
     var insertFailedMessage = 'Failed to insert user';
     executeQuery(res,req, insertSuccessMessage, insertFailedMessage, insertQuery, values, redirectToPostings);
 
-	// Log the User's email in the session
-	// We log their UserId in execute-query (admittedly not the prettiest)
-	req.session.user = req.body.email;
+    // Log the User's email in the session
+    // We log their UserId in execute-query (admittedly not the prettiest)
+    req.session.user = req.body.email;
 });
 
 function redirectToPostings(result, res, req) {
@@ -156,35 +159,35 @@ function redirectToPostings(result, res, req) {
 
 // Update user info
 app.post('/updateUserInfo', function (req, res) {
-	//Get necessary values from form and session
-	var userEmail = req.session.user;
-	var valuesObj = {
-    	'FirstName': req.body.firstName,
-    	'LastName': req.body.lastName,
+    //Get necessary values from form and session
+    var userEmail = req.session.user;
+    var valuesObj = {
+        'FirstName': req.body.firstName,
+        'LastName': req.body.lastName,
 
         /* TBC IN PHASE 4 */
-    	/* 'Email': userEmail,
-    	   'Password': sha1(req.body.password),
-		   'Password': req.body.password, */
-    	'HomeLocation': req.body.homeLocation,
-    	'Reputation': req.body.reputation,
-    	'About': req.body.about,
-    	'ProjectInterests': req.body.projectInterests
-	};
+        /* 'Email': userEmail,
+           'Password': sha1(req.body.password),
+           'Password': req.body.password, */
+        'HomeLocation': req.body.homeLocation,
+        'Reputation': req.body.reputation,
+        'About': req.body.about,
+        'ProjectInterests': req.body.projectInterests
+    };
     // No photo yet, don't wanna deal with that
 
     var updateColumns = [];
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-		//console.log('looking at property '+property + ' value = '+valuesObj[property]);
-    	if((valuesObj.hasOwnProperty(property))
-    		&& (typeof valuesObj[property] != 'undefined')) {
+        //console.log('looking at property '+property + ' value = '+valuesObj[property]);
+        if((valuesObj.hasOwnProperty(property))
+            && (typeof valuesObj[property] != 'undefined')) {
 
-    		updateColumns.push('"' + property + '" = $' + i);
-    		values.push(valuesObj[property]);
-    		i++;
-    	}
+            updateColumns.push('"' + property + '" = $' + i);
+            values.push(valuesObj[property]);
+            i++;
+        }
     }
     values.push(userEmail);
     var updateQuery = 'UPDATE "User" SET ' + updateColumns.join(', ') + ' WHERE "Email"=$' + (updateColumns.length + 1);
@@ -197,8 +200,8 @@ app.post('/updateUserInfo', function (req, res) {
 
 // Helper function: Callback for updateUserInfo post, just redirects to userProfile
 function update_userInfo(result, res, req){
-	res.redirect('/getUserInfo');
-	res.end();
+    res.redirect('/getUserInfo');
+    res.end();
 }
 
 // Get all users
@@ -234,129 +237,129 @@ app.get('/getUserInfoPlain:id?', function(req, res){
 //Get all user occupying this space AJAX
 app.get('/getAllSpaceUserInfo', function(req, res){
     console.log('here in getallspaceuserinfo');
-	var values = [];
+    var values = [];
     if(typeof req.query.spaceId == 'undefined') {
         res.end();
     }
-	var id = req.query.spaceId;
-	//values.push(req.get('userId'));
-	values.push(id);
-	var getQuery = 'SELECT * FROM "Leasing" JOIN "User" ON "Leasing"."TenantId" = "User"."UserId" WHERE "SpaceId" = $1';
+    var id = req.query.spaceId;
+    //values.push(req.get('userId'));
+    values.push(id);
+    var getQuery = 'SELECT * FROM "Leasing" JOIN "User" ON "Leasing"."TenantId" = "User"."UserId" WHERE "SpaceId" = $1';
 
     console.log(req.query.id);
-	var getSuccessMessage = 'Successfully retrieved user info';
-	var getFailedMessage = 'Could not retrieve user info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully retrieved user info';
+    var getFailedMessage = 'Could not retrieve user info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
 //Get all teams associated to this space AJAX
 app.get('/getAllSpaceTeamInfo', function(req, res){
     console.log('here in getallspaceteaminfo with id = '+req.query.spaceId);
-	var values = [];
+    var values = [];
     if(typeof req.query.spaceId == 'undefined') {
         res.end();
     }
-	var id = req.query.spaceId;
-	//values.push(req.get('userId'));
-	values.push(id);
-	var getQuery = 'SELECT * FROM "Space" NATURAL JOIN "Teams" WHERE "SpaceId" = $1';
+    var id = req.query.spaceId;
+    //values.push(req.get('userId'));
+    values.push(id);
+    var getQuery = 'SELECT * FROM "Space" NATURAL JOIN "Teams" WHERE "SpaceId" = $1';
 
     console.log(id);
-	var getSuccessMessage = 'Successfully retrieved Team info';
-	var getFailedMessage = 'Could not retrieve Team info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully retrieved Team info';
+    var getFailedMessage = 'Could not retrieve Team info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
 //Get all members associated to this team AJAX
 app.get('/getAllTeamMemberInfo', function(req, res){
     console.log('here in get all team member info with team id = '+req.query.teamId);
-	var values = [];
+    var values = [];
     if(typeof req.query.teamId == 'undefined') {
         res.end();
     }
-	var id = req.query.teamId;
-	//values.push(req.get('userId'));
-	values.push(id);
-	var getQuery = 'SELECT * FROM "TeamMembers" NATURAL JOIN "User" WHERE "TeamId" = $1';
+    var id = req.query.teamId;
+    //values.push(req.get('userId'));
+    values.push(id);
+    var getQuery = 'SELECT * FROM "TeamMembers" NATURAL JOIN "User" WHERE "TeamId" = $1';
 
     console.log(id);
-	var getSuccessMessage = 'Successfully retrieved team member  info';
-	var getFailedMessage = 'Could not retrieve team member info';
-	executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully retrieved team member  info';
+    var getFailedMessage = 'Could not retrieve team member info';
+    executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
 //Get Lease info about specific User and Space
 app.get('/getUserLeaseInfo', function(req, res){
     console.log('here in getUserLeaseInfo');
-	var values = [];
+    var values = [];
     if(typeof req.query.spaceId == 'undefined') {
-		console.log('no spaceId');
+        console.log('no spaceId');
         res.end();
     }
-	if(typeof req.query.user == 'undefined') {
-		console.log('no user');
+    if(typeof req.query.user == 'undefined') {
+        console.log('no user');
         res.end();
     }
-	var id = req.query.spaceId;
-	var user = req.query.user;
-	//values.push(req.get('userId'));
-	values.push(id);
-	values.push(user);
-	var getQuery = 'SELECT * FROM "Leasing" WHERE "SpaceId" = $1 AND "TenantId"=$2';
+    var id = req.query.spaceId;
+    var user = req.query.user;
+    //values.push(req.get('userId'));
+    values.push(id);
+    values.push(user);
+    var getQuery = 'SELECT * FROM "Leasing" WHERE "SpaceId" = $1 AND "TenantId"=$2';
 
     console.log('values for getUserLEaseInfo '+id + ' '+user);
-	var getSuccessMessage = 'Successfully retrieved user Lease info';
-	var getFailedMessage = 'Could not retrieve user Lease info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully retrieved user Lease info';
+    var getFailedMessage = 'Could not retrieve user Lease info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
 //Get Team info about specific User and Team
 app.get('/getUserTeamInfo', function(req, res){
     console.log('here in getUserLeaseInfo');
-	var values = [];
+    var values = [];
     if(typeof req.query.teamId == 'undefined') {
-		console.log('no teamId');
+        console.log('no teamId');
         res.end();
     }
-	if(typeof req.query.user == 'undefined') {
-		console.log('no user');
+    if(typeof req.query.user == 'undefined') {
+        console.log('no user');
         res.end();
     }
-	var id = req.query.teamId;
-	var user = req.query.user;
-	//values.push(req.get('userId'));
-	values.push(id);
-	values.push(user);
-	var getQuery = 'SELECT * FROM "TeamMembers" WHERE "TeamId" = $1 AND "UserId"=$2';
+    var id = req.query.teamId;
+    var user = req.query.user;
+    //values.push(req.get('userId'));
+    values.push(id);
+    values.push(user);
+    var getQuery = 'SELECT * FROM "TeamMembers" WHERE "TeamId" = $1 AND "UserId"=$2';
 
     console.log('values for getUserLEaseInfo '+id + ' '+user);
-	var getSuccessMessage = 'Successfully retrieved user Lease info';
-	var getFailedMessage = 'Could not retrieve user Lease info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully retrieved user Lease info';
+    var getFailedMessage = 'Could not retrieve user Lease info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
 //Get Team info about this
 app.get('/getUserTeams', function(req, res){
     console.log('here in getUserTeams');
-	var values = [];
-	if(typeof req.query.user == 'undefined') {
-		console.log('no user');
+    var values = [];
+    if(typeof req.query.user == 'undefined') {
+        console.log('no user');
         res.end();
     }
-	var user = req.query.user;
-	//values.push(req.get('userId'));
-	values.push(user);
-	var getQuery = 'SELECT * FROM "TeamMembers" JOIN "Teams" ON "Teams"."TeamId" = "TeamMembers"."TeamId" WHERE "TeamMembers"."UserId"=$1';
+    var user = req.query.user;
+    //values.push(req.get('userId'));
+    values.push(user);
+    var getQuery = 'SELECT * FROM "TeamMembers" JOIN "Teams" ON "Teams"."TeamId" = "TeamMembers"."TeamId" WHERE "TeamMembers"."UserId"=$1';
 
     console.log('values for get user Teams '+user);
-	var getSuccessMessage = 'Successfully get teams info';
-	var getFailedMessage = 'Could not retrieve teams info';
-	executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
+    var getSuccessMessage = 'Successfully get teams info';
+    var getFailedMessage = 'Could not retrieve teams info';
+    executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
 
 });
 
@@ -415,29 +418,29 @@ app.get('/addSpace.html', function (req, res) {
 
 // Update space
 app.post('/updateSpaceInfo', function (req, res) {
-	var spaceId = req.body.spaceId;
-	var valuesObj = {
-    	'OwnerId': req.body.ownerId,
-    	'Location': req.body.location,
-    	'Description': req.body.description,
-    	'SpaceType': req.body.spaceType,
-    	'Area': req.body.area,
-    	'Rooms': req.body.rooms,
-    	'PricePerDay': req.body.pricePerDay,
-    	'VacancyAmount': req.body.vacancyAmount
-	};
+    var spaceId = req.body.spaceId;
+    var valuesObj = {
+        'OwnerId': req.body.ownerId,
+        'Location': req.body.location,
+        'Description': req.body.description,
+        'SpaceType': req.body.spaceType,
+        'Area': req.body.area,
+        'Rooms': req.body.rooms,
+        'PricePerDay': req.body.pricePerDay,
+        'VacancyAmount': req.body.vacancyAmount
+    };
 
     var updateColumns = [];
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-    	if((valuesObj.hasOwnProperty(property))
-    		&& (typeof valuesObj[property] != 'undefined')) {
+        if((valuesObj.hasOwnProperty(property))
+            && (typeof valuesObj[property] != 'undefined')) {
 
-    		updateColumns.push('"' + property + '" = $' + i);
-    		values.push(valuesObj[property]);
-    		i++;
-    	}
+            updateColumns.push('"' + property + '" = $' + i);
+            values.push(valuesObj[property]);
+            i++;
+        }
     }
     values.push(spaceId);
 
@@ -470,11 +473,6 @@ app.get('/getSpaceInfo', function (req, res) {
     var getFailedMessage = 'Could not retrieve space info';
     executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values);
 });
-
-
-
-
-
 
 
 // Delete space
@@ -510,9 +508,9 @@ app.post('/addAvailability', function (req, res) {
 // Get availabilities (can be filtered)
 app.get('/getAvailabilities', function (req, res) {
     var valuesObj = {
-		'SpaceId': req.get('spaceId'),
-    	'FromDate': req.get('fromDate'),
-    	'ToDate': req.get('toDate'),
+        'SpaceId': req.get('spaceId'),
+        'FromDate': req.get('fromDate'),
+        'ToDate': req.get('toDate'),
 
         'keywords': req.query['keywords'],
         'price-range': req.query['price-range'],
@@ -520,33 +518,33 @@ app.get('/getAvailabilities', function (req, res) {
         'fromDate': req.query['fromDate'],
         'toDate': req.query['toDate'],
         'sort-by': req.query['sort-by']
-	};
+    };
 
     var updateColumns = [];
     var values = [];
     var i = 1;
 
-	//Check if values make sense
+    //Check if values make sense
     if(typeof valuesObj['SpaceId'] != 'undefined') {
-		updateColumns.push('"SpaceId" = $' + i);
-		values.push(valuesObj['SpaceId']);
-		i++;
-	}
-	if(typeof valuesObj['FromDate'] != 'undefined') {
-		updateColumns.push('"FromDate" >= $' + i);
-		values.push(valuesObj['FromDate']);
-		i++;
-	}
-	if(typeof valuesObj['ToDate'] != 'undefined') {
-		updateColumns.push('"ToDate" <= $' + i);
-		values.push(valuesObj['ToDate']);
-		i++;
-	}
+        updateColumns.push('"SpaceId" = $' + i);
+        values.push(valuesObj['SpaceId']);
+        i++;
+    }
+    if(typeof valuesObj['FromDate'] != 'undefined') {
+        updateColumns.push('"FromDate" >= $' + i);
+        values.push(valuesObj['FromDate']);
+        i++;
+    }
+    if(typeof valuesObj['ToDate'] != 'undefined') {
+        updateColumns.push('"ToDate" <= $' + i);
+        values.push(valuesObj['ToDate']);
+        i++;
+    }
 
     if(valuesObj['keywords']) {
         // Trip spaces
         var keywordsList = valuesObj['keywords'].replace(/^\s+|\s+$/g, '');
-        keywordsList = keywordsList.replace(/ +/g, ',').split(',');
+        keywordsList = keywordsList.replace(/( *, *)|( +)/g, ',').split(',');
         console.log(keywordsList);
 
         var keywordColumns = '(';
@@ -593,7 +591,7 @@ app.get('/getAvailabilities', function (req, res) {
     }
     var getQuery = 'SELECT * FROM "Availability" NATURAL JOIN "Space"';
     if(updateColumns.length > 0) {
-    	getQuery += ' WHERE ' + updateColumns.join(' AND ');
+        getQuery += ' WHERE ' + updateColumns.join(' AND ');
     }
 
     if(valuesObj['sort-by']) {
@@ -659,25 +657,25 @@ app.post('/addLeasing', function (req, res) {
 
 // Update leasing
 app.post('/updateLeasingInfo', function (req, res) {
-	var spaceId = req.body.spaceId;
-	var tenantId = req.body.tenantId;
-	var valuesObj = {
-    	'FromDate': req.body.fromDate,
-    	'ToDate': req.body.toDate,
-    	'NegotiatedPricePerDay': req.body.negotiatedPricePerDay
-	};
+    var spaceId = req.body.spaceId;
+    var tenantId = req.body.tenantId;
+    var valuesObj = {
+        'FromDate': req.body.fromDate,
+        'ToDate': req.body.toDate,
+        'NegotiatedPricePerDay': req.body.negotiatedPricePerDay
+    };
 
     var updateColumns = [];
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-    	if((valuesObj.hasOwnProperty(property))
-    		&& (typeof valuesObj[property] != 'undefined')) {
+        if((valuesObj.hasOwnProperty(property))
+            && (typeof valuesObj[property] != 'undefined')) {
 
-    		updateColumns.push('"' + property + '" = $' + i);
-    		values.push(valuesObj[property]);
-    		i++;
-    	}
+            updateColumns.push('"' + property + '" = $' + i);
+            values.push(valuesObj[property]);
+            i++;
+        }
     }
     values.push(spaceId);
     values.push(tenantId);
@@ -692,30 +690,30 @@ app.post('/updateLeasingInfo', function (req, res) {
 
 // Get leasing info
 app.get('/getLeasingInfo', function (req, res) {
-	var valuesObj = {
-		'SpaceId': req.get('spaceId'),
-		'TenantId': req.get('tenantId'),
-    	'FromDate': req.get('fromDate'),
-    	'ToDate': req.get('toDate'),
-    	'NegotiatedPricePerDay': req.get('negotiatedPricePerDay')
-	};
+    var valuesObj = {
+        'SpaceId': req.get('spaceId'),
+        'TenantId': req.get('tenantId'),
+        'FromDate': req.get('fromDate'),
+        'ToDate': req.get('toDate'),
+        'NegotiatedPricePerDay': req.get('negotiatedPricePerDay')
+    };
 
     var updateColumns = [];
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-    	if((valuesObj.hasOwnProperty(property))
-    		&& (typeof valuesObj[property] != 'undefined')) {
+        if((valuesObj.hasOwnProperty(property))
+            && (typeof valuesObj[property] != 'undefined')) {
 
-    		updateColumns.push('"' + property + '" = $' + i);
-    		values.push(valuesObj[property]);
-    		i++;
-    	}
+            updateColumns.push('"' + property + '" = $' + i);
+            values.push(valuesObj[property]);
+            i++;
+        }
     }
 
     var getQuery = 'SELECT * FROM "Leasing"';
     if(updateColumns.length > 0) {
-    	getQuery += ' WHERE ' + updateColumns.join(' AND ');
+        getQuery += ' WHERE ' + updateColumns.join(' AND ');
     }
 
     var getSuccessMessage = 'Successfully retrieved leasing info';
@@ -766,7 +764,6 @@ app.get('/getForumPostsForSpace', function (req, res) {
     var getFailedMessage = 'Could not retrieve forum posts for space';
     executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values);
 });
-
 
 // Delete forum post
 app.post('/deleteForumPost', function (req, res) {
@@ -821,9 +818,9 @@ app.get('/validateCredentials', function (req, res) {
         var query = client.query(getPassQuery, [email]);
 
         query.on('error', function (error) {
-        	res.writeHead(500);
-        	console.log(error);
-			res.end();
+            res.writeHead(500);
+            console.log(error);
+            res.end();
         });
 
         query.on('row', function (row){
@@ -836,10 +833,10 @@ app.get('/validateCredentials', function (req, res) {
 
             var validity = 'invalid';
             if(result.length > 0) {
-            	var true_password = result[0].Password;
-            	if(given_password == true_password) {
-            		validity = 'valid';
-            	}
+                var true_password = result[0].Password;
+                if(given_password == true_password) {
+                    validity = 'valid';
+                }
             }
 
             res.write(validity);
@@ -874,18 +871,18 @@ function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, r
 
         // Prevent XSS
         for(var i = 0; i < values.length; i++) {
-        	if(typeof values[i] == 'string') {
-        		values[i] = sanitizer.escape(values[i]);
-        	}
+            if(typeof values[i] == 'string') {
+                values[i] = sanitizer.escape(values[i]);
+            }
         }
 
         var query = client.query(dbQuery, values, function(err, result){});
 
         query.on('error', function (error) {
-        	res.writeHead(500);
-        	console.log(failedMessage);
-        	console.log(error);
-			res.end();
+            res.writeHead(500);
+            console.log(failedMessage);
+            console.log(error);
+            res.end();
         });
 
         query.on('row', function (row){

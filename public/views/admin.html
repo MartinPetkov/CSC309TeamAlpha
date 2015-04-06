@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Profile | SynergySpace</title>
+    <title>Admin | SynergySpace</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="admin.css">
@@ -32,6 +32,10 @@
             <div class="actions">
                 <h4> Restrict space leasing type:</h4>
                 <form class="form-group" id="leasing" action="/changeLeaseType" method="post">
+                    <!-- An ajax call inserts restrict options here -->
+                    <br/>
+                    <label for="add-space-types">Add new types:</label>
+                    <input type="text" id="add-space-types" placeholder="Add new types (comma or space separated)" name="add-space-types" /><br/>
                     <input type="submit" id="submit-leasing" value="submit"/>
                 </form>
             </div>
@@ -197,10 +201,10 @@
         success: function(data) {
             var dataLen = data.length;
             for(var j = 0; j < dataLen; j++) {
-                $("#leasing").prepend('<input type="checkbox" name="space-types" value="'+data[j]+'">' + data[j] + '<br/>');
+                $("#leasing").prepend('<input type="checkbox" name="restrict-space-types" value="'+data[j]+'">' + data[j] + '<br/>');
             }
             $("#leasing").prepend(
-                '<label for="space-types">Select list:</label><br/>');
+                '<label for="restrict-space-types">Types to Remove:</label><br/>');
         },
         error: function(error) {
             console.log(error);

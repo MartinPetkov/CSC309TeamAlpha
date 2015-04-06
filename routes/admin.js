@@ -17,12 +17,40 @@ var adminPass = "adminpass"
 
 module.exports = function (app) {
     /* Log in Admin */
-    app.get('/admin.html', function (req, res){
+    app.get('/admin.html', function (req, res) {
         console.log("admin logged in");  
         res.render('admin.html');
     });
+
+    app.post('/changeLeaseType', function (req, res) {
+        var restrict_space_types = req.body['restrict-space-types'];
+
+        // Trim spaces and turn into list
+        var add_space_types =  req.body['add-space-types'].replace(/^\s+|\s+$/g, '').replace(/( *, *)|( +)/g, ',').split(',');
+
+
+        var updatedSpaceTypes = [];
+        if(add_space_types[0]) {
+            updatedSpaceTypes = add_space_types;
+        }
+        
+        var stLen = SPACE_TYPES.length;
+        for(var i = 0; i < stLen; i++) {
+            var keepType = SPACE_TYPES[i];
+
+            // Keep only types that haven't been restricted
+            if(!restrict_space_types || restrict_space_types.indexOf(keepType) == -1) {
+                updatedSpaceTypes.push(keepType);
+            }
+        }
+
+        SPACE_TYPES = updatedSpaceTypes;
+        console.log(SPACE_TYPES);
+
+        res.redirect('/admin.html');
+    });
     
-    app.get('/getSpaces?', function (req, res){
+    app.get('/getSpaces?', function (req, res) {
         successMessage = "retrieved teams count";
         failedMessage = "failed to retrieve teams count";
         dbQuery = 'SELECT count("SpaceName") as "spaceCount" FROM "Space"';
@@ -30,56 +58,56 @@ module.exports = function (app) {
         
     });
     
-    app.get('/getMembers?', function (req, res){
+    app.get('/getMembers?', function (req, res) {
         successMessage = "retrieved members count";
         failedMessage = "failed to retrieve members count";
         dbQuery = 'SELECT count("Email") as "emailCount" FROM "User"';
         executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
     });
         
-    app.get('/getTeams?', function (req, res){
+    app.get('/getTeams?', function (req, res) {
         successMessage = "retrieved teams count";
         failedMessage = "failed to retrieve teams count";
         dbQuery = 'SELECT count("TeamName") as "teamCount" FROM "Teams"';
         executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
     });
     
-    app.get('/getAvgTeam?', function (req, res){
+    app.get('/getAvgTeam?', function (req, res) {
         successMessage = "retrieved avg team";
         failedMessage = "failed to retrieve avg team";
         dbQuery = 'SELECT round(avg(count), 2) as "maxTeam" FROM (SELECT count("UserId") as count FROM "TeamMembers" GROUP BY "TeamId") as counts';
         executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
     });
     
-    app.get('/getMaxTeam?', function (req, res){
+    app.get('/getMaxTeam?', function (req, res) {
         successMessage = "retrieved largest team";
         failedMessage = "failed to retrieve largest team";
         dbQuery = 'SELECT round(max(count), 2) as "maxTeam" FROM (SELECT count("UserId") as count FROM "TeamMembers" GROUP BY "TeamId") as counts';
         executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
     });
     
-    app.get('/getAvgMem?', function (req, res){
+    app.get('/getAvgMem?', function (req, res) {
         successMessage = "retrieved avg occupancy";
         failedMessage = "failed to retrieve avg occupancy";
         dbQuery = 'SELECT round(avg(count), 2) as "avgMem" FROM (SELECT count("TenantId") as count FROM "Leasing" GROUP BY "SpaceId") as counts';
         executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
     });
     
-    app.get('/getMaxMem?', function (req, res){
+    app.get('/getMaxMem?', function (req, res) {
         successMessage = "retrieved highest occupancy";
         failedMessage = "failed to retrieve highest occupancy";
         dbQuery = 'SELECT round(max(count), 2) as "maxMem" FROM (SELECT count("TenantId") as count FROM "Leasing" GROUP BY "SpaceId") as counts';
         executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
     });
     
-    app.get('/getAvgCrtn?', function (req, res){
+    app.get('/getAvgCrtn?', function (req, res) {
         successMessage = "retrieved avg # of spaces created";
         failedMessage = "failed to retrieve avg # of spaces created";
         dbQuery = 'SELECT round(avg(count), 2) as "avgCrtn" FROM (SELECT count("SpaceId") as count FROM "Space" GROUP BY "OwnerId") as counts';
         executeQuery(res, req, successMessage, failedMessage, dbQuery, []);
     });
     
-    app.get('/getMaxCrtn?', function (req, res){
+    app.get('/getMaxCrtn?', function (req, res) {
         successMessage = "retrieved max # of spaces created";
         failedMessage = "failed to retrieve max # of spaces created";
         dbQuery = 'SELECT round(max(count), 2) as "maxCrtn" FROM (SELECT count("SpaceId") as count FROM "Space" GROUP BY "OwnerId") as counts';
