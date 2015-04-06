@@ -70,8 +70,6 @@ app.get('/signup.html', function (req, res) {
     res.render('signup.html');
 });
 
-
-
 /* User Profile Viewing */
 app.get('/user:id?', function (req, res) {
     var id = req.params.id;
@@ -93,9 +91,6 @@ app.get('/postings.html', function (req, res) {
     }
 });
 
-
-
-
 /* Retreive list of spaces the user owns for add-availability.html */
 app.get('/getOwnerSpace', function (req, res) {
     var values = [];
@@ -109,7 +104,6 @@ app.get('/getOwnerSpace', function (req, res) {
     } else {
         res.redirect('/');
     }
-
 });
 
 /* Helper function: Renders the spaces for add-availability.html */
@@ -117,7 +111,6 @@ function renderOwnerSpace(result, res, req) {
     res.render('add-availability.html', {space: result.rows, tenantId:req.session.user});
     res.end();
 }
-
 
 // Database interaction endpoints, add future functions here
 /* User */
@@ -136,8 +129,6 @@ app.post('/addUser', function (req, res) {
     values.push(" ");
     values.push(" ");
 
-    // No photo yet, don't wanna deal with that
-
     var params = createParams(values.length);
     var insertQuery = 'INSERT INTO "User"( "FirstName", "LastName", "Email", "Password", "HomeLocation", "Reputation", "About", "ProjectInterests") VALUES(' + params + ') RETURNING "UserId"';
 
@@ -150,12 +141,12 @@ app.post('/addUser', function (req, res) {
     req.session.user = req.body.email;
 });
 
+// Helper function: Redirects to postings.html for /addUser
 function redirectToPostings(result, res, req) {
     req.session.uid = result.rows[0].UserId;
     res.redirect('/postings.html');
     res.end();   
 }
-
 
 // Update user info
 app.post('/updateUserInfo', function (req, res) {
@@ -164,23 +155,16 @@ app.post('/updateUserInfo', function (req, res) {
     var valuesObj = {
         'FirstName': req.body.firstName,
         'LastName': req.body.lastName,
-
-        /* TBC IN PHASE 4 */
-        /* 'Email': userEmail,
-           'Password': sha1(req.body.password),
-           'Password': req.body.password, */
         'HomeLocation': req.body.homeLocation,
         'Reputation': req.body.reputation,
         'About': req.body.about,
         'ProjectInterests': req.body.projectInterests
     };
-    // No photo yet, don't wanna deal with that
 
     var updateColumns = [];
     var values = [];
     var i = 1;
     for(var property in valuesObj) {
-        //console.log('looking at property '+property + ' value = '+valuesObj[property]);
         if((valuesObj.hasOwnProperty(property))
             && (typeof valuesObj[property] != 'undefined')) {
 
@@ -213,15 +197,11 @@ app.get('/getAllUsers', function (req, res) {
     executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, []);
 });
 
-
-
-
-// Pls don't modify this function, we need some way to get simple data rather than a web page as the result
+// Get Individual User Info
 app.get('/getUserInfoPlain:id?', function(req, res){
     var values = [];
     var id = req.params.id;
     values.push(id);
-    //console.log(id);
     var getQuery = 'SELECT * FROM "User" WHERE "UserId" = $1';
 
     var getSuccessMessage = 'Successfully retrieved user info';
@@ -230,23 +210,18 @@ app.get('/getUserInfoPlain:id?', function(req, res){
 
 });
 
-
-
-
-
-//Get all user occupying this space AJAX
+// Get all user occupying this space AJAX
 app.get('/getAllSpaceUserInfo', function(req, res){
-    console.log('here in getallspaceuserinfo');
+    console.log('In getallspaceuserinfo');
     var values = [];
     if(typeof req.query.spaceId == 'undefined') {
         res.end();
     }
     var id = req.query.spaceId;
-    //values.push(req.get('userId'));
     values.push(id);
     var getQuery = 'SELECT * FROM "Leasing" JOIN "User" ON "Leasing"."TenantId" = "User"."UserId" WHERE "SpaceId" = $1';
 
-    console.log(req.query.id);
+    console.log('Space ID: ' + req.query.id);
     var getSuccessMessage = 'Successfully retrieved user info';
     var getFailedMessage = 'Could not retrieve user info';
     executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
@@ -255,17 +230,17 @@ app.get('/getAllSpaceUserInfo', function(req, res){
 
 //Get all teams associated to this space AJAX
 app.get('/getAllSpaceTeamInfo', function(req, res){
-    console.log('here in getallspaceteaminfo with id = '+req.query.spaceId);
+    console.log('In getallspaceteaminfo with id = '+req.query.spaceId);
     var values = [];
     if(typeof req.query.spaceId == 'undefined') {
         res.end();
     }
     var id = req.query.spaceId;
-    //values.push(req.get('userId'));
     values.push(id);
+    
     var getQuery = 'SELECT * FROM "Space" NATURAL JOIN "Teams" WHERE "SpaceId" = $1';
 
-    console.log(id);
+    console.log('Space ID: ' + id);
     var getSuccessMessage = 'Successfully retrieved Team info';
     var getFailedMessage = 'Could not retrieve Team info';
     executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
@@ -274,17 +249,17 @@ app.get('/getAllSpaceTeamInfo', function(req, res){
 
 //Get all members associated to this team AJAX
 app.get('/getAllTeamMemberInfo', function(req, res){
-    console.log('here in get all team member info with team id = '+req.query.teamId);
+    console.log('In getAllTeamMemberInfo. Team ID: ' + req.query.teamId);
     var values = [];
     if(typeof req.query.teamId == 'undefined') {
         res.end();
     }
     var id = req.query.teamId;
-    //values.push(req.get('userId'));
+
     values.push(id);
     var getQuery = 'SELECT * FROM "TeamMembers" NATURAL JOIN "User" WHERE "TeamId" = $1';
 
-    console.log(id);
+    console.log('Team ID: ' + id);
     var getSuccessMessage = 'Successfully retrieved team member  info';
     var getFailedMessage = 'Could not retrieve team member info';
     executeQuery(res, req, getSuccessMessage, getFailedMessage, getQuery, values);
@@ -293,7 +268,7 @@ app.get('/getAllTeamMemberInfo', function(req, res){
 
 //Get Lease info about specific User and Space
 app.get('/getUserLeaseInfo', function(req, res){
-    console.log('here in getUserLeaseInfo');
+    console.log('In getUserLeaseInfo');
     var values = [];
     if(typeof req.query.spaceId == 'undefined') {
         console.log('no spaceId');
@@ -305,12 +280,12 @@ app.get('/getUserLeaseInfo', function(req, res){
     }
     var id = req.query.spaceId;
     var user = req.query.user;
-    //values.push(req.get('userId'));
+
     values.push(id);
     values.push(user);
     var getQuery = 'SELECT * FROM "Leasing" WHERE "SpaceId" = $1 AND "TenantId"=$2';
 
-    console.log('values for getUserLEaseInfo '+id + ' '+user);
+    console.log('Space ID: ' + id + ' TenantID: ' + user);
     var getSuccessMessage = 'Successfully retrieved user Lease info';
     var getFailedMessage = 'Could not retrieve user Lease info';
     executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
@@ -319,7 +294,7 @@ app.get('/getUserLeaseInfo', function(req, res){
 
 //Get Team info about specific User and Team
 app.get('/getUserTeamInfo', function(req, res){
-    console.log('here in getUserLeaseInfo');
+    console.log('In getUserLeaseInfo');
     var values = [];
     if(typeof req.query.teamId == 'undefined') {
         console.log('no teamId');
@@ -331,12 +306,12 @@ app.get('/getUserTeamInfo', function(req, res){
     }
     var id = req.query.teamId;
     var user = req.query.user;
-    //values.push(req.get('userId'));
     values.push(id);
     values.push(user);
+    
     var getQuery = 'SELECT * FROM "TeamMembers" WHERE "TeamId" = $1 AND "UserId"=$2';
 
-    console.log('values for getUserLEaseInfo '+id + ' '+user);
+    console.log('Team ID: ' + id + ' User ID: ' + user);
     var getSuccessMessage = 'Successfully retrieved user Lease info';
     var getFailedMessage = 'Could not retrieve user Lease info';
     executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
@@ -345,18 +320,18 @@ app.get('/getUserTeamInfo', function(req, res){
 
 //Get Team info about this
 app.get('/getUserTeams', function(req, res){
-    console.log('here in getUserTeams');
+    console.log('In getUserTeams');
     var values = [];
     if(typeof req.query.user == 'undefined') {
         console.log('no user');
         res.end();
     }
     var user = req.query.user;
-    //values.push(req.get('userId'));
     values.push(user);
+
     var getQuery = 'SELECT * FROM "TeamMembers" JOIN "Teams" ON "Teams"."TeamId" = "TeamMembers"."TeamId" WHERE "TeamMembers"."UserId"=$1';
 
-    console.log('values for get user Teams '+user);
+    console.log('User ID: ' + user);
     var getSuccessMessage = 'Successfully get teams info';
     var getFailedMessage = 'Could not retrieve teams info';
     executeQuery(res,req, getSuccessMessage, getFailedMessage, getQuery, values);
@@ -403,6 +378,7 @@ app.post('/addSpace', function (req, res) {
         });
 });
 
+// Redirecting to addSpace.html
 app.get('/getAddSpace', function (req, res) {
     res.redirect('/addSpace.html');
 });
@@ -629,7 +605,7 @@ app.post('/deleteForumPost', function (req, res) {
     executeQuery(res, req, deleteSuccessMessage, deleteFailedMessage, deleteQuery, values);
 });
 
-
+// Checks whether the user is the owner of a particular space
 app.get('/isOwner', function (req, res) {
     var dbQuery = 'SELECT * FROM "Space" WHERE "OwnerId"= $1 AND "SpaceId"= $2';
     var successMessage = 'Successfully checked whether the owner owns the space';
@@ -638,7 +614,6 @@ app.get('/isOwner', function (req, res) {
     if(typeof req.query.spaceId == 'undefined') {
         res.end();
     }
-    
     executeQuery(res,req, successMessage, failedMessage, dbQuery, [req.session.uid, req.query.spaceId]);
 });
 
