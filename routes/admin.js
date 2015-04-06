@@ -50,6 +50,7 @@ module.exports = function (app) {
         res.redirect('/admin.html');
     });
     
+    //queries used for stats
     app.get('/getSpaces?', function (req, res) {
         successMessage = "retrieved teams count";
         failedMessage = "failed to retrieve teams count";
@@ -155,10 +156,9 @@ module.exports = function (app) {
                 } else {
                     res.writeHead(200, {'Content-Type': 'text/plain'});
 
-                    var jsonShit = {};
-                    jsonShit.results = result.rows;
-                    console.log(jsonShit.results[0]);
-                    res.write(JSON.stringify(jsonShit, 0, 4));
+                    var jsonString = {};
+                    jsonString.results = result.rows;
+                    res.write(JSON.stringify(jsonString, 0, 4));
                     res.end();
                 }
             });
