@@ -119,6 +119,7 @@ module.exports = function (app) {
 	function redirectCreateTeam(req, res){
 		res.redirect('/postings.html');
 	};
+    
     // Execute a query and return the results
 	// The argument 'values' can be omitted if the query takes no parameters
 	function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, results_handler) {

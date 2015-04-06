@@ -229,55 +229,55 @@ module.exports = function (app) {
     
     
     // Execute a query and return the results
-// The argument 'values' can be omitted if the query takes no parameters
-function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, results_handler) {
-    var client = new pg.Client(conString);
-    var result = [];
-    var result_rows = [];
-    client.connect(function (err, done) {
-        if(err) {
-            console.error('Could not connect to the database', err);
-            res.writeHead(500);
-            res.end('A server error occurred' + err);
-        }
-
-        // Prevent XSS
-        for(var i = 0; i < values.length; i++) {
-        	if(typeof values[i] == 'string') {
-        		values[i] = sanitizer.escape(values[i]);
-        	}
-        }
-
-        var query = client.query(dbQuery, values, function(err, result){});
-
-        query.on('error', function (error) {
-        	res.writeHead(500);
-        	console.log(failedMessage);
-        	console.log(error);
-			res.end();
-        });
-
-        query.on('row', function (row){
-            result.push(row);
-        });
-
-        query.on('end', function (result){
-            client.end();
-            console.log(successMessage);
-            
-            if(!(typeof results_handler == 'undefined')) {
-                results_handler(result, res, req);
-
-            } else {
-                res.writeHead(200, {'Content-Type': 'text/plain'});
-
-                var jsonShit = {};
-                jsonShit.results = result.rows;
-                console.log(jsonShit.results);
-                res.write(JSON.stringify(jsonShit, 0, 4));
-                res.end();
+    // The argument 'values' can be omitted if the query takes no parameters
+    function executeQuery(res,req, successMessage, failedMessage, dbQuery, values, results_handler) {
+        var client = new pg.Client(conString);
+        var result = [];
+        var result_rows = [];
+        client.connect(function (err, done) {
+            if(err) {
+                console.error('Could not connect to the database', err);
+                res.writeHead(500);
+                res.end('A server error occurred' + err);
             }
+
+            // Prevent XSS
+            for(var i = 0; i < values.length; i++) {
+                if(typeof values[i] == 'string') {
+                    values[i] = sanitizer.escape(values[i]);
+                }
+            }
+
+            var query = client.query(dbQuery, values, function(err, result){});
+
+            query.on('error', function (error) {
+                res.writeHead(500);
+                console.log(failedMessage);
+                console.log(error);
+                res.end();
+            });
+
+            query.on('row', function (row){
+                result.push(row);
+            });
+
+            query.on('end', function (result){
+                client.end();
+                console.log(successMessage);
+
+                if(!(typeof results_handler == 'undefined')) {
+                    results_handler(result, res, req);
+
+                } else {
+                    res.writeHead(200, {'Content-Type': 'text/plain'});
+
+                    var jsonShit = {};
+                    jsonShit.results = result.rows;
+                    console.log(jsonShit.results);
+                    res.write(JSON.stringify(jsonShit, 0, 4));
+                    res.end();
+                }
+            });
         });
-    });
-}
+    }
 }
