@@ -39,7 +39,6 @@
 
                 <div class="col-xs-1 col-md-1">
                     <form action = '/logout' method='GET' >
-
                         <button type="submit" class="btn btn-success btn-lrg">
                             <span class="glyphicon glyphicon-log-out"/>
                         </button>
@@ -55,20 +54,27 @@
         <form id="new_space" action="/addSpace" method="post">
             Space name:
             <input type="text" id="spaceName" placeholder="Space name" name="spaceName"/> <br/>
+
             Location:
             <input type="text" id="location" placeholder="Location" name="location"/> <br/>
+
             Description:<br/>
             <input type="text" id="description" placeholder="Description" name="description" size="80"/> <br/>
+
             Space Type: <br/>
             <select type="text" id="spaceType" placeholder="Space type" name="spaceType">
                 <option value=""></option>
             </select><br/>
+
             Area: <br/>
             <input type="text" id="area" placeholder="Area" name="area"/> <br/>
+
             Rooms: <br/>
             <input type="number" id="rooms" placeholder="Rooms" name="rooms"/> <br/>
+
             Price per day: <br/>
             <input type="text" id="pricePerDay" placeholder="Price to lease this space per day" name= "pricePerDay"/><br/>
+
             Vacancy: <br/>
             <input type="number" id="vacancyAmount" placeholder="Vacancy" name= "vacancyAmount"/><br/>
 
