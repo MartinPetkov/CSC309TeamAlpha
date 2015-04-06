@@ -35,11 +35,11 @@
                     </div>
                     
                     <div class="col-xs-1 col-md-1">
-                            <form action = '/logout' method='GET' >
-                                <button type="submit" class="btn btn-success btn-lrg">
-                                    <span class="glyphicon glyphicon-log-out"/>
-                                </button>
-                            </form>
+                        <form action = '/logout' method='GET' >
+                            <button type="submit" class="btn btn-success btn-lrg">
+                                <span class="glyphicon glyphicon-log-out"/>
+                            </button>
+                        </form>
                     </div>
                 </h1>
             </div>
@@ -55,25 +55,25 @@
                 </h3>
 
                 <% if (opt.spaceFound){%>
-				<%for (var i=0; i<tennantSpace.length;i++){ %>
-                    <!-- User Is currently occupying a space -->
-                    <div class="bs-docs-grid">
-                        <div class="row-same-height">
-                            <div class="col-xs-3 col-xs-height">
-                                Name: <%=tennantSpace[i].SpaceName%> <br/>
-                                Location: <%= tennantSpace[i].Location %>
-                            </div>
-                            <div class="col-xs-9 col-xs-height">
-                                Description: <%=tennantSpace[i].Description%><br/>
-                                Type: <%=tennantSpace[i].SpaceType%>
-                                <br/>
-                                <button id="view-space-button" class="space-button" spaceId=<%=tennantSpace[i].SpaceId%>>
-                                    View Space
-                                </button>
+                    <%for (var i=0; i<tennantSpace.length;i++){ %>
+                        <!-- User Is currently occupying a space -->
+                        <div class="bs-docs-grid">
+                            <div class="row-same-height">
+                                <div class="col-xs-3 col-xs-height">
+                                    Name: <%=tennantSpace[i].SpaceName%> <br/>
+                                    Location: <%= tennantSpace[i].Location %>
+                                </div>
+                                <div class="col-xs-9 col-xs-height">
+                                    Description: <%=tennantSpace[i].Description%><br/>
+                                    Type: <%=tennantSpace[i].SpaceType%>
+                                    <br/>
+                                    <button id="view-space-button" class="space-button" spaceId=<%=tennantSpace[i].SpaceId%>>
+                                        View Space
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-					<% } %>
+                    <% } %>
                
                             
                 <% }else{ %>
@@ -98,38 +98,36 @@
 				Owned Spaces
 				</h3>
 				<% if (Owner){%>
-				<% for (var j=0; j<ownerSpace.length;j++){%>
-				<div class="bs-docs-grid">
-                    <div class="row-same-height">
-                        <div class="col-xs-3 col-xs-height">
-                            Name: <%=ownerSpace[j].SpaceName%> <br/>
-                            Location: <%= ownerSpace[j].Location %>
-                        </div>
-                        <div class="col-xs-9 col-xs-height">
-                            Description: <%=ownerSpace[j].Description%><br/>
-                            Type: <%=ownerSpace[j].SpaceType%>
-                            <br/>
-                            <button id="view-space-button" class="space-button" spaceId=<%=ownerSpace[j].SpaceId%>>
-                                View Space
-                            </button>
-                            <input type="hidden" id="joined" value = <%=Owner%>>
+                    <% for (var j=0; j<ownerSpace.length;j++){%>
+                    <div class="bs-docs-grid">
+                        <div class="row-same-height">
+                            <div class="col-xs-3 col-xs-height">
+                                Name: <%=ownerSpace[j].SpaceName%> <br/>
+                                Location: <%= ownerSpace[j].Location %>
+                            </div>
+                            <div class="col-xs-9 col-xs-height">
+                                Description: <%=ownerSpace[j].Description%><br/>
+                                Type: <%=ownerSpace[j].SpaceType%>
+                                <br/>
+                                <button id="view-space-button" class="space-button" spaceId=<%=ownerSpace[j].SpaceId%>>
+                                    View Space
+                                </button>
+                                <input type="hidden" id="joined" value = <%=Owner%>>
+                            </div>
                         </div>
                     </div>
-                </div>
 				 <%}%>
 				<!-- User does not own a space--> 
 				<%}else{%>
-				<div class="bs-docs-grid">
-                    <div class="row-same-height">
-                        <div class="col-xs-3 col-xs-height">
-                            <br/>
-							This user does not own any spaces
-							
+                    <div class="bs-docs-grid">
+                        <div class="row-same-height">
+                            <div class="col-xs-3 col-xs-height">
+                                <br/>
+                                This user does not own any spaces
+
+                            </div>
                         </div>
-                    </div>
-                </div>
-				 
-				 
+                    </div>			 
 				<% }%>
 				
 			</div>	

@@ -67,11 +67,10 @@
                 url: "/getSpaces?",
                 success: function(data) {
                     var parsed = $.parseJSON(data);
-                    //alert(data);
                     $("#spaces").html(parsed.results[0].spaceCount);
                 },
                 error: function(error) {
-                    //alert(error);
+                    alert(error);
                 }
             });
         });
@@ -82,11 +81,10 @@
                 url: "/getMembers?",
                 success: function(data) {
                     var parsed = $.parseJSON(data);
-                    //alert(data);
                     $("#members").html(parsed.results[0].emailCount);
                 },
                 error: function(error) {
-                    //alert(error);
+                    alert(error);
                 }
             });
         });
@@ -97,11 +95,10 @@
                 url: "/getTeams?",
                 success: function(data) {
                     var parsed = $.parseJSON(data);
-                    //alert(data);
                     $("#teams").html(parsed.results[0].teamCount);
                 },
                 error: function(error) {
-                    //alert(error);
+                    alert(error);
                 }
             });
         });
@@ -112,11 +109,10 @@
                 url: "/getMaxTeam?",
                 success: function(data) {
                     var parsed = $.parseJSON(data);
-                    //alert(data);
                     $("#max-team").html(parsed.results[0].maxTeam);
                 },
                 error: function(error) {
-                    //alert(error);
+                    alert(error);
                 }
             });
         });
@@ -127,11 +123,10 @@
                 url: "/getAvgTeam?",
                 success: function(data) {
                     var parsed = $.parseJSON(data);
-                    //alert(data);
                     $("#avg-team").html(parsed.results[0].maxTeam);
                 },
                 error: function(error) {
-                    //alert(error);
+                    alert(error);
                 }
             });
         });
@@ -142,11 +137,10 @@
                 url: "/getAvgMem?",
                 success: function(data) {
                     var parsed = $.parseJSON(data);
-                    //alert(data);
                     $("#avg-mem").html(parsed.results[0].avgMem);
                 },
                 error: function(error) {
-                    //alert(error);
+                    alert(error);
                 }
             });
         });
@@ -157,11 +151,10 @@
                 url: "/getMaxMem?",
                 success: function(data) {
                     var parsed = $.parseJSON(data);
-                    //alert(data);
                     $("#max-mem").html(parsed.results[0].maxMem);
                 },
                 error: function(error) {
-                    //alert(error);
+                    alert(error);
                 }
             });
         });
@@ -172,11 +165,10 @@
                 url: "/getAvgCrtn?",
                 success: function(data) {
                     var parsed = $.parseJSON(data);
-                    //alert(data);
                     $("#avg-crtn").html(parsed.results[0].avgCrtn);
                 },
                 error: function(error) {
-                    //alert(error);
+                    alert(error);
                 }
             });
         });
@@ -187,11 +179,10 @@
                 url: "/getMaxCrtn?",
                 success: function(data) {
                     var parsed = $.parseJSON(data);
-                    //alert(data);
                     $("#max-crtn").html(parsed.results[0].maxCrtn);
                 },
                 error: function(error) {
-                    //alert(error);
+                    alert(error);
                 }
             });
         });
