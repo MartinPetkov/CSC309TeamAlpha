@@ -13,6 +13,7 @@ var conString = "postgres://oxlwjtfpymhsup:oGVMzhwCjspYEQrzNAmFPrwcx7@ec2-107-21
 
 /* User can express preference in favour or against a space (like or dislike function) */
 module.exports = function (app) {
+	
    /* Get user info
    This one has the specific function of being for viewing only YOUR info (including spaces)
    And allowing the user to change their information
